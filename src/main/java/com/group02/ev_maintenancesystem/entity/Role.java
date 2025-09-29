@@ -1,27 +1,29 @@
 package com.group02.ev_maintenancesystem.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Data
+@Table(name = "roles")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Role {
-    @Id
+public class Role extends BaseEntity{
+    @Column(nullable = false, unique = true)
     String name;
+
     String description;
 
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    List<User> user = new ArrayList<>();
 
-//    @ManyToMany
-//    Set<Permission> permissions;
+
 
 }
 
