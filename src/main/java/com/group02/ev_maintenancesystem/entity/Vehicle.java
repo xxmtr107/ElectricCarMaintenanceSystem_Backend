@@ -26,7 +26,7 @@ public class Vehicle extends BaseEntity{
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
-    Customer customer;
+    User customerUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "model_id", nullable = false)

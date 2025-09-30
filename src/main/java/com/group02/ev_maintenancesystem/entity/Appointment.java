@@ -6,8 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Entity
 @Table(name = "appointments")
@@ -29,11 +28,11 @@ public class Appointment extends BaseEntity {
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
-    Customer customer;
+    User customerUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "technician_id", nullable = false)
-    Technician technician;
+    User technicianUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_id", nullable = false)

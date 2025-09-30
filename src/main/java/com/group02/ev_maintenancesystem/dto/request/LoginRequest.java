@@ -1,19 +1,18 @@
 package com.group02.ev_maintenancesystem.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
+public class LoginRequest {
+    @NotBlank
+    String username;
+
+    @NotBlank
     String password;
-    String firstName;
-    String lastName;
-    LocalDate dob;
 }

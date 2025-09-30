@@ -18,7 +18,6 @@ public class Role extends BaseEntity{
     @Column(nullable = false, unique = true)
     String name;
 
-    String description;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     List<User> user = new ArrayList<>();

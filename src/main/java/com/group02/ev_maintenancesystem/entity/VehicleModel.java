@@ -21,17 +21,17 @@ public class VehicleModel extends  BaseEntity {
     @Column(name = "model_year")
     String modelYear;
 
-    @Column(name = "basic_warranty", precision = 5, scale = 2)
-    Integer basicWarranty = 10000; // Bảo hành cơ bản (km)
+    @Column(name = "basic_maintenance", precision = 5, scale = 2)
+    Integer basicMaintenance = 10000; // Bảo dưỡng cơ bản (km)
 
-    @Column(name = "comprehensive_warranty", precision = 6, scale = 2)
-    Integer comprehensiveWarranty = 2000; // Bảo hành toàn diện (km)
+    @Column(name = "comprehensive_maintenance", precision = 6, scale = 2)
+    Integer comprehensiveMaintenance = 2000; // Bảo dưỡng toàn diện (km)
 
-    @Column(name = "basic_warranty_time")
-    Integer basicWarrantyTime = 6; // Bảo hành cơ bản (tháng)
+    @Column(name = "basic_maintenance_time")
+    Integer basicMaintenanceTime = 6; // Bảo dưỡng cơ bản (tháng)
 
-    @Column(name = "comprehensive_warranty_time")
-    Integer comprehensiveWarrantyTime = 12; // Bảo hành toàn diện (tháng)
+    @Column(name = "comprehensive_maintenance_time")
+    Integer comprehensiveMaintenanceTime = 12; // Bảo dưỡng toàn diện (tháng)
 
     @OneToMany (mappedBy = "model", fetch = FetchType.LAZY)
     List<Vehicle> vehicles = new ArrayList<>();
