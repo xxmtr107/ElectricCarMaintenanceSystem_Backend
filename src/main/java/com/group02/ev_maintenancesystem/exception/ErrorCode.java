@@ -34,8 +34,8 @@ public enum ErrorCode {
         this.message = message;
         this.httpStatus = httpStatus;
     }
-    private int code;
-    private String message;
-    private HttpStatus httpStatus;
+    private final int code;
+    private final String message;
+    private final HttpStatus httpStatus;
 
 }

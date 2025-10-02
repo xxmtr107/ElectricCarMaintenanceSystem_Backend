@@ -10,9 +10,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
-    @NotBlank
+    @NotBlank(message = "NOT_BLANK")
     String username;
 
-    @NotBlank
+    @NotBlank(message = "NOT_BLANK")
     String password;
+
+
 }
