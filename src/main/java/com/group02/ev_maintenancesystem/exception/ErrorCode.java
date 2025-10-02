@@ -18,14 +18,25 @@ public enum ErrorCode {
     PHONE_INVALID(1007, "Phone number must be 9 - 11 digits", HttpStatus.BAD_REQUEST),
     ROLE_NOT_FOUND(1008, "Role not found", HttpStatus.NOT_FOUND),
 
+    VIN_ALREADY_EXISTS(1009, "VIN already exists", HttpStatus.BAD_REQUEST),
+    LICENSE_PLATE_ALREADY_EXISTS(1010, "License plate already exists", HttpStatus.BAD_REQUEST),
+    MODEL_NOT_FOUND(1011, "Model not found", HttpStatus.NOT_FOUND),
+    CUSTOMER_NOT_FOUND(1012, "Customer not found", HttpStatus.NOT_FOUND),
+    USER_NOT_CUSTOMER(1013, "User is not customer", HttpStatus.BAD_REQUEST),
+    VEHICLE_NOT_FOUND(1014, "Vehicle not found", HttpStatus.NOT_FOUND),
+    VIN_LONG_INVALID(1015, "VIN must be exactly 17 characters long", HttpStatus.BAD_REQUEST),
+    KILOMETER_LONG_INVALID(1016, "Kilometers must be between 0 and 999999", HttpStatus.BAD_REQUEST),
+    LICENSE_PLATE_INVALID(1017, "License plate must have exactly 17 digit and number", HttpStatus.BAD_REQUEST),
+
     // Authentication & Authorization
-    UNAUTHENTICATED(1009, "Unauthenticated", HttpStatus.UNAUTHORIZED),
-    INVALID_KEY(1010, "Invalid key", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED(1011, "You do not have permission", HttpStatus.FORBIDDEN),
+    UNAUTHENTICATED(1100, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    INVALID_KEY(1111, "Invalid key", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(1112, "You do not have permission", HttpStatus.FORBIDDEN),
 
     // Server error
     INTERNAL_SERVER_ERROR(999, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
-    UNCATEGORIZED(996, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR);
+    UNCATEGORIZED(996, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_PATH_VARIABLE(995, "Invalid path variable", HttpStatus.BAD_REQUEST);
 
 
 
