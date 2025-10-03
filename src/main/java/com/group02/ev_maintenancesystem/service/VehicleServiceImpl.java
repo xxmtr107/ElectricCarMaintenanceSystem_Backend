@@ -2,11 +2,13 @@ package com.group02.ev_maintenancesystem.service;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
+import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
+import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import com.group02.ev_maintenancesystem.repository.VehicleModelRepository;
 import com.group02.ev_maintenancesystem.repository.VehicleRepository;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,7 +36,10 @@ public class VehicleServiceImpl implements VehicleService{
     VehicleModelRepository vehicleModelRepository;
 
     @Autowired
-    private UserRepository userRepository;
+     UserRepository userRepository;
+
+    @Autowired
+    AppointmentRepository appointmentRepository;
 
 
     @Override
@@ -78,6 +84,7 @@ public class VehicleServiceImpl implements VehicleService{
         response.setVin(savedVehicle.getVin());
         response.setCurrentKm(savedVehicle.getCurrentKm());
         response.setModelId(savedVehicle.getModel().getId());
+        response.setCustomerId(savedVehicle.getCustomerUser().getId());
 
         return response;
     }
@@ -126,10 +133,12 @@ public class VehicleServiceImpl implements VehicleService{
     }
 
     @Override
+    @Transactional
     public VehicleResponse deleteVehicle(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        vehicleRepository.delete(vehicle);
+        appointmentRepository.deleteByVehicleId(vehicleId);
+        vehicleRepository.deleteById(vehicleId);
         return modelMapper.map(vehicle, VehicleResponse.class);
     }
 

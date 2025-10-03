@@ -13,5 +13,6 @@ public class VehicleResponse {
     private String vin;
     private Integer currentKm;
     private Long modelId;
+    private Long customerId;
 
 }

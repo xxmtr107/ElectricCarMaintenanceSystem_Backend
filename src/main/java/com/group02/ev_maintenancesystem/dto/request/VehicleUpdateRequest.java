@@ -13,8 +13,7 @@ import lombok.NoArgsConstructor;
 public class VehicleUpdateRequest {
 
     @NotNull(message = "Current KM is required")
-    @Min(value = 0, message = "Kilometers must be >= 0")
-    @Max(value = 999999, message = "Kilometers must be <= 999,999")
+    @Pattern(regexp = "^[0-9]{1,6}$", message ="KILOMETER_LONG_INVALID")
     private Integer currentKm;
 
 

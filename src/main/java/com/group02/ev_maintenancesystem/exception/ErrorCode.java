@@ -28,6 +28,7 @@ public enum ErrorCode {
     KILOMETER_LONG_INVALID(1016, "Kilometers must be between 0 and 999999", HttpStatus.BAD_REQUEST),
     LICENSE_PLATE_INVALID(1017, "License plate must have exactly 17 digit and number", HttpStatus.BAD_REQUEST),
 
+
     // Authentication & Authorization
     UNAUTHENTICATED(1100, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(1111, "Invalid key", HttpStatus.BAD_REQUEST),
