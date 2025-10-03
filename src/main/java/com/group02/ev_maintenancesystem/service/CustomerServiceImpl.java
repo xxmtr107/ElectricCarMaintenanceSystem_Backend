@@ -65,15 +65,17 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse getCustomerById(Long customerId) {
-        return customerMapper.toCustomerResponse(
-                userRepository.findById(customerId)
-                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
-        );
+        User customer = userRepository.findById(customerId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return customerMapper.toCustomerResponse(customer);
+
     }
 
     @Override
     public List<CustomerResponse> getAllCustomers() {
-        return userRepository.findAll().stream()
+        Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        return userRepository.findAllByRole(customerRole).stream()
                 .map(customerMapper::toCustomerResponse)
                 .toList();
     }

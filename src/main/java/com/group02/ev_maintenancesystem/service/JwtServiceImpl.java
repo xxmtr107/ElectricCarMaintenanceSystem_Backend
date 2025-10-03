@@ -43,6 +43,7 @@ public class JwtServiceImpl implements JwtService {
                 .expirationTime(expiredTime)
                 .jwtID(UUID.randomUUID().toString())
                 .claim("role", user.getRole().getName())
+                .claim("userId", user.getId())
                 .build();
 
         Payload payload = new Payload(claimsSet.toJSONObject());

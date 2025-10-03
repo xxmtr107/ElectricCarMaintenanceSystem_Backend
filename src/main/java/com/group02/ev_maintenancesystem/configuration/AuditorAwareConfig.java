@@ -1,4 +1,4 @@
-package com.group02.ev_maintenancesystem.service;
+package com.group02.ev_maintenancesystem.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
@@ -8,13 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-/**
- * Implementation of AuditorAware for JPA Auditing
- * Provides the current auditor (username) from SecurityContext
- */
 @Component("auditorProvider")
 @Slf4j
-public class AuditorAwareImpl implements AuditorAware<String> {
+public class AuditorAwareConfig implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
