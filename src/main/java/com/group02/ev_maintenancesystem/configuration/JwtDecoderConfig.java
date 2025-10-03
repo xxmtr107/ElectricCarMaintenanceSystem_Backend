@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.configuration;
 
+import com.group02.ev_maintenancesystem.dto.request.IntrospectRequest;
 import com.group02.ev_maintenancesystem.service.JwtService;
 import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
@@ -22,22 +23,26 @@ public class JwtDecoderConfig implements JwtDecoder {
     @Value("${jwt.signerKey}")
     private String signKey;
     private NimbusJwtDecoder jwtDecoder;
-    private final JwtService jwtService = null;
+    private final JwtService jwtService;
     @Override
     public Jwt decode(String token) throws JwtException {
         try {
-            if(!jwtService.verifyToken(token)){
-                throw new RuntimeException("Token is invalid");
-            }
-            if(Objects.isNull(jwtDecoder)){
-                SecretKey secretKey = new SecretKeySpec(signKey.getBytes(), "HS512");
-                jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey)
-                        .macAlgorithm(MacAlgorithm.HS512)
-                        .build();
-            }
+            var response = jwtService.introspect(IntrospectRequest.builder()
+                    .token(token)
+                    .build());
+            if (!response.isValid()) throw new JwtException("Token is invalid");
+
         } catch (ParseException | JOSEException e) {
-            throw new RuntimeException(e);
+            throw new JwtException(e.getMessage());
         }
+
+        if (Objects.isNull(jwtDecoder)) {
+            SecretKey secretKey = new SecretKeySpec(signKey.getBytes(), "HS512");
+            jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey)
+                    .macAlgorithm(MacAlgorithm.HS512)
+                    .build();
+        }
+
         return jwtDecoder.decode(token);
     }
 }
