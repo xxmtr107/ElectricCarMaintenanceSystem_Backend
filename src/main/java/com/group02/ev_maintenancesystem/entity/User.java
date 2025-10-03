@@ -4,8 +4,13 @@ import com.group02.ev_maintenancesystem.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.jdbc.Work;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -19,7 +24,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User extends BaseEntity{
+public class User extends BaseEntity implements UserDetails {
+
 
     // ========== AUTHENTICATION FIELDS ==========
     @Column(name = "username", nullable = false, unique = true, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
@@ -66,6 +72,11 @@ public class User extends BaseEntity{
     @OneToMany(mappedBy = "technicianUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Appointment> technicianAppointments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "createdByAdmin", fetch = FetchType.LAZY) // ADMIN
+    List<WorkSchedule> createdWorkSchedules = new ArrayList<>();
+
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY) // STAFF or TECHNICIAN
+    List<WorkSchedule> workSchedules = new ArrayList<>();
     public boolean isCustomer() {
         return role != null && "CUSTOMER".equals(role.getName());
     }
@@ -82,5 +93,29 @@ public class User extends BaseEntity{
         return role != null && "STAFF".equals(role.getName());
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }
 

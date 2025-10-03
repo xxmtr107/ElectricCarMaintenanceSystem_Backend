@@ -1,9 +1,7 @@
 package com.group02.ev_maintenancesystem.dto.request;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import com.group02.ev_maintenancesystem.enums.Gender;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -33,6 +31,6 @@ public class CustomerRegistrationRequest {
     @Pattern(regexp = "^\\d{9,11}$", message = "PHONE_INVALID")
     String phone;
 
-    @NotBlank(message = "NOT_BLANK")
-    String gender;
+    @NotNull
+    Gender gender;
 }
