@@ -1,7 +1,7 @@
 package com.group02.ev_maintenancesystem.entity;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.group02.ev_maintenancesystem.configuration.CustomLocalDateTimeDeserializer;
+
+
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Appointment extends BaseEntity {
-    @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
     LocalDateTime appointmentDate;
 
     @Enumerated(EnumType.STRING)
@@ -34,7 +33,7 @@ public class Appointment extends BaseEntity {
     User customerUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "technician_id", nullable = false)
+    @JoinColumn(name = "technician_id")
     User technicianUser;
 
     @ManyToOne(fetch = FetchType.EAGER)

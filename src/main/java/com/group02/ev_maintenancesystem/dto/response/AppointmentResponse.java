@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,15 +14,25 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AppointmentResponse {
 
-    long id;
-    LocalDateTime createAt;
-    String createBy;
-    LocalDateTime updateAt;
-    String updateBy;
+    Long id;
     LocalDateTime appointmentDate;
     String notes;
-    String status;
-    long customerId;
-    long technicianId;
-    long vehicleId;
+    AppointmentStatus status;
+
+    Long customerId;
+    String customerName;
+    String customerPhone;
+    String customerEmail;
+
+    Long technicianId;
+    String technicianName;
+    String technicianSpecialization;
+
+    Long vehicleId;
+    String vehicleLicensePlate;
+    String vehicleModel;
+
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

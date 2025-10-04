@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
 import com.group02.ev_maintenancesystem.enums.Gender;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,5 +19,8 @@ public class TechnicianResponse {
     String email;
     String phone;
     Gender gender;
+    String specialization;
+    Integer experienceYears;
     String role;
+
 }

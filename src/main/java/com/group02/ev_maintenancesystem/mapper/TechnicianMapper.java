@@ -12,8 +12,8 @@ import org.mapstruct.*;
 public interface TechnicianMapper {
     User toTechnician(TechnicianRegistrationRequest request);
 
-    void updateTechnician(TechnicianUpdateRequest request, @MappingTarget User Technician);
+    void updateTechnician(TechnicianUpdateRequest request, @MappingTarget User technician);
 
     @Mapping(target = "role", source = "role.name")
-    TechnicianResponse toTechnicianResponse(User Technician);
+    TechnicianResponse toTechnicianResponse(User technician);
 }

@@ -29,7 +29,7 @@ public class TechnicianController {
                 .build();
     }
 
-    @GetMapping("/getAll")
+    @GetMapping
     ApiResponse<List<TechnicianResponse>> findAll(){
         return ApiResponse.<List<TechnicianResponse>>builder()
                 .message("Technicians fetched successfully")
@@ -37,25 +37,25 @@ public class TechnicianController {
                 .build();
     }
 
-    @PutMapping("/update/{TechnicianId}")
-    ApiResponse<TechnicianResponse> updateTechnician(@PathVariable Long TechnicianId,@RequestBody @Valid TechnicianUpdateRequest request){
+    @PutMapping("/{technicianId}")
+    ApiResponse<TechnicianResponse> updateTechnician(@PathVariable Long technicianId,@RequestBody @Valid TechnicianUpdateRequest request){
         return ApiResponse.<TechnicianResponse>builder()
                 .message("Technician updated successfully")
-                .result(technicianService.updateTechnician(TechnicianId,request))
+                .result(technicianService.updateTechnician(technicianId,request))
                 .build();
     }
 
-    @GetMapping("/getById/{TechnicianId}")
-    ApiResponse<TechnicianResponse> getTechnician(@PathVariable Long TechnicianId){
+    @GetMapping("/{technicianId}")
+    ApiResponse<TechnicianResponse> getTechnician(@PathVariable Long technicianId){
         return ApiResponse.<TechnicianResponse>builder()
                 .message("Technician fetched successfully")
-                .result(technicianService.getTechnicianById(TechnicianId))
+                .result(technicianService.getTechnicianById(technicianId))
                 .build();
     }
 
-    @DeleteMapping("/delete/{TechnicianId}")
-    ApiResponse<String> deleteTechnician(@PathVariable Long TechnicianId) {
-        technicianService.deleteTechnician(TechnicianId);
+    @DeleteMapping("/{technicianId}")
+    ApiResponse<String> deleteTechnician(@PathVariable Long technicianId) {
+        technicianService.deleteTechnician(technicianId);
         return ApiResponse.<String>builder()
                 .message("Technician deleted successfully")
                 .build();

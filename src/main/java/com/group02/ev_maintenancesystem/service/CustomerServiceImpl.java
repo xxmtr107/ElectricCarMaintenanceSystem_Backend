@@ -54,7 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse updateCustomer(Long customerId, CustomerUpdateRequest request) {
-        User customer = userRepository.findById(customerId)
+        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         customerMapper.updateCustomer(request, customer);
@@ -65,8 +65,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse getCustomerById(Long customerId) {
-        User customer = userRepository.findById(customerId)
+        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+
         return customerMapper.toCustomerResponse(customer);
 
     }
@@ -75,6 +77,7 @@ public class CustomerServiceImpl implements CustomerService {
     public List<CustomerResponse> getAllCustomers() {
         Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
         return userRepository.findAllByRole(customerRole).stream()
                 .map(customerMapper::toCustomerResponse)
                 .toList();
@@ -82,6 +85,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCustomer(Long customerId) {
-        userRepository.deleteById(customerId);
+        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        userRepository.delete(customer);
     }
 }

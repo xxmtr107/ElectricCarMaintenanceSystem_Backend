@@ -1,7 +1,8 @@
 package com.group02.ev_maintenancesystem.dto.request;
 
 
-import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -15,23 +16,16 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AppointmentUpdateRequest {
+public class CustomerAppointmentRequest {
 
     @Future(message = "DATE_INVALID")
     @NotNull(message = "NOT_BLANK")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime appointmentDate;
-
-    @NotNull(message = "STATUS_INVALID")
-    AppointmentStatus status;
-
-    @NotNull(message = "USER_NOT_FOUND")
-    Long customerId;
-
-    @NotNull(message = "USER_NOT_FOUND")
-    Long technicianId;
 
     @NotNull(message = "VEHICLE_NOT_FOUND")
     Long vehicleId;
 
     String notes;
+
 }

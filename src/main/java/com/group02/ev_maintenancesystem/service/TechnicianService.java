@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface TechnicianService {
     TechnicianResponse registerTechnician(TechnicianRegistrationRequest request);
-    TechnicianResponse updateTechnician(Long TechnicianId,TechnicianUpdateRequest request);
-    TechnicianResponse getTechnicianById(Long TechnicianId);
+    TechnicianResponse updateTechnician(Long technicianId,TechnicianUpdateRequest request);
+    TechnicianResponse getTechnicianById(Long technicianId);
     List<TechnicianResponse> getAllTechnicians();
-    void deleteTechnician(Long TechnicianId);
+    void deleteTechnician(Long technicianId);
 }

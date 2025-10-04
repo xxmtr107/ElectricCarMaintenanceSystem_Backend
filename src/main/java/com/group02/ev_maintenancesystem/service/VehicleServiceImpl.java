@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -135,12 +134,13 @@ public class VehicleServiceImpl implements VehicleService{
     @Override
     @Transactional
     public VehicleResponse deleteVehicle(Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findById(vehicleId).
-                orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        appointmentRepository.deleteByVehicleId(vehicleId);
-        vehicleRepository.deleteById(vehicleId);
-        return modelMapper.map(vehicle, VehicleResponse.class);
+//        Vehicle vehicle = vehicleRepository.findById(vehicleId).
+//                orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+//        appointmentRepository.deleteByVehicleId(vehicleId);
+//        vehicleRepository.deleteById(vehicleId);
+       /* return modelMapper.map(vehicle, VehicleResponse.class);
+    }*/
+        return null;
     }
-
 
 }
