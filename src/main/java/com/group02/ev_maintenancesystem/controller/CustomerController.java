@@ -29,7 +29,7 @@ public class CustomerController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("/getAll")
     ApiResponse<List<CustomerResponse>> findAll(){
         return ApiResponse.<List<CustomerResponse>>builder()
                 .message("Customers fetched successfully")
@@ -37,7 +37,7 @@ public class CustomerController {
                 .build();
     }
 
-    @PutMapping("/{customerId}")
+    @PutMapping("/update/{customerId}")
     ApiResponse<CustomerResponse> updateCustomer(@PathVariable Long customerId,@RequestBody @Valid CustomerUpdateRequest request){
         return ApiResponse.<CustomerResponse>builder()
                 .message("Customer updated successfully")
@@ -45,7 +45,7 @@ public class CustomerController {
                 .build();
     }
 
-    @GetMapping("/{customerId}")
+    @GetMapping("/getById/{customerId}")
     ApiResponse<CustomerResponse> getCustomer(@PathVariable Long customerId){
         return ApiResponse.<CustomerResponse>builder()
                 .message("Customer fetched successfully")
@@ -53,7 +53,7 @@ public class CustomerController {
                 .build();
     }
 
-    @DeleteMapping("/{customerId}")
+    @DeleteMapping("/delete/{customerId}")
     ApiResponse<String> deleteCustomer(@PathVariable Long customerId) {
         customerService.deleteCustomer(customerId);
         return ApiResponse.<String>builder()

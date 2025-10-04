@@ -37,10 +37,14 @@ public enum ErrorCode {
     // Server error
     INTERNAL_SERVER_ERROR(999, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
     UNCATEGORIZED(996, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_PATH_VARIABLE(995, "Invalid path variable", HttpStatus.BAD_REQUEST);
 
-
-
+    //Appointment
+    APPOINTMENT_NOT_FOUND(1012,"Appointment not found",HttpStatus.NOT_FOUND),
+    TECHNICIAN_NOT_AVAILABLE(1013,"Technician is not free",HttpStatus.NOT_FOUND),
+    APPOINTMENT_EXISTED(1014, "Appointment already exists", HttpStatus.BAD_REQUEST),
+    VEHICLE_NOT_FOUND(1015,"Vehicle not found",HttpStatus.NOT_FOUND),
+    INVALID_LOCALDATETIMEFORMAT(1016,"Invalid date format! Use 'yyyy-MM', 'yyyy-MM-dd', 'yyyy-MM-dd HH' or 'yyyy-MM-dd HH:mm'",HttpStatus.BAD_REQUEST),
+    STATUS_INVALID(1017,"Invalid status",HttpStatus.BAD_REQUEST);
     ErrorCode(int code, String message, HttpStatus httpStatus) {
         this.code = code;
         this.message = message;
