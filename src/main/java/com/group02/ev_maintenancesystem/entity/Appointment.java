@@ -1,5 +1,7 @@
 package com.group02.ev_maintenancesystem.entity;
 
+
+
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,7 +33,7 @@ public class Appointment extends BaseEntity {
     User customerUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "technician_id", nullable = false)
+    @JoinColumn(name = "technician_id")
     User technicianUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -40,7 +42,4 @@ public class Appointment extends BaseEntity {
 
     @OneToOne(mappedBy = "appointment",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     MaintenanceRecord maintenanceRecord;
-
-
-
 }
