@@ -23,11 +23,11 @@ public abstract class BaseEntity {
     private Long id;
 
     @CreatedDate // Automatically set the creation date
-    @Column(name = "create_at", nullable = false, updatable = false)
+    @Column(name = "create_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdAt;
 
     @LastModifiedDate // Automatically set the last modified date
-    @Column(name = "update_at")
+    @Column(name = "update_at", columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime updatedAt;
 
     @CreatedBy // Automatically set the user who created the entity
@@ -41,12 +41,12 @@ public abstract class BaseEntity {
     @PrePersist // Method to set createdAt before persisting (INSERT)
     protected void onCreate(){
         if(this.createdAt == null){
-            this.createdAt = LocalDateTime.now();
+            this.createdAt = LocalDateTime.now().withNano(0);
         }
     }
 
     @PreUpdate // Method to set updatedAt before updating (UPDATE)
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now().withNano(0);
     }
 }
