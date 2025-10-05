@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -24,8 +26,6 @@ public class Appointment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     AppointmentStatus status;
 
-    @Column(columnDefinition = "NVARCHAR(200)")
-    String notes;
 
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
@@ -40,6 +40,19 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "vehicle_id", nullable = false)
     Vehicle vehicle;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_package_id")
+    ServicePackage servicePackage;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "appointment_service_items",
+            joinColumns = @JoinColumn(name = "appointment_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_item_id")
+    )
+    List<ServiceItem> extraServiceItems = new ArrayList<>();
+
     @OneToOne(mappedBy = "appointment",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     MaintenanceRecord maintenanceRecord;
+
 }

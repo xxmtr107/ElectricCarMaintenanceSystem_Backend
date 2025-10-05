@@ -27,8 +27,6 @@ public class MaintenanceRecord extends  BaseEntity {
     @Column(name = "performed_at")
     LocalDateTime performedAt; // Thời gian bảo dưỡng
 
-    @Column(columnDefinition = "NVARCHAR(200)")
-    String notes;
 
     // Relationships
     @OneToOne(fetch = FetchType.EAGER)
@@ -44,8 +42,8 @@ public class MaintenanceRecord extends  BaseEntity {
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "service_type", nullable = false)
-    ServiceType serviceType;
+    @JoinColumn(name = "service_package_id")
+    ServicePackage servicePackage;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

@@ -20,13 +20,16 @@ import java.util.List;
  * Chi tiết dịch vụ
  */
 public class ServiceItem extends BaseEntity {
+
+    @Column(columnDefinition = "NVARCHAR(100)", nullable = false)
     String name;
     String description;
+
+    @Column(nullable = false)
     BigDecimal price;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "service_type_id", nullable = false)
-    ServiceType serviceType;
+    @ManyToMany(mappedBy = "includedServiceItems", fetch = FetchType.LAZY)
+    List<ServicePackage> servicePackages = new ArrayList<>();
 
     @ManyToMany(mappedBy = "serviceItems", fetch = FetchType.LAZY)
     List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();

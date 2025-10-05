@@ -26,6 +26,5 @@ public class CustomerAppointmentRequest {
     @NotNull(message = "VEHICLE_NOT_FOUND")
     Long vehicleId;
 
-    String notes;
 
 }
