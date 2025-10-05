@@ -10,6 +10,7 @@ import com.group02.ev_maintenancesystem.service.VehicleServiceImpl;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 
@@ -53,10 +54,10 @@ public class VehicleController {
 
     //Lấy tất cả vehicle
     @GetMapping
-    public ApiResponse<List<VehicleResponse>> getAllVehicle(){
-        return ApiResponse.<List<VehicleResponse>>builder()
+    public ApiResponse<Page<VehicleResponse>> getAllVehicle(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        return ApiResponse.<Page<VehicleResponse>>builder()
                 .message("Get all vehicles succesfully")
-                .result(vehicleService.getAllVehicle())
+                .result(vehicleService.getAllVehicle(page, size))
                 .build();
     }
 

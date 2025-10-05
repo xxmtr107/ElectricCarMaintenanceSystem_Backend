@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,12 +115,12 @@ public class VehicleServiceImpl implements VehicleService{
     }
 
     @Override
-    public List<VehicleResponse> getAllVehicle() {
-        List<Vehicle> vehicleList = vehicleRepository.findAll();
+    public Page<VehicleResponse> getAllVehicle(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Vehicle> vehicleList = vehicleRepository.findAll(pageable);
 
-        return vehicleList.stream()
-                .map(vehicleList1 -> modelMapper.map(vehicleList1, VehicleResponse.class))
-                .toList();
+        return vehicleList
+                .map(vehicleList1 -> modelMapper.map(vehicleList1, VehicleResponse.class));
     }
 
     @Override
@@ -134,13 +137,11 @@ public class VehicleServiceImpl implements VehicleService{
     @Override
     @Transactional
     public VehicleResponse deleteVehicle(Long vehicleId) {
-//        Vehicle vehicle = vehicleRepository.findById(vehicleId).
-//                orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+        Vehicle vehicle = vehicleRepository.findById(vehicleId).
+                orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
 //        appointmentRepository.deleteByVehicleId(vehicleId);
-//        vehicleRepository.deleteById(vehicleId);
-       /* return modelMapper.map(vehicle, VehicleResponse.class);
-    }*/
-        return null;
+        vehicleRepository.deleteById(vehicleId);
+        return modelMapper.map(vehicle, VehicleResponse.class);
     }
 
 }
