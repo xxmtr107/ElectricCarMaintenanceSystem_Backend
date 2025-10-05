@@ -36,6 +36,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     ServicePackageRepository servicePackageRepository;
     ServiceItemRepository serviceItemRepository;
 
+    // Customer role
     @Override
     public AppointmentResponse createAppointmentByCustomer(Authentication authentication, CustomerAppointmentRequest request) {
         Appointment appointment = appointmentMapper.toAppointmentCustomer(request);
@@ -104,34 +105,94 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
     }
 
+    // Admin role
     @Override
     public List<AppointmentResponse> getAppointmentByCustomerId(Long customerId) {
-        return List.of();
+        userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER);
+        List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
+        return appointments.stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .toList();
     }
 
+    // Admin role
     @Override
     public List<AppointmentResponse> getAppointmentByVehicleId(Long vehicleId) {
-        return List.of();
+        vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+
+        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
+
+        return appointments.stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .toList();
     }
 
+    // Admin role
     @Override
-    public Optional<AppointmentResponse> getAppointmentByAppointmentId(Long appointmentId) {
-        return Optional.empty();
+    public AppointmentResponse getAppointmentByAppointmentId(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+        return appointmentMapper.toAppointmentResponse(appointment);
     }
 
-    @Override
-    public List<AppointmentResponse> getAll() {
-        return List.of();
-    }
-
+    // Admin role
     @Override
     public List<AppointmentResponse> getAppointmentByStatus(AppointmentStatus status) {
-        return List.of();
+        List<Appointment> appointments = appointmentRepository.findByStatus(status);
+        return appointments.stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .toList();
     }
 
+    // Admin role
     @Override
-    public List<AppointmentResponse> getTechnicianByTechnicianId(Long technicianId) {
-        return List.of();
+    public List<AppointmentResponse> getAppointmentByTechnicianId(Long technicianId) {
+        userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        List<Appointment> appointments = appointmentRepository.findByTechnicianUserId(technicianId);
+
+        return appointments.stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .toList();
+    }
+
+    // Admin role
+    @Override
+    public AppointmentResponse assignTechnician(Long appointmentId, Long technicianId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        appointment.setTechnicianUser(technician);
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+
+        return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
+    }
+
+    // Admin role
+    @Override
+    public List<AppointmentResponse> getAll() {
+        return appointmentRepository.findAll().stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .toList();
+    }
+
+    // Admin role
+    @Override
+    public List<AppointmentResponse> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+        if(startDate.isAfter(endDate)) {
+            throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
+        List<Appointment> appointments = appointmentRepository.findByAppointmentDateBetween(startDate, endDate);
+
+        return appointments.stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .toList();
     }
 
     @Override
@@ -143,12 +204,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponse cancelAppointment(Long appointmentId) {
         return null;
     }
-
-    @Override
-    public List<AppointmentResponse> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
-        return List.of();
-    }
-
 
 //    @Override
 //    public AppointmentResponse createAppointment(AppointmentRegistrationRequest request) {

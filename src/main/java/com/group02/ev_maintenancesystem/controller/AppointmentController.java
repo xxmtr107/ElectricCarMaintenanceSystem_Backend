@@ -7,6 +7,8 @@ import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.jwt.Jwt;
 import com.group02.ev_maintenancesystem.service.AppointmentService;
 import jakarta.validation.Valid;
@@ -44,32 +46,77 @@ public class AppointmentController {
                 .result(appointmentService.createAppointmentByCustomer(authentication, appointment))
                 .build();
     }
+    @GetMapping
+    public ApiResponse<List<AppointmentResponse>> getAllAppointments() {
+        return ApiResponse.<List<AppointmentResponse>>builder()
+                .message("All appointments fetched successfully")
+                .result(appointmentService.getAll())
+                .build();
+    }
 
-//    @GetMapping("/customer/{customerId}")
-//    public ApiResponse<List<AppointmentResponse>> getByCustomer(@PathVariable long customerId) {
-//        return ApiResponse.<List<AppointmentResponse>>builder()
-//                .message("Appointments fetched successfully")
-//                .result(appointmentService.getAppointmentByCustomerId(customerId))
-//                .build();
-//    }
-//
-//    @GetMapping("/{appointmentId}")
-//    public ApiResponse<AppointmentResponse> getById(@PathVariable long appointmentId) {
-//        Optional<AppointmentResponse> appointment = appointmentService.getAppointmentByAppointmentId(appointmentId);
-//        return ApiResponse.<AppointmentResponse>builder()
-//                .message(appointment.isPresent() ? "Appointment fetched successfully" : "Appointment not found")
-//                .result(appointment.orElse(null))
-//                .build();
-//    }
-//
-//    @GetMapping("/{status}")
-//    public ApiResponse<List<AppointmentResponse>> getByStatus(@PathVariable AppointmentStatus status) {
-//        return ApiResponse.<List<AppointmentResponse>>builder()
-//                .message("Appointments fetched successfully by status")
-//                .result(appointmentService.getAppointmentByStatus(status))
-//                .build();
-//    }
-//
+    @GetMapping("/{appointmentId}")
+    public ApiResponse<AppointmentResponse> getAppointmentById(@PathVariable Long appointmentId) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment fetched successfully")
+                .result(appointmentService.getAppointmentByAppointmentId(appointmentId))
+                .build();
+    }
+
+    @GetMapping("/customer/{customerId}")
+    public ApiResponse<List<AppointmentResponse>> getAppointmentsByCustomerId(@PathVariable Long customerId) {
+        return ApiResponse.<List<AppointmentResponse>>builder()
+                .message("Appointments fetched successfully")
+                .result(appointmentService.getAppointmentByCustomerId(customerId))
+                .build();
+    }
+
+    @GetMapping("/vehicle/{vehicleId}")
+    public ApiResponse<List<AppointmentResponse>> getAppointmentsByVehicleId(@PathVariable Long vehicleId) {
+        return ApiResponse.<List<AppointmentResponse>>builder()
+                .message("Appointments fetched successfully")
+                .result(appointmentService.getAppointmentByVehicleId(vehicleId))
+                .build();
+    }
+
+    @GetMapping("/technician/{technicianId}")
+    public ApiResponse<List<AppointmentResponse>> getAppointmentsByTechnicianId(@PathVariable Long technicianId) {
+        return ApiResponse.<List<AppointmentResponse>>builder()
+                .message("Appointments fetched successfully")
+                .result(appointmentService.getAppointmentByTechnicianId(technicianId))
+                .build();
+    }
+
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<List<AppointmentResponse>> getAppointmentsByStatus(@PathVariable AppointmentStatus status) {
+        return ApiResponse.<List<AppointmentResponse>>builder()
+                .message("Appointments fetched successfully by status")
+                .result(appointmentService.getAppointmentByStatus(status))
+                .build();
+    }
+
+    // Admin lấy appointments theo khoảng thời gian
+    @GetMapping("/date-range")
+    public ApiResponse<List<AppointmentResponse>> getAppointmentsBetweenDates(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
+        return ApiResponse.<List<AppointmentResponse>>builder()
+                .message("Appointments fetched successfully for date range")
+                .result(appointmentService.getAppointmentsBetweenDates(startDate, endDate))
+                .build();
+    }
+
+    // Admin assign technician cho appointment
+    @PutMapping("/{appointmentId}/assign/{technicianId}")
+    public ApiResponse<AppointmentResponse> assignTechnician(
+            @PathVariable Long appointmentId,
+            @PathVariable Long technicianId) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Technician assigned successfully")
+                .result(appointmentService.assignTechnician(appointmentId, technicianId))
+                .build();
+    }
+
 //    @GetMapping("/getByTechnicianIdAndAppointmentDate/{technicianId}/{date}")
 //    public ApiResponse<List<AppointmentResponse>> getByTechnicianAndSchedule(
 //            @PathVariable long technicianId,

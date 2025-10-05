@@ -14,18 +14,29 @@ import org.springframework.security.core.Authentication;
 import java.time.LocalDateTime;
 import java.util.*;
 public interface AppointmentService {
+    // Create appointment by customer
     AppointmentResponse createAppointmentByCustomer(Authentication authentication, CustomerAppointmentRequest request);
+    // Get appointments by customer ID
     List<AppointmentResponse>getAppointmentByCustomerId(Long customerId);
+    // Get appointments by vehicle ID
     List<AppointmentResponse>getAppointmentByVehicleId(Long vehicleId);
-    Optional<AppointmentResponse> getAppointmentByAppointmentId(Long appointmentId);
+    // Get appointments by technician ID
+    List<AppointmentResponse>getAppointmentByTechnicianId(Long technicianId);
+    // Get appointment by appointment ID
+    AppointmentResponse getAppointmentByAppointmentId(Long appointmentId);
+    // Get all appointments
     List<AppointmentResponse> getAll();
+    // Get appointments by status
     List<AppointmentResponse> getAppointmentByStatus(AppointmentStatus status);
-    List<AppointmentResponse>getTechnicianByTechnicianId(Long technicianId);
+    // Update appointment
     AppointmentResponse updateAppointment(Long id,AppointmentUpdateRequest appointment);
+    // Cancel appointment
     AppointmentResponse cancelAppointment(Long appointmentId);
+    // Get appointments between dates
     List<AppointmentResponse> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
+    // Assign technician to appointment
+    AppointmentResponse assignTechnician(Long appointmentId, Long technicianId);
 
-//    AppointmentResponse assignTechnician(long appointmentId,long technicianId);
 
 //    boolean isTechnicianAvailable(long technicianId, LocalDateTime scheduleDate);
 }

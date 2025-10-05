@@ -46,6 +46,7 @@ public enum ErrorCode {
     TECHNICIAN_NOT_AVAILABLE(402, "Technician is not available", HttpStatus.BAD_REQUEST),
     STATUS_INVALID(403, "Invalid appointment status", HttpStatus.BAD_REQUEST),
     DATE_INVALID(404, "Invalid appointment date", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_RANGE(405, "Start date must be before end date", HttpStatus.BAD_REQUEST),
 
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),

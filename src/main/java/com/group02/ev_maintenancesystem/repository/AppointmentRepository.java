@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.repository;
 
 
+import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,5 +45,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     // Check vehicle appointment conflict
     boolean existsByVehicleIdAndAppointmentDate(Long vehicleId, LocalDateTime appointmentDate);
+
+    // Find by technician and date
+    List<Appointment> findByTechnicianUserIdAndAppointmentDate(Long technicianId, LocalDateTime scheduleDate);
+
+
 }
 
