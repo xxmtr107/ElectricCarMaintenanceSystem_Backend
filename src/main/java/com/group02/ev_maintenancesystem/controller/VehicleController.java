@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/vehicles")
-@Slf4j
 public class VehicleController {
     @Autowired
     VehicleService vehicleService;
@@ -77,6 +76,7 @@ public class VehicleController {
                 .result(vehicleService.deleteVehicle(vehicleId))
                 .build();
     }
+
 
 
 

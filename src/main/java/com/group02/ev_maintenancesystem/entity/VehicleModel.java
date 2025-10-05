@@ -25,7 +25,7 @@ public class VehicleModel extends  BaseEntity {
     Integer basicMaintenance = 10000; // Bảo dưỡng cơ bản (km)
 
     @Column(name = "comprehensive_maintenance", precision = 6, scale = 2)
-    Integer comprehensiveMaintenance = 2000; // Bảo dưỡng toàn diện (km)
+    Integer comprehensiveMaintenance = 20000; // Bảo dưỡng toàn diện (km)
 
     @Column(name = "basic_maintenance_time")
     Integer basicMaintenanceTime = 6; // Bảo dưỡng cơ bản (tháng)
