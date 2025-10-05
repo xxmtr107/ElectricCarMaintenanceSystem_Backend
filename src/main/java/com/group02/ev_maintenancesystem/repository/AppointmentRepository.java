@@ -24,7 +24,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 //
 //    List<Appointment> getAppointmentByCustomerUser_Id(long customerId);
 //
-//    boolean existsByVehicleIdAndAppointmentDate(long id, LocalDateTime appointmentDate);
+
 
 
     // Find by customer
@@ -41,5 +41,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     // Find appointments between dates
     List<Appointment> findByAppointmentDateBetween(LocalDateTime start, LocalDateTime end);
+
+    // Check vehicle appointment conflict
+    boolean existsByVehicleIdAndAppointmentDate(Long vehicleId, LocalDateTime appointmentDate);
 }
 

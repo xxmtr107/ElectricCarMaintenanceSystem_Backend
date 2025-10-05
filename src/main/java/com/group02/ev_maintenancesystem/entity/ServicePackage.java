@@ -23,6 +23,7 @@ public class ServicePackage extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(100)", nullable = false)
     String name;
 
+    @Column(columnDefinition = "NVARCHAR(200)")
     String description;
 
     @Column(nullable = false)

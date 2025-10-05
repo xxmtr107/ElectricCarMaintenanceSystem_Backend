@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,5 +27,8 @@ public class CustomerAppointmentRequest {
     @NotNull(message = "VEHICLE_NOT_FOUND")
     Long vehicleId;
 
+    Long servicePackageId; // Optional - Có thể null
+
+    List<Long> serviceItemIds; // Optional - Có thể null hoặc empty
 
 }

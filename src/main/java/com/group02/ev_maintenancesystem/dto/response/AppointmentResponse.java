@@ -1,11 +1,14 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +19,6 @@ public class AppointmentResponse {
 
     Long id;
     LocalDateTime appointmentDate;
-    String notes;
     AppointmentStatus status;
 
     Long customerId;
@@ -31,6 +33,12 @@ public class AppointmentResponse {
     Long vehicleId;
     String vehicleLicensePlate;
     String vehicleModel;
+
+    BigDecimal estimatedCost;
+    Long servicePackageId;
+    String servicePackageName;
+
+    List<ServiceItem> serviceItems;
 
 
     LocalDateTime createdAt;

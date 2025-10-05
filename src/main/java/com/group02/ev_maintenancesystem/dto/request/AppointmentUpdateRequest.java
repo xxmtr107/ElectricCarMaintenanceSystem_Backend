@@ -33,5 +33,4 @@ public class AppointmentUpdateRequest {
     @NotNull(message = "VEHICLE_NOT_FOUND")
     Long vehicleId;
 
-    String notes;
 }

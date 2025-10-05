@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.*;
 import jakarta.persistence.MappedSuperclass;
@@ -22,18 +23,22 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @CreatedDate // Automatically set the creation date
     @Column(name = "create_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @LastModifiedDate // Automatically set the last modified date
     @Column(name = "update_at", columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @CreatedBy // Automatically set the user who created the entity
     @Column(name = "created_by", updatable = false)
     private String createdBy;
 
+    @JsonIgnore
     @LastModifiedBy // Automatically set the user who last modified the entity
     @Column(name = "updated_by")
     private String updatedBy;

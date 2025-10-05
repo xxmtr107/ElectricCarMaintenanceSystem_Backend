@@ -52,6 +52,11 @@ public enum ErrorCode {
     INVALID_KEY(501, "Invalid key", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(502, "You do not have permission", HttpStatus.FORBIDDEN),
 
+    // ========================= SERVICE ITEMS & SERVICE PACKAGES (600 - 699) =========================
+    MUST_SELECT_SERVICE(600, "Must select at least one service package or service item", HttpStatus.BAD_REQUEST),
+    SERVICE_PACKAGE_NOT_FOUND(601, "Service package not found", HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_NOT_FOUND(602, "Service item not found", HttpStatus.BAD_REQUEST),
+
     // ========================= SERVER ERRORS (900 - 999) =========================
     INTERNAL_SERVER_ERROR(900, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
     UNCATEGORIZED(901, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR);

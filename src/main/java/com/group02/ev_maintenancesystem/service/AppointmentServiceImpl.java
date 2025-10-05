@@ -1,20 +1,15 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
-import com.group02.ev_maintenancesystem.dto.request.AppointmentRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.AppointmentUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.CustomerAppointmentRequest;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
-import com.group02.ev_maintenancesystem.entity.Appointment;
-import com.group02.ev_maintenancesystem.entity.User;
-import com.group02.ev_maintenancesystem.entity.Vehicle;
+import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.AppointmentMapper;
-import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
-import com.group02.ev_maintenancesystem.repository.UserRepository;
-import com.group02.ev_maintenancesystem.repository.VehicleRepository;
+import com.group02.ev_maintenancesystem.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -37,6 +33,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     UserRepository userRepository;
     AppointmentMapper appointmentMapper;
     VehicleRepository vehicleRepository;
+    ServicePackageRepository servicePackageRepository;
+    ServiceItemRepository serviceItemRepository;
 
     @Override
     public AppointmentResponse createAppointmentByCustomer(Authentication authentication, CustomerAppointmentRequest request) {
@@ -45,20 +43,63 @@ public class AppointmentServiceImpl implements AppointmentService {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         Long customerId = jwt.getClaim("userId");
 
+        // Validate: Khách hàng tồn tại
         User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        // Validate: Xe tồn tại
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
 
+        // Validate: Xe phải thuộc về khách hàng đang đăng nhập
         if(!vehicle.getCustomerUser().getId().equals(customerId)) {
             throw new AppException(ErrorCode.VEHICLE_NOT_BELONG_TO_CUSTOMER);
         }
 
-        // 🔥 GẮN customer + vehicle vào appointment
+        // Validate: Xe không thể đặt trùng ngày giờ
+        if(appointmentRepository.existsByVehicleIdAndAppointmentDate(request.getVehicleId(), request.getAppointmentDate())) {
+            throw new AppException(ErrorCode.APPOINTMENT_ALREADY_EXISTS);
+        }
+
+        // Validate: Phải chọn ít nhất 1 (gói hoặc dịch vụ lẻ)
+        if(request.getServicePackageId() == null &&
+                (request.getServiceItemIds() == null || request.getServiceItemIds().isEmpty())) {
+            throw new AppException(ErrorCode.MUST_SELECT_SERVICE);
+        }
+
         appointment.setCustomerUser(customer);
         appointment.setVehicle(vehicle);
         appointment.setStatus(AppointmentStatus.PENDING);
+
+        BigDecimal totalCost = BigDecimal.ZERO;
+
+        // Tính tổng chi phí ước tính theo gói và dịch vụ lẻ
+        if(request.getServicePackageId() != null) {
+            ServicePackage servicePackage = servicePackageRepository.findById(request.getServicePackageId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_PACKAGE_NOT_FOUND));
+            appointment.setServicePackage(servicePackage);
+            totalCost = totalCost.add(servicePackage.getPrice());
+        }
+
+        if(request.getServiceItemIds() != null && !request.getServiceItemIds().isEmpty()) {
+            List<ServiceItem> serviceItems = serviceItemRepository.findAllByIdIn(request.getServiceItemIds());
+
+            if(serviceItems.size() != request.getServiceItemIds().size()) {
+                throw new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND);
+            }
+
+            appointment.setServiceItems(serviceItems);
+
+            // Tính tổng giá các dịch vụ lẻ
+            BigDecimal serviceItemsTotal = serviceItems.stream()
+                    .map(ServiceItem::getPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            totalCost = totalCost.add(serviceItemsTotal);
+        }
+
+        appointment.setEstimatedCost(totalCost);
+
 
         return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
     }
