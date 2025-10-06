@@ -14,5 +14,4 @@ public class VehicleResponse {
     private Integer currentKm;
     private Long modelId;
     private Long customerId;
-
 }

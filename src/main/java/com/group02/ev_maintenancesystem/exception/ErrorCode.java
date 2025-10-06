@@ -40,6 +40,7 @@ public enum ErrorCode {
     VEHICLE_MODEL_NAME_DUPLICATE(306, "Vehicle model name already exists", HttpStatus.BAD_REQUEST),
     VEHICLE_MODEL_NOT_FOUND(307, "Vehicle model not found", HttpStatus.NOT_FOUND),
 
+
     // ========================= APPOINTMENT ERRORS (400 - 499) =========================
     APPOINTMENT_NOT_FOUND(400, "Appointment not found", HttpStatus.NOT_FOUND),
     APPOINTMENT_ALREADY_EXISTS(401, "Appointment already exists", HttpStatus.BAD_REQUEST),
@@ -56,7 +57,10 @@ public enum ErrorCode {
     // ========================= SERVICE ITEMS & SERVICE PACKAGES (600 - 699) =========================
     MUST_SELECT_SERVICE(600, "Must select at least one service package or service item", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NOT_FOUND(601, "Service package not found", HttpStatus.BAD_REQUEST),
-    SERVICE_ITEM_NOT_FOUND(602, "Service item not found", HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_NOT_FOUND(602, "Service item not found", HttpStatus.NOT_FOUND),
+    SERVICE_ITEM_NAME_INVALID(603, "Service must between 2-100 and just contain / or : ", HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_PRICE_INVALID(604, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_NAME_DUPLICATE(605, "Service item name already exists", HttpStatus.BAD_REQUEST),
 
     // ========================= SERVER ERRORS (900 - 999) =========================
     INTERNAL_SERVER_ERROR(900, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),

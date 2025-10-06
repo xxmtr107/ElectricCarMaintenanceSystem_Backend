@@ -4,19 +4,17 @@ import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
-import com.group02.ev_maintenancesystem.repository.VehicleRepository;
 import com.group02.ev_maintenancesystem.service.VehicleService;
 import com.group02.ev_maintenancesystem.service.VehicleServiceImpl;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/vehicles")
+@RequestMapping("/vehicle")
 public class VehicleController {
     @Autowired
     VehicleService vehicleService;
@@ -34,8 +32,8 @@ public class VehicleController {
     }
 
     //Lấy vehicles theo customerId
-    @GetMapping("customer/{customerId}")
-    public ApiResponse<List<VehicleResponse>> getVehicleyCustomerId(@PathVariable Long customerId){
+    @GetMapping("/customer/{customerId}")
+    public ApiResponse<List<VehicleResponse>> getVehicleCustomerId(@PathVariable Long customerId){
         return ApiResponse.<List<VehicleResponse>>builder()
                 .message("Get vehicles succesfully")
                 .result(vehicleService.getVehiclesByUserId(customerId))
@@ -44,7 +42,7 @@ public class VehicleController {
 
     //Lấy vehicles theo vehicleId
     @GetMapping("/{vehicleId}")
-    public ApiResponse<VehicleResponse> getVehiclebyVehicleId(@PathVariable Long vehicleId){
+    public ApiResponse<VehicleResponse> getVehicleByVehicleId(@PathVariable Long vehicleId){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Get vehicles succesfully")
                 .result(vehicleService.getVehiclesByVehicleId(vehicleId))
@@ -53,10 +51,10 @@ public class VehicleController {
 
     //Lấy tất cả vehicle
     @GetMapping
-    public ApiResponse<List<VehicleResponse>> getAllVehicle(){
-        return ApiResponse.<List<VehicleResponse>>builder()
+    public ApiResponse<Page<VehicleResponse>> getAllVehicle(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        return ApiResponse.<Page<VehicleResponse>>builder()
                 .message("Get all vehicles succesfully")
-                .result(vehicleService.getAllVehicle())
+                .result(vehicleService.getAllVehicle(page, size))
                 .build();
     }
 
@@ -69,6 +67,7 @@ public class VehicleController {
                 .build();
     }
 
+    //Xóa vehicles
     @DeleteMapping("/{vehicleId}")
     public ApiResponse<VehicleResponse> deleteVehicle(@PathVariable Long vehicleId){
         return ApiResponse.<VehicleResponse>builder()
