@@ -71,7 +71,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentMapper.toAppointmentResponse(appointment);
     }
 
-
     @Override
     public List<AppointmentResponse> getAppointmentByCustomerId(long customerId) {
         List<Appointment> list = appointmentRepository.getAppointmentByCustomerUser_Id(customerId);
