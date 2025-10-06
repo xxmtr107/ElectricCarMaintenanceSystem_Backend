@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
+import com.group02.ev_maintenancesystem.dto.request.VehicleModelUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleModelCreationResponse;
 import com.group02.ev_maintenancesystem.dto.response.VehicleModelGetResponse;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
@@ -98,7 +99,7 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
     }
 
     @Override
-    public VehicleModelGetResponse updateVehicleMode(Long vehicleModelId,VehicleModelRequest request) {
+    public VehicleModelGetResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request) {
         VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleModelId)
                 .orElseThrow(()->new AppException(ErrorCode.VEHICLE_NOT_FOUND));
 

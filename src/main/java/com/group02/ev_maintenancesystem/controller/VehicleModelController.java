@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.controller;
 
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
+import com.group02.ev_maintenancesystem.dto.request.VehicleModelUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.*;
 import com.group02.ev_maintenancesystem.service.VehicleModelService;
 
@@ -56,7 +57,7 @@ public class VehicleModelController {
 
     //Update model bằng id
     @PutMapping("/{vehicleModelId}")
-    public ApiResponse<VehicleModelGetResponse> updateVehicleModel(@PathVariable Long vehicleModelId, @RequestBody @Valid VehicleModelRequest request){
+    public ApiResponse<VehicleModelGetResponse> updateVehicleModel(@PathVariable Long vehicleModelId, @RequestBody @Valid VehicleModelUpdateRequest request){
         return ApiResponse.<VehicleModelGetResponse>builder()
                 .message("Update vehicle successfully")
                 .result(vehicleModelService.updateVehicleMode(vehicleModelId, request))

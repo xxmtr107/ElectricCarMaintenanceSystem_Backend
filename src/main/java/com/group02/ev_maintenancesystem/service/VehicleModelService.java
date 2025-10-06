@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
+import com.group02.ev_maintenancesystem.dto.request.VehicleModelUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleModelGetResponse;
 import org.springframework.data.domain.Page;
 
@@ -14,6 +15,6 @@ public interface VehicleModelService {
     List<VehicleModelGetResponse> getAllVehicleModel();
 
     Page<VehicleModelGetResponse> searchVehicleModelByName(String keyword, int page, int size);
-    VehicleModelGetResponse updateVehicleMode(Long vehicleModelId, VehicleModelRequest request);
+    VehicleModelGetResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request);
     VehicleModelGetResponse deleteVehicleModelById(Long vehicleId);
 }
