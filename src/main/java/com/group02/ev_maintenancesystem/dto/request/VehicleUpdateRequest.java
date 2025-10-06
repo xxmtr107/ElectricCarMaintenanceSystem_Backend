@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class VehicleUpdateRequest {
-
-    @NotNull(message = "Current KM is required")
     @Pattern(regexp = "^[0-9]{1,6}$", message ="KILOMETER_LONG_INVALID")
     private Integer currentKm;
 

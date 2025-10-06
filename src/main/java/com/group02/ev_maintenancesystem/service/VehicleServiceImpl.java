@@ -2,7 +2,6 @@ package com.group02.ev_maintenancesystem.service;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
-import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
@@ -118,7 +117,9 @@ public class VehicleServiceImpl implements VehicleService{
     public Page<VehicleResponse> getAllVehicle(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Vehicle> vehicleList = vehicleRepository.findAll(pageable);
-
+        if(vehicleList.isEmpty()){
+            throw new AppException(ErrorCode.VEHICLE_NOT_FOUND);
+        }
         return vehicleList
                 .map(vehicleList1 -> modelMapper.map(vehicleList1, VehicleResponse.class));
     }
@@ -128,7 +129,9 @@ public class VehicleServiceImpl implements VehicleService{
         //Tìm xem id của xe có tồn tại hay không
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        vehicle.setCurrentKm(request.getCurrentKm());
+        if(request.getCurrentKm() != null) {
+            vehicle.setCurrentKm(request.getCurrentKm());
+        }
 
         vehicleRepository.save(vehicle);
         return modelMapper.map(vehicle, VehicleResponse.class);
