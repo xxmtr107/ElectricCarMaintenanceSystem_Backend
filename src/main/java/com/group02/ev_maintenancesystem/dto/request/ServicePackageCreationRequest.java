@@ -6,21 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServiceItemCreationRequest {
+public class ServicePackageCreationRequest {
+    @NotBlank(message ="NOT_BLANK")
+    @Size(min = 10, max = 100, message = "SERVICE_PACKAGE_NAME_INVALID")
+    @Pattern(regexp = "^[\\p{L}\\p{N}\\s\\-/,:]+$", message ="SERVICE_PACKAGE_NAME_INVALID")
+    String name;
 
     @NotBlank(message ="NOT_BLANK")
-    @Size(min = 10, max = 100, message = "SERVICE_ITEM_NAME_INVALID")
-    @Pattern(regexp = "^[\\p{L}\\p{N}\\s\\-/,:]+$", message="SERVICE_NAME_INVALID")
-    private String name;
+    @Size(min = 10, max = 150, message = "SERVICE_DESCRIPTION_INVALID")
+    String description;
 
     @NotNull(message ="NOT_BLANK")
     @DecimalMin(value = "0.0", inclusive = false, message = "SERVICE_PRICE_INVALID")
-    private BigDecimal price;
+    BigDecimal price;
 
-    @NotBlank(message = "NOT_BLANK")
-    @Size(min = 10, max = 150, message = "SERVICE_DESCRIPTION_INVALID")
-    private String description;
 }

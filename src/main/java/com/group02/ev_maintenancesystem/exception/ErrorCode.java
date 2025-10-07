@@ -58,9 +58,12 @@ public enum ErrorCode {
     MUST_SELECT_SERVICE(600, "Must select at least one service package or service item", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NOT_FOUND(601, "Service package not found", HttpStatus.BAD_REQUEST),
     SERVICE_ITEM_NOT_FOUND(602, "Service item not found", HttpStatus.NOT_FOUND),
-    SERVICE_ITEM_NAME_INVALID(603, "Service must between 2-100 and just contain / or : ", HttpStatus.BAD_REQUEST),
-    SERVICE_ITEM_PRICE_INVALID(604, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_NAME_INVALID(603, "Service must between 10-100 and just contain / or : ", HttpStatus.BAD_REQUEST),
+    SERVICE_PRICE_INVALID(604, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
     SERVICE_ITEM_NAME_DUPLICATE(605, "Service item name already exists", HttpStatus.BAD_REQUEST),
+    SERVICE_DESCRIPTION_INVALID(606, "Description must between 10-150", HttpStatus.BAD_REQUEST),
+    SERVICE_PACKAGE_NAME_INVALID(607, "Package name must between 10-100 and just contain / or :", HttpStatus.BAD_REQUEST),
+    SERVICE_PACKAGE_NAME_DUPLICATE(608, "Service package name already exists",HttpStatus.BAD_REQUEST),
 
     // ========================= SERVER ERRORS (900 - 999) =========================
     INTERNAL_SERVER_ERROR(900, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
