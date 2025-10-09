@@ -142,7 +142,7 @@ public class VehicleServiceImpl implements VehicleService{
     public VehicleResponse deleteVehicle(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-//        appointmentRepository.deleteByVehicleId(vehicleId);
+        appointmentRepository.deleteByVehicleId(vehicleId);
         vehicleRepository.deleteById(vehicleId);
         return modelMapper.map(vehicle, VehicleResponse.class);
     }

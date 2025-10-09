@@ -22,7 +22,7 @@ public class VehicleCreationRequest {
     @NotNull(message = "NOT_BLANK")
     //@Pattern(regexp = "^[0-9]{1,6}$", message = "KILOMETER_LONG_INVALID")
     @Min(value = 0, message = "KILOMETER_INVALID_RANGE")
-    @Max(value =0, message ="KILOMETER_INVALID_RANGE")
+    @Max(value =999999, message ="KILOMETER_INVALID_RANGE")
     private Integer currentKm;
 
     @NotNull(message = "NOT_BLANK")
