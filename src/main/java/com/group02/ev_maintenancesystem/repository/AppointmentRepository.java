@@ -49,6 +49,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // Find by technician and date
     List<Appointment> findByTechnicianUserIdAndAppointmentDate(Long technicianId, LocalDateTime scheduleDate);
 
+    Appointment deleteByVehicleId(Long vehicleId);
 
 }
 
