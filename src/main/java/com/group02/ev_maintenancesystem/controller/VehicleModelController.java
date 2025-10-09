@@ -1,0 +1,75 @@
+package com.group02.ev_maintenancesystem.controller;
+
+import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
+import com.group02.ev_maintenancesystem.dto.response.*;
+import com.group02.ev_maintenancesystem.service.VehicleModelService;
+
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/vehicleModel")
+public class VehicleModelController {
+    @Autowired
+    VehicleModelService vehicleModelService;
+
+
+    //Tạo 1 model xe mới
+    @PostMapping("/create")
+    public ApiResponse<VehicleModelCreationResponse> createVehicleModel(@Valid @RequestBody VehicleModelRequest request){
+        return ApiResponse.<VehicleModelCreationResponse>builder()
+                .message("Create vehicle model succesfully")
+                .result(vehicleModelService.createVehicleModel(request))
+                .build();
+    }
+
+    //Lấy thông tin của model xe bằng id của model
+    @GetMapping("/{vehicleModelId}")
+    public ApiResponse<VehicleModelCreationResponse> getVehicleModelById(@PathVariable Long vehicleModelId){
+        return ApiResponse.<VehicleModelCreationResponse>builder()
+                .message("Get vehicle model succesfully")
+                .result(vehicleModelService.getVehicleModelById(vehicleModelId))
+                .build();
+    }
+
+    //Lấy tất cả model
+    @GetMapping
+    public ApiResponse<List<VehicleModelGetResponse>> getAllVehicleModel(){
+        return ApiResponse.<List<VehicleModelGetResponse>>builder()
+                .message("Get vehicle model successfully")
+                .result(vehicleModelService.getAllVehicleModel())
+                .build();
+    }
+
+    //Search model bằng keyword là name
+    @GetMapping("/search")
+    public ApiResponse<List<VehicleModelGetResponse>> getVehicleModelByKeyword(@RequestParam String keyword){
+        return ApiResponse.<List<VehicleModelGetResponse>>builder()
+                .message("Get vehicle model successfully")
+                .result(vehicleModelService.searchVehicleModelByName(keyword))
+                .build();
+    }
+
+    //Update model bằng id
+    @PutMapping("/{vehicleModelId}")
+    public ApiResponse<VehicleModelUpdateResponse> updateVehicleModel(@PathVariable Long vehicleModelId, @RequestBody @Valid VehicleModelRequest request){
+        return ApiResponse.<VehicleModelUpdateResponse>builder()
+                .message("Update vehicle successfully")
+                .result(vehicleModelService.updateVehicleMode(vehicleModelId, request))
+                .build();
+    }
+
+    //Delete bằng modelId
+    @DeleteMapping("/{vehicleModelId}")
+    public ApiResponse<VehicleModelGetResponse> deleteVehicleModelById(@PathVariable Long vehicleModelId){
+        return ApiResponse.<VehicleModelGetResponse>builder()
+                .message("Delete vehicle model successfully")
+                .result(vehicleModelService.deleteVehicleModelById(vehicleModelId))
+                .build();
+
+    }
+
+}

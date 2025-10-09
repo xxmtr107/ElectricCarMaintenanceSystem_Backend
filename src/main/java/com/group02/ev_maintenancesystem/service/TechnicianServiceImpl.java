@@ -9,8 +9,8 @@ import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.TechnicianMapper;
-import com.group02.ev_maintenancesystem.repository.TechnicianRepository;
 import com.group02.ev_maintenancesystem.repository.RoleRepository;
+import com.group02.ev_maintenancesystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -24,22 +24,22 @@ import java.util.List;
 @Slf4j
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class TechnicianServiceImpl implements TechnicianService {
-    TechnicianRepository TechnicianRepository;
+    UserRepository technicianRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
-    TechnicianMapper TechnicianMapper;
+    TechnicianMapper technicianMapper;
 
     @Override
     public TechnicianResponse registerTechnician(TechnicianRegistrationRequest request) {
-        User Technician = TechnicianMapper.toTechnician(request);
-        Technician.setPassword(passwordEncoder.encode(request.getPassword()));
+        User technician = technicianMapper.toTechnician(request);
+        technician.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Role role = roleRepository.findByName(PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
-        Technician.setRole(role);
+        technician.setRole(role);
         try {
-            Technician = TechnicianRepository.save(Technician);
+            technician = technicianRepository.save(technician);
         } catch (DataIntegrityViolationException e) {
             String message = e.getMostSpecificCause().getMessage();
             if (message.contains("UK_username")) {
@@ -49,37 +49,47 @@ public class TechnicianServiceImpl implements TechnicianService {
                 throw new AppException(ErrorCode.EMAIL_EXISTED);
             }
         }
-        return TechnicianMapper.toTechnicianResponse(Technician);
+        return technicianMapper.toTechnicianResponse(technician);
     }
 
     @Override
-    public TechnicianResponse updateTechnician(Long TechnicianId, TechnicianUpdateRequest request) {
-        User Technician = TechnicianRepository.findById(TechnicianId)
+    public TechnicianResponse updateTechnician(Long technicianId, TechnicianUpdateRequest request) {
+        User technician = technicianRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        TechnicianMapper.updateTechnician(request, Technician);
-        Technician.setPassword(passwordEncoder.encode(request.getPassword()));
+        technicianMapper.updateTechnician(request, technician);
+        technician.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        return TechnicianMapper.toTechnicianResponse(TechnicianRepository.save(Technician));
+
+        return technicianMapper.toTechnicianResponse(technicianRepository.save(technician));
     }
+
 
     @Override
-    public TechnicianResponse getTechnicianById(Long TechnicianId) {
-        return TechnicianMapper.toTechnicianResponse(
-                TechnicianRepository.findById(TechnicianId)
-                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
-        );
+    public TechnicianResponse getTechnicianById(Long technicianId) {
+        User technician = technicianRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return technicianMapper.toTechnicianResponse(technician);
     }
+
+
 
     @Override
     public List<TechnicianResponse> getAllTechnicians() {
-        return TechnicianRepository.findAll().stream()
-                .map(TechnicianMapper::toTechnicianResponse)
+        Role technicianRole = roleRepository.findByName(PredefinedRole.TECHNICIAN)
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+        return technicianRepository.findAllByRole(technicianRole).stream()
+                .map(technicianMapper::toTechnicianResponse)
                 .toList();
     }
 
     @Override
-    public void deleteTechnician(Long TechnicianId) {
-        TechnicianRepository.deleteById(TechnicianId);
+    public void deleteTechnician(Long technicianId) {
+
+        User technician = technicianRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        technicianRepository.delete(technician);
     }
 }

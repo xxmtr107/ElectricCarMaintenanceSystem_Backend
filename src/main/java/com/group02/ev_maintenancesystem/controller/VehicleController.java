@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/vehicles")
-@Slf4j
 public class VehicleController {
     @Autowired
     VehicleService vehicleService;
@@ -36,7 +35,7 @@ public class VehicleController {
 
     //Lấy vehicles theo customerId
     @GetMapping("customer/{customerId}")
-    public ApiResponse<List<VehicleResponse>> getVehiclebyCustomerId(@PathVariable Long customerId){
+    public ApiResponse<List<VehicleResponse>> getVehicleyCustomerId(@PathVariable Long customerId){
         return ApiResponse.<List<VehicleResponse>>builder()
                 .message("Get vehicles succesfully")
                 .result(vehicleService.getVehiclesByUserId(customerId))
@@ -77,6 +76,7 @@ public class VehicleController {
                 .result(vehicleService.deleteVehicle(vehicleId))
                 .build();
     }
+
 
 
 

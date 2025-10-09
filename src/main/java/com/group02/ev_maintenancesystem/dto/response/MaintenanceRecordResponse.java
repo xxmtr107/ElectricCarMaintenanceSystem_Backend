@@ -1,46 +1,41 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
-import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AppointmentResponse {
-
+public class MaintenanceRecordResponse {
     Long id;
-    LocalDateTime appointmentDate;
-    AppointmentStatus status;
+    int odometer;
+    LocalDateTime performedAt;
 
+    Long appointmentId;
     Long customerId;
     String customerName;
-    String customerPhone;
-    String customerEmail;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+
+    Long servicePackageId;
+    String servicePackageName;
 
     Long technicianId;
     String technicianName;
-    String technicianSpecialization;
 
     Long vehicleId;
     String vehicleLicensePlate;
     String vehicleModel;
 
-    BigDecimal estimatedCost;
-    Long servicePackageId;
-    String servicePackageName;
-
+    String notes;
     List<ServiceItem> serviceItems;
 
-
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
 }

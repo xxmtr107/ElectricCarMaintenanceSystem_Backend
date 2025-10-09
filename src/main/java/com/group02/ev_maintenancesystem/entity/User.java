@@ -53,6 +53,7 @@ public class User extends BaseEntity implements UserDetails {
     // ========== TECHNICIAN-SPECIFIC FIELDS (nullable for non-technicians) ==========
     String specialization;
 
+    @Column(name = "experience_years")
     Integer experienceYears;
 
     // Relationships
