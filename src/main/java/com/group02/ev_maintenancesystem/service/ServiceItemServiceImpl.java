@@ -44,6 +44,7 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
         ServiceItem serviceItem = new ServiceItem();
         serviceItem.setName(request.getName());
         serviceItem.setPrice(request.getPrice());
+        serviceItem.setDescription(request.getDescription());
 
         ServiceItem savedserviceItem = serviceItemRepository.save(serviceItem);
         return modelMapper.map(savedserviceItem, ServiceItemResponse.class);

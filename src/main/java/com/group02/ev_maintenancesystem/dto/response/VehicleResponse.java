@@ -4,14 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class VehicleResponse {
-    private Long id;
-    private String licensePlate;
-    private String vin;
-    private Integer currentKm;
-    private Long modelId;
-    private Long customerId;
+      Long id;
+      String licensePlate;
+      String vin;
+      Integer currentKm;
+      Long modelId;
+      Long customerId;
+      LocalDateTime createdAt;
+      String createBy;
+      LocalDateTime updateAt;
+      String updateBy;
 }
