@@ -2,9 +2,11 @@ package com.group02.ev_maintenancesystem.service;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
+import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
+import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
@@ -142,7 +144,20 @@ public class VehicleServiceImpl implements VehicleService{
     public VehicleResponse deleteVehicle(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        appointmentRepository.deleteByVehicleId(vehicleId);
+        //appointmentRepository.deleteByVehicleId(vehicleId);
+        List<Appointment> appointment = appointmentRepository.findByVehicleId(vehicleId);
+        //Nếu empty thì xóa
+        if(appointment.isEmpty()){
+            vehicleRepository.deleteById(vehicleId);
+        }
+
+        //CHỈ XÓA NHỮNG XE CÓ TRẠNG THÁI COMPLETED VÀ CANCELLED
+        boolean hasActiveAppointment = appointment.stream()
+                .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
+                        && app.getStatus() != AppointmentStatus.CANCELLED);
+        if(hasActiveAppointment){
+            throw new AppException(ErrorCode.CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
+        }
         vehicleRepository.deleteById(vehicleId);
         return modelMapper.map(vehicle, VehicleResponse.class);
     }
