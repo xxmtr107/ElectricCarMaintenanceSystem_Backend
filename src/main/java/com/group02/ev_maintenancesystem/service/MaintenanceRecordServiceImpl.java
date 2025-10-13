@@ -181,7 +181,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         maintenanceRecordRepository.findById(maintenanceRecordId)
                 .orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
 
-        maintenanceRecordRepository.deleteById(maintenanceRecordId);
+        maintenanceRecordRepository.deleteByRecordId(maintenanceRecordId);
         maintenanceRecordRepository.flush();
     }
 

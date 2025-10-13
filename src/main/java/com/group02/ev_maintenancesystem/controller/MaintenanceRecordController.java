@@ -103,11 +103,6 @@ public class MaintenanceRecordController {
     public ApiResponse<String> deleteMaintenanceRecord(@PathVariable long id){
 
             maintenanceRecordService.delete(id);
-            if(maintenanceRecordService.getByMaintenanceRecordId(id)!=null){
-                return ApiResponse.<String>builder()
-                        .message("Failed to delete maintenance record with id "+id)
-                        .build();
-            }
             return ApiResponse.<String>builder()
                     .message("Maintenance record deleted successfully")
                     .build();

@@ -26,5 +26,5 @@ public interface MaintenanceRecordService {
 
     MaintenanceRecordResponse update(long id,MaintenanceRecordUpdateRequest request,Authentication authentication);
 
-    void delete(long MaintenanceRecordId);
+    void delete(long maintenanceRecordId);
 }
