@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MaintenanceRecordService {
-    MaintenanceRecordResponse createMaintenanceRecord(Authentication authentication, MaintenanceRecordRegistrationRequest request);
+    List<MaintenanceRecordResponse> createMaintenanceRecord(Authentication authentication);
 
     MaintenanceRecordResponse getByMaintenanceRecordId(long MaintenanceRecordId);
 
@@ -23,8 +23,6 @@ public interface MaintenanceRecordService {
     List<MaintenanceRecordResponse>findByTechnicianUserId(long technicianId);
 
     List<MaintenanceRecordResponse> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end);
-
-    MaintenanceRecordResponse update(long id,MaintenanceRecordUpdateRequest request,Authentication authentication);
 
     void delete(long maintenanceRecordId);
 }

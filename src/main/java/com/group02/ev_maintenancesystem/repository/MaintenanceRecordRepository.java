@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.repository;
 
 import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
+import com.sun.tools.javac.Main;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +23,5 @@ public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRe
     @Transactional
     @Query("DELETE FROM MaintenanceRecord m WHERE m.id = :id")
     void deleteByRecordId(@Param("id") long id);
+    MaintenanceRecord findByAppointment_Id(long appointmentId);
 }

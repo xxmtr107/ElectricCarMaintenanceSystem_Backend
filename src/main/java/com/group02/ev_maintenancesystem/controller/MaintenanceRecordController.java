@@ -79,23 +79,11 @@ public class MaintenanceRecordController {
     }
 
     @PostMapping
-    public ApiResponse<MaintenanceRecordResponse>
-    createMaintenanceRecord(Authentication authentication,
-                            @RequestBody MaintenanceRecordRegistrationRequest maintenanceRecordRegistrationRequest){
-        return ApiResponse.<MaintenanceRecordResponse>builder().
+    public ApiResponse<List<MaintenanceRecordResponse>>
+    createMaintenanceRecord(Authentication authentication){
+        return ApiResponse.<List<MaintenanceRecordResponse>>builder().
                 message("Maintenance record created successfully").
-                result(maintenanceRecordService.createMaintenanceRecord(authentication, maintenanceRecordRegistrationRequest)).
-                build();
-    }
-
-    @PutMapping("/{id}")
-    public ApiResponse<MaintenanceRecordResponse>
-    updateMaintenanceRecord(@PathVariable long id,
-                            @RequestBody MaintenanceRecordUpdateRequest maintenanceRecord,
-                            Authentication authentication){
-        return ApiResponse.<MaintenanceRecordResponse>builder().
-                message("Maintenance record updated successfully").
-                result(maintenanceRecordService.update(id,maintenanceRecord,authentication)).
+                result(maintenanceRecordService.createMaintenanceRecord(authentication)).
                 build();
     }
 

@@ -3,8 +3,11 @@ package com.group02.ev_maintenancesystem.repository;
 
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
+import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -48,7 +51,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     // Find by technician and date
     List<Appointment> findByTechnicianUserIdAndAppointmentDate(Long technicianId, LocalDateTime scheduleDate);
-
 
 }
 

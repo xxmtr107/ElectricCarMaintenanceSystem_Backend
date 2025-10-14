@@ -14,5 +14,4 @@ public interface VehicleRepository extends JpaRepositoryImplementation<Vehicle, 
     List<Vehicle> findByCustomerUserId(Long userId);
     Optional<Vehicle> findByIdAndCustomerUserId(Long id, Long customerId);
 
-
 }

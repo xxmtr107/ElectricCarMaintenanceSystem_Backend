@@ -5,6 +5,7 @@ import com.group02.ev_maintenancesystem.dto.request.MaintenanceRecordRegistratio
 import com.group02.ev_maintenancesystem.dto.request.MaintenanceRecordUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
 import com.group02.ev_maintenancesystem.entity.*;
+import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.MaintenanceRecordMapper;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,41 +38,32 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     ServiceItemRepository serviceItemRepository;
 
     @Override
-    public MaintenanceRecordResponse createMaintenanceRecord(Authentication authentication, MaintenanceRecordRegistrationRequest request) {
-        MaintenanceRecord maintenanceRecord = maintenanceRecordMapper.toMaintenanceRecord(request);
+    public List<MaintenanceRecordResponse> createMaintenanceRecord(Authentication authentication) {
 
         Jwt jwt = (Jwt) authentication.getPrincipal();
         Long customerId = jwt.getClaim("userId");
 
-        Appointment appointment = appointmentRepository.findById(request.getAppointmentId()).
-                orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-        maintenanceRecord.setAppointment(appointment);
+        List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
+        List<MaintenanceRecordResponse> responses = new ArrayList<>();
+        for (Appointment appointment : appointments) {
+            if ((appointment.getStatus().equals(AppointmentStatus.COMPLETED) ||
+                    appointment.getStatus().equals(AppointmentStatus.CANCELLED)) &&
+                    maintenanceRecordRepository.findByAppointment_Id(appointment.getId()) == null) {
 
-        ServicePackage servicePackage = servicePackageRepository.findById(request.getServicePackageID()).
-                orElseThrow(() -> new AppException(ErrorCode.SERVICE_PACKAGE_NOT_FOUND));
-        maintenanceRecord.setServicePackage(servicePackage);
-
-        User technician = userRepository.findByIdAndRoleName(request.getTechnicianId(), PredefinedRole.TECHNICIAN).
-                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        maintenanceRecord.setTechnicianUser(technician);
-
-        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-
-        if (!vehicle.getCustomerUser().getId().equals(customerId)) {
-            throw new AppException(ErrorCode.VEHICLE_NOT_BELONG_TO_CUSTOMER);
-        }
-        maintenanceRecord.setVehicle(vehicle);
-
-        if (request.getServiceTypeID() != null && !request.getServiceTypeID().isEmpty()) {
-            List<ServiceItem> serviceItems = serviceItemRepository.findAllByIdIn(request.getServiceTypeID());
-
-            if (serviceItems.size() != request.getServiceTypeID().size()) {
-                throw new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND);
+                MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
+                maintenanceRecord.setOdometer(appointment.getVehicle().getCurrentKm());
+                maintenanceRecord.setAppointment(appointment);
+                maintenanceRecord.setServicePackage(appointment.getServicePackage());
+                maintenanceRecord.setTechnicianUser(appointment.getTechnicianUser());
+                maintenanceRecord.setVehicle(appointment.getVehicle());
+                List<ServiceItem> items = serviceItemRepository.findByServicePackages_Id(appointment.getServicePackage().getId());
+                maintenanceRecord.setServiceItems(items);
+                maintenanceRecord.setPerformedAt(appointment.getAppointmentDate());
+                maintenanceRecord = maintenanceRecordRepository.save(maintenanceRecord);
+                responses.add(maintenanceRecordMapper.toMaintenanceRecordResponse(maintenanceRecord));
             }
-            maintenanceRecord.setServiceItems(serviceItems);
         }
-        return maintenanceRecordMapper.toMaintenanceRecordResponse(maintenanceRecordRepository.save(maintenanceRecord));
+        return responses;
     }
 
     @Override
@@ -124,55 +117,14 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
 
     @Override
     public List<MaintenanceRecordResponse> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end) {
-        if(start.isAfter(end)) {
+        if (start.isAfter(end)) {
             throw new AppException(ErrorCode.INVALID_DATE_RANGE);
         }
 
-        List<MaintenanceRecord>MaintenanceRecordList=maintenanceRecordRepository.findByAppointment_AppointmentDateBetween(start, end);
+        List<MaintenanceRecord> MaintenanceRecordList = maintenanceRecordRepository.findByAppointment_AppointmentDateBetween(start, end);
         return MaintenanceRecordList.stream().
-        map(maintenanceRecordMapper::toMaintenanceRecordResponse).
+                map(maintenanceRecordMapper::toMaintenanceRecordResponse).
                 toList();
-    }
-
-    @Override
-    public MaintenanceRecordResponse update(long id,MaintenanceRecordUpdateRequest request,Authentication authentication) {
-
-        MaintenanceRecord maintenanceRecord=maintenanceRecordRepository.findById(id).
-                orElseThrow(()->new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
-
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        Long customerId = jwt.getClaim("userId");
-
-        Appointment appointment = appointmentRepository.findById(request.getAppointmentId()).
-                orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-        maintenanceRecord.setAppointment(appointment);
-
-        ServicePackage servicePackage = servicePackageRepository.findById(request.getServicePackageID()).
-                orElseThrow(() -> new AppException(ErrorCode.SERVICE_PACKAGE_NOT_FOUND));
-        maintenanceRecord.setServicePackage(servicePackage);
-
-        User technician = userRepository.findByIdAndRoleName(request.getTechnicianId(), PredefinedRole.TECHNICIAN).
-                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        maintenanceRecord.setTechnicianUser(technician);
-
-        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-
-        if (!vehicle.getCustomerUser().getId().equals(customerId)) {
-            throw new AppException(ErrorCode.VEHICLE_NOT_BELONG_TO_CUSTOMER);
-        }
-        maintenanceRecord.setVehicle(vehicle);
-
-        if (request.getServiceTypeID() != null && !request.getServiceTypeID().isEmpty()) {
-            List<ServiceItem> serviceItems = serviceItemRepository.findAllByIdIn(request.getServiceTypeID());
-
-            if (serviceItems.size() != request.getServiceTypeID().size()) {
-                throw new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND);
-            }
-            maintenanceRecord.setServiceItems(serviceItems);
-        }
-        maintenanceRecordMapper.updateMaintenanceRecord(request,maintenanceRecord);
-        return maintenanceRecordMapper.toMaintenanceRecordResponse(maintenanceRecordRepository.save(maintenanceRecord));
     }
 
     @Override
