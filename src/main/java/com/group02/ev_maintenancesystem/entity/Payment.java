@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -18,10 +19,15 @@ import java.time.LocalDateTime;
 public class Payment extends BaseEntity{
 
     String method;
+
     BigDecimal amount;
+
     @Column(name = "payment_date")
     LocalDateTime paymentDate;
-    String status;
+
+    @Enumerated(EnumType.STRING)
+    PaymentStatus status;
+
     @Column(name = "transaction_code", unique = true)
     String transactionCode;
 
