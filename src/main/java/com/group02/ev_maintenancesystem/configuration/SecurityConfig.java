@@ -79,12 +79,12 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "https://electric-car-maintenance.vercel.app",
-                "https://reliable-rebirth-production.up.railway.app",  // Thêm domain Railway
-                "https://electriccarmaintenancesystem-production.up.railway.app"  // Domain từ VNPay config
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"
+//                "http://localhost:3000",
+//                "http://localhost:5173",
+//                "https://electric-car-maintenance.vercel.app",
+//                "https://reliable-rebirth-production.up.railway.app",  // Thêm domain Railway
+//                "https://electriccarmaintenancesystem-production.up.railway.app"  // Domain từ VNPay config
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
