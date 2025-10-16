@@ -47,13 +47,13 @@ public class ServiceItemController {
     }
 
     //Lấy item theo id của servicePackage
-    @GetMapping("/servicePackage/{servicePackageId}")
-    public ApiResponse<List<ServiceItemResponse>> getServiceItemByServicePackageId(@PathVariable Long servicePackageId){
-        return ApiResponse.<List<ServiceItemResponse>>builder()
-                .message("Get service item successfully")
-                .result(serviceItemService.getServiceItemBySerivePackageId(servicePackageId))
-                .build();
-    }
+//    @GetMapping("/servicePackage/{servicePackageId}")
+//    public ApiResponse<List<ServiceItemResponse>> getServiceItemByServicePackageId(@PathVariable Long servicePackageId){
+//        return ApiResponse.<List<ServiceItemResponse>>builder()
+//                .message("Get service item successfully")
+//                .result(serviceItemService.getServiceItemBySerivePackageId(servicePackageId))
+//                .build();
+//    }
 
     @GetMapping("/search")
     public ApiResponse<Page<ServiceItemResponse>> searchServiceItemByKeyWord(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){

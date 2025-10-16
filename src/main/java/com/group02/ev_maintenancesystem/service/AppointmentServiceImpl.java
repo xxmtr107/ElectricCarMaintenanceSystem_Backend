@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -35,6 +36,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     VehicleRepository vehicleRepository;
     ServicePackageRepository servicePackageRepository;
     ServiceItemRepository serviceItemRepository;
+    ModelPackageItemRepository modelPackageItemRepository;
 
     // Customer role
     @Override
@@ -73,37 +75,103 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.PENDING);
 
         BigDecimal totalCost = BigDecimal.ZERO;
+        Set<Long> packageServiceItemIds;
+        Long modelId = vehicle.getModel().getId();
 
-        // Tính tổng chi phí ước tính theo gói và dịch vụ lẻ
+        // Xử lý gói dịch vụ nếu được chọn
         if(request.getServicePackageId() != null) {
             ServicePackage servicePackage = servicePackageRepository.findById(request.getServicePackageId())
                     .orElseThrow(() -> new AppException(ErrorCode.SERVICE_PACKAGE_NOT_FOUND));
+
+            // Lấy các dịch vụ cụ thể cho model này và gói dịch vụ này
+            List<ModelPackageItem> modelItems = modelPackageItemRepository
+                    .findByVehicleModelIdAndServicePackageId(modelId, request.getServicePackageId());
+
+//            if (modelItems.isEmpty()) {
+//                throw new AppException(ErrorCode.SERVICE_PACKAGE_NOT_AVAILABLE_FOR_MODEL);
+//            }
+
+            // Trích xuất service items từ modelItems
+            List<ServiceItem> packageItems = modelItems.stream()
+                    .map(ModelPackageItem::getServiceItem)
+                    .collect(Collectors.toList());
+
+            // Lưu ID của các dịch vụ trong gói để kiểm tra trùng lặp sau này
+            packageServiceItemIds = packageItems.stream()
+                    .map(ServiceItem::getId)
+                    .collect(Collectors.toSet());
+
+            // Tính tổng chi phí gói dịch vụ dựa trên model xe
+            BigDecimal packageCost = modelItems.stream()
+                    .map(ModelPackageItem::getPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
             appointment.setServicePackage(servicePackage);
-            totalCost = totalCost.add(servicePackage.getPrice());
+
+            // Thêm các service items vào appointment
+            if (appointment.getServiceItems() == null) {
+                appointment.setServiceItems(new ArrayList<>(packageItems));
+            } else {
+                appointment.getServiceItems().addAll(packageItems);
+            }
+
+            totalCost = totalCost.add(packageCost);
+        } else {
+            packageServiceItemIds = new HashSet<>();
         }
 
+        // Xử lý dịch vụ lẻ nếu được chọn
         if(request.getServiceItemIds() != null && !request.getServiceItemIds().isEmpty()) {
+            // Validate: Dịch vụ tồn tại
             List<ServiceItem> serviceItems = serviceItemRepository.findAllByIdIn(request.getServiceItemIds());
-
             if(serviceItems.size() != request.getServiceItemIds().size()) {
                 throw new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND);
             }
 
-            appointment.setServiceItems(serviceItems);
+            // Validate: Không trùng lặp với dịch vụ trong gói
+            if (!packageServiceItemIds.isEmpty()) {
+                // Kiểm tra xem có dịch vụ lẻ nào đã có trong gói không
+                List<ServiceItem> duplicateItems = serviceItems.stream()
+                        .filter(item -> packageServiceItemIds.contains(item.getId()))
+                        .collect(Collectors.toList());
 
-            // Tính tổng giá các dịch vụ lẻ
-            BigDecimal serviceItemsTotal = serviceItems.stream()
-                    .map(ServiceItem::getPrice)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (!duplicateItems.isEmpty()) {
+                    throw new AppException(ErrorCode.DUPLICATE_SERVICE_ITEMS);
+                }
+            }
+
+            // Tính chi phí dịch vụ lẻ theo model xe
+            BigDecimal serviceItemsTotal = BigDecimal.ZERO;
+            for (ServiceItem item : serviceItems) {
+                // Tìm giá theo model (dịch vụ lẻ có service_package_id là NULL)
+                Optional<ModelPackageItem> modelItem = modelPackageItemRepository
+                        .findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(modelId, item.getId());
+
+                BigDecimal itemPrice;
+                if (modelItem.isPresent()) {
+                    itemPrice = modelItem.get().getPrice();
+                } else {
+                    itemPrice = item.getPrice(); // Giá mặc định nếu không tìm thấy giá theo model
+                }
+
+                serviceItemsTotal = serviceItemsTotal.add(itemPrice);
+            }
+
+            // Thêm dịch vụ lẻ vào appointment
+            if (appointment.getServiceItems() == null) {
+                appointment.setServiceItems(new ArrayList<>(serviceItems));
+            } else {
+                appointment.getServiceItems().addAll(serviceItems);
+            }
 
             totalCost = totalCost.add(serviceItemsTotal);
         }
 
         appointment.setEstimatedCost(totalCost);
 
-
         return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
     }
+
 
     // Admin role
     @Override

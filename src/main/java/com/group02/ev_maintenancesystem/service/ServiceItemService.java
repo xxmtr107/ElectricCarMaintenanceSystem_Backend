@@ -12,7 +12,7 @@ public interface ServiceItemService {
     ServiceItemResponse createServiceItem(ServiceItemCreationRequest request);
     ServiceItemResponse getServiceItemById(Long serviceItemId);
     Page<ServiceItemResponse> getAllServiceItem(int page, int size);
-    List<ServiceItemResponse> getServiceItemBySerivePackageId(Long servicePackageId);
+//    List<ServiceItemResponse> getServiceItemBySerivePackageId(Long servicePackageId);
     Page<ServiceItemResponse> searchServiceItemByName(String itemName, int page, int size);
     ServiceItemResponse updateServiceItemById(Long serviceItemId, ServiceItemUpdateRequest request);
     ServiceItemResponse deleteServiceItemById(Long serviceItemId);

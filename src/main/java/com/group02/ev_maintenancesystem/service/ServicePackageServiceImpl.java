@@ -35,7 +35,7 @@ public class ServicePackageServiceImpl implements ServicePackageService{
         }
         ServicePackage servicePackage = new ServicePackage();
         servicePackage.setName(request.getName());
-        servicePackage.setPrice(request.getPrice());
+//        servicePackage.setPrice(request.getPrice());
         servicePackage.setDescription(request.getDescription());
 
         servicePackageRepository.save(servicePackage);
@@ -79,9 +79,9 @@ public class ServicePackageServiceImpl implements ServicePackageService{
         if(request.getDescription() != null && !request.getDescription().trim().isEmpty()){
             servicePackage.setDescription(request.getDescription());
         }
-        if(request.getPrice() != null){
-            servicePackage.setPrice(request.getPrice());
-        }
+//        if(request.getPrice() != null){
+//            servicePackage.setPrice(request.getPrice());
+//        }
         ServicePackage savePackage = servicePackageRepository.save(servicePackage);
         return modelMapper.map(servicePackage, ServicePackageResponse.class);
     }

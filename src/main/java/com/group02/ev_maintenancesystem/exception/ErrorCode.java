@@ -48,7 +48,7 @@ public enum ErrorCode {
     STATUS_INVALID(403, "Invalid appointment status", HttpStatus.BAD_REQUEST),
     DATE_INVALID(404, "Invalid appointment date", HttpStatus.BAD_REQUEST),
     INVALID_DATE_RANGE(405, "Start date must be before end date", HttpStatus.BAD_REQUEST),
-
+    DUPLICATE_SERVICE_ITEMS(406, "Duplicated service items", HttpStatus.BAD_REQUEST),
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(501, "Invalid key", HttpStatus.BAD_REQUEST),
@@ -64,6 +64,11 @@ public enum ErrorCode {
     SERVICE_DESCRIPTION_INVALID(606, "Description must between 10-150", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NAME_INVALID(607, "Package name must between 10-100 and just contain / or :", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NAME_DUPLICATE(608, "Service package name already exists",HttpStatus.BAD_REQUEST),
+
+    // ========================= MODEL PACKAGE ITEM ERRORS (700 - 799) =========================
+    MODEL_PACKAGE_ITEM_NOT_FOUND(700, "Model package item not found", HttpStatus.NOT_FOUND),
+    MODEL_PACKAGE_ITEM_EXISTED(701, "Model package item already exists", HttpStatus.BAD_REQUEST),
+    PRICE_INVALID(702, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
 
     // ========================= SERVER ERRORS (900 - 999) =========================
     INTERNAL_SERVER_ERROR(900, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
