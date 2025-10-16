@@ -66,6 +66,17 @@ public enum ErrorCode {
     SERVICE_PACKAGE_NAME_INVALID(607, "Package name must between 10-100 and just contain / or :", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NAME_DUPLICATE(608, "Service package name already exists",HttpStatus.BAD_REQUEST),
 
+    // ========================= PAYMENT ERRORS (700 - 799) =========================
+    FIELD_INVALID(701, "Invalid field", HttpStatus.BAD_REQUEST),
+    HASH_DATA_FAIL(703, "Hash data fail", HttpStatus.INTERNAL_SERVER_ERROR),
+    SIGNATURE_INVALID(704, "Invalid VNPay signature", HttpStatus.BAD_REQUEST),
+    PAYMENT_FAILED(705, "Payment failed", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_FOUND(706, "Payment not found", HttpStatus.NOT_FOUND),
+
+    // ========================= INVOICE ERRORS (800 - 899) =========================
+    INVOICE_NOT_FOUND(800, "Invoice already exists for this appointment", HttpStatus.BAD_REQUEST),
+
+
     // ========================= SERVER ERRORS (900 - 999) =========================
     INTERNAL_SERVER_ERROR(900, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
     UNCATEGORIZED(901, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR);
