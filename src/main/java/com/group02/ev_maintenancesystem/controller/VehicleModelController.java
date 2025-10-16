@@ -22,8 +22,8 @@ public class VehicleModelController {
     //Tạo 1 model xe mới
     @PostMapping("/create")
     public ApiResponse<VehicleModelGetResponse> createVehicleModel(@Valid @RequestBody VehicleModelRequest request){
-        return ApiResponse.<VehicleModelGetResponse>builder()
-                .message("Create vehicle model succesfully")
+        return ApiResponse. <VehicleModelGetResponse>builder()
+                .message("Create vehicle model successfully")
                 .result(vehicleModelService.createVehicleModel(request))
                 .build();
     }
