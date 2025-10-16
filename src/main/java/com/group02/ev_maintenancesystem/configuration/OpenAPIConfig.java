@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 @Configuration
 public class OpenAPIConfig {
+
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
@@ -30,7 +31,7 @@ public class OpenAPIConfig {
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
                 .servers(List.of(
                         new Server().url("http://localhost:8080/api").description("Local Development Server"),
-                        new Server().url("https://reliable-rebirth-production.up.railway.app").description("Production Server")
+                        new Server().url("https://reliable-rebirth-production.up.railway.app/api").description("Production Server")
                 ))
                 // Thêm Bearer Token Authentication
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
