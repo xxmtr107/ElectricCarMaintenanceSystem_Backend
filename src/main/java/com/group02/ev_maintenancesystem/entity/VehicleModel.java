@@ -36,6 +36,7 @@ public class VehicleModel extends  BaseEntity {
     @OneToMany (mappedBy = "model", fetch = FetchType.LAZY)
     List<Vehicle> vehicles = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "vehicleModels", fetch = FetchType.LAZY)
-    List<ServicePackage> servicePackages = new ArrayList<>();
+    @OneToMany(mappedBy = "vehicleModel", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<ModelPackageItem> modelPackageItems = new ArrayList<>();
+
 }

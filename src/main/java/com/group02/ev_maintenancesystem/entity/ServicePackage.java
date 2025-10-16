@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,8 +27,6 @@ public class ServicePackage extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(200)")
     String description;
 
-    @Column(nullable = false)
-    BigDecimal price;
 
     //Relationships
 //    @OneToMany(mappedBy = "servicePackage", fetch = FetchType.LAZY)
@@ -39,19 +38,23 @@ public class ServicePackage extends BaseEntity {
     @OneToMany(mappedBy = "servicePackage", fetch = FetchType.LAZY)
     List<Appointment> appointments = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "servicepackage_vehiclemodel",
-            joinColumns = @JoinColumn(name = "service_package_id"),
-            inverseJoinColumns = @JoinColumn(name = "vehicle_model_id")
-    )
-    List<VehicleModel> vehicleModels = new ArrayList<>();
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "servicepackage_vehiclemodel",
+//            joinColumns = @JoinColumn(name = "service_package_id"),
+//            inverseJoinColumns = @JoinColumn(name = "vehicle_model_id")
+//    )
+//    List<VehicleModel> vehicleModelsForPackages = new ArrayList<>();
+//
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "servicepackage_serviceitem",
+//            joinColumns = @JoinColumn(name = "service_package_id"),
+//            inverseJoinColumns = @JoinColumn(name = "service_item_id")
+//    )
+//    List<ServiceItem> serviceItemsForPackages = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "servicepackage_serviceitem",
-            joinColumns = @JoinColumn(name = "service_package_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_item_id")
-    )
-    List<ServiceItem> includedServiceItems = new ArrayList<>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "servicePackage", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<ModelPackageItem> modelPackageItems = new ArrayList<>();
 }

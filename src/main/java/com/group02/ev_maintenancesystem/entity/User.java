@@ -67,7 +67,7 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "customerUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Appointment> customerAppointments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "technicianUser", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "technicianUser", fetch = FetchType.LAZY)
     List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
 
     @OneToMany(mappedBy = "technicianUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

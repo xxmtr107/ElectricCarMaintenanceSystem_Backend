@@ -38,7 +38,19 @@ public class AppointmentResponse {
     Long servicePackageId;
     String servicePackageName;
 
-    List<ServiceItem> serviceItems;
+    // DTO nhỏ cho service items với giá theo model
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ServiceItemDTO {
+        Long id;
+        String name;
+        String description;
+        BigDecimal price;
+    }
+
+    List<ServiceItemDTO> serviceItems;
 
 
     LocalDateTime createdAt;

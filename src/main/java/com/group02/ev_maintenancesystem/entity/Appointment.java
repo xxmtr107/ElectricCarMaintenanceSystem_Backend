@@ -41,7 +41,7 @@ public class Appointment extends BaseEntity {
     User technicianUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "vehicle_id", nullable = false)
+    @JoinColumn(name = "vehicle_id")
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)

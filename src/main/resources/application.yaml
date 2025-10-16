@@ -15,7 +15,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always  # Luôn chạy script SQL
+      continue-on-error: false  # Dừng nếu có lỗi
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
 

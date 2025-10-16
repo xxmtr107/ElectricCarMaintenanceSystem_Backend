@@ -68,20 +68,20 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
                 .map(m-> modelMapper.map(m, ServiceItemResponse.class));
     }
 
-    @Override
-    public List<ServiceItemResponse> getServiceItemBySerivePackageId(Long servicePackageId) {
-        List<ServiceItem> items;
-        try {
-            items = serviceItemRepository.findByServicePackages_Id(servicePackageId);
-        }catch (DataAccessException e){
-            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
-        if(items.isEmpty()){
-            throw new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND);
-        }
-        return items.stream()
-                .map(m-> modelMapper.map(m, ServiceItemResponse.class)).toList();
-    }
+//    @Override
+//    public List<ServiceItemResponse> getServiceItemBySerivePackageId(Long servicePackageId) {
+//        List<ServiceItem> items;
+//        try {
+//            items = serviceItemRepository.findByServicePackages_Id(servicePackageId);
+//        }catch (DataAccessException e){
+//            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+//        }
+//        if(items.isEmpty()){
+//            throw new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND);
+//        }
+//        return items.stream()
+//                .map(m-> modelMapper.map(m, ServiceItemResponse.class)).toList();
+//    }
 
     @Override
     public Page<ServiceItemResponse> searchServiceItemByName(String itemName, int page, int size) {
