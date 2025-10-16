@@ -80,14 +80,19 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"
+//        configuration.setAllowedOriginPatterns(Arrays.asList(
 //                "http://localhost:3000",
 //                "http://localhost:5173",
 //                "https://electric-car-maintenance.vercel.app",
 //                "https://reliable-rebirth-production.up.railway.app",  // Thêm domain Railway
 //                "https://electriccarmaintenancesystem-production.up.railway.app"  // Domain từ VNPay config
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+//        ));
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+//        configuration.setAllowedHeaders(Arrays.asList("*"));
+//        configuration.setAllowCredentials(true);
+//        configuration.setMaxAge(3600L);
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
