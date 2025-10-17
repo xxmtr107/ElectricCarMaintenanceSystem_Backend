@@ -12,6 +12,7 @@ import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
 import com.group02.ev_maintenancesystem.repository.InvoiceRepository;
 import com.group02.ev_maintenancesystem.repository.PaymentRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class VNPayServiceImpl implements  VNPayService {
 
 
     @Override
-    public VNPayResponse createPayment(VNPayRequest request) {
+    public VNPayResponse createPayment(VNPayRequest request, HttpServletRequest httpServletRequest) {
         try {
             //check appointment
             Invoice invoice = invoiceRepository.findById(request.getInVoiceId())
@@ -46,14 +47,16 @@ public class VNPayServiceImpl implements  VNPayService {
 
             // Tạo transactionCode duy nhất
             String transactionCode = "APP" + request.getInVoiceId() + "_" + System.currentTimeMillis();
-
+            String ipAddress = getIpAddress(httpServletRequest);
             //Lưu vào db trước khi điều hướng qua VNPay
             Payment payment = Payment.builder()
                     .transactionCode(transactionCode)
                     .amount(request.getAmount())
                     .status(PaymentStatus.UN_PAID)
                     .invoice(invoice)
+                    .method("VNPay")
                     .build();
+            paymentRepository.save(payment);
 //            payment.setPaymentDate(LocalDateTime.now());
 //            payment.setStatus(PaymentStatus.UN_PAID);
 //            payment.setAmount(request.getAmount());
@@ -74,11 +77,11 @@ public class VNPayServiceImpl implements  VNPayService {
                 throw new AppException(ErrorCode.NOT_BLANK);
             }
             vnp_Params.put("vnp_BankCode", request.getBankCode());
-            vnp_Params.put("vnp_TxnRef", String.valueOf(invoice));
+            vnp_Params.put("vnp_TxnRef", transactionCode);
             vnp_Params.put("vnp_OrderType", "other");
             vnp_Params.put("vnp_OrderInfo","Pay for voice with id+ "+invoice);
             vnp_Params.put("vnp_Locale","vn");
-            vnp_Params.put("vnp_IpAddr", "127.0.0.1");
+            vnp_Params.put("vnp_IpAddr", ipAddress);
             vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getVnp_ReturnUrl());
             vnp_Params.put("vnp_CreateDate", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
 
@@ -116,8 +119,32 @@ public class VNPayServiceImpl implements  VNPayService {
 
 
         }catch (Exception e){
-            throw new AppException(ErrorCode.HASH_DATA_FAIL);
+            throw new AppException(ErrorCode.CREATE_PAYMENT_FAILD);
         }
+    }
+
+    //Lấy địa chỉ IP của khách hàng
+    private String getIpAddress(HttpServletRequest request){
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknow")){
+            ipAddress= request.getHeader("Proxy-Client-IP");
+        }
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknow")){
+            ipAddress= request.getHeader("WL-Proxy-Client-IP");
+        }
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase(")unknow")){
+            ipAddress= request.getRemoteAddr();
+            //Đối với localhost thì trả về IPv6 ::1
+            if("127.0.0.1".equals(ipAddress)){
+                return "127.0.0.1";
+            }
+        }
+        //Xử lý trường trường hợp có nhiều IP (chọn IP đầu tiên)
+        if(ipAddress != null && ipAddress.contains(",")){
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
     }
 
     @Override
@@ -155,7 +182,24 @@ public class VNPayServiceImpl implements  VNPayService {
         Payment payment = paymentRepository.findByTransactionCode(transactionCode)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
 
-        return false;
+        //Tránh xử lý lại giao dịch đã thành công
+        if(payment.getStatus() == PaymentStatus.PAID){
+            return true;
+        }
+
+        //Cập nhập trạng thái các mã phản hổi
+        if("00".equals(responseCode)){
+            payment.setStatus(PaymentStatus.PAID);
+            return true;
+        }
+        if("24".equals(responseCode)){
+            payment.setStatus(PaymentStatus.CANCELLED);
+            return false;
+        }
+        else{
+            payment.setStatus(PaymentStatus.FAILED);
+            return false;
+        }
     }
 
     //HmacSHA512 để tạo chữ ký khi kết hợp data và key

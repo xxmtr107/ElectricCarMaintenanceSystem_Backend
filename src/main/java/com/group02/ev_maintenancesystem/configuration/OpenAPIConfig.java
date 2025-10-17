@@ -24,7 +24,7 @@ public class OpenAPIConfig {
                         .description("API documentation for Electric Car Maintenance System")
                         .contact(new Contact()
                                 .name("Thu Thao")
-                                .email("thaontse184164@for.edu.vn")
+                                .email("thaontse184164@fpt.edu.vn")
                                 .url("https://electric-car-maintenance.vercel.app/"))
                         .license(new License()
                                 .name("Apache 2.0")

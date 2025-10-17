@@ -72,6 +72,7 @@ public enum ErrorCode {
     SIGNATURE_INVALID(704, "Invalid VNPay signature", HttpStatus.BAD_REQUEST),
     PAYMENT_FAILED(705, "Payment failed", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_FOUND(706, "Payment not found", HttpStatus.NOT_FOUND),
+    CREATE_PAYMENT_FAILD(707, "Create payment failed", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // ========================= INVOICE ERRORS (800 - 899) =========================
     INVOICE_NOT_FOUND(800, "Invoice already exists for this appointment", HttpStatus.BAD_REQUEST),
