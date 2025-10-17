@@ -9,7 +9,6 @@ import com.group02.ev_maintenancesystem.entity.ModelPackageItem;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.repository.ModelPackageItemRepository;
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,14 +20,11 @@ import java.util.Optional;
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public abstract class AppointmentMapper {
+public interface AppointmentMapper {
 
-    @Autowired
-    protected ModelPackageItemRepository modelPackageItemRepository;
-
-    public abstract Appointment toAppointment(AppointmentRegistrationRequest request);
-    public abstract Appointment toAppointmentCustomer(CustomerAppointmentRequest request);
-    public abstract void updateAppointment(AppointmentUpdateRequest request, @MappingTarget Appointment appointment);
+    Appointment toAppointment(AppointmentRegistrationRequest request);
+    Appointment toAppointmentCustomer(CustomerAppointmentRequest request);
+    void updateAppointment(AppointmentUpdateRequest request, @MappingTarget Appointment appointment);
 
     @Mapping(target = "customerId", source = "customerUser.id")
     @Mapping(target = "customerName", source = "customerUser.fullName")
@@ -41,15 +37,17 @@ public abstract class AppointmentMapper {
 
     @Mapping(target = "vehicleId", source = "vehicle.id")
     @Mapping(target = "vehicleLicensePlate", source = "vehicle.licensePlate")
+    @Mapping(target = "vehicleModel", source = "vehicle.model.name")
 
     @Mapping(target = "servicePackageId", source = "servicePackage.id")
     @Mapping(target = "servicePackageName", source = "servicePackage.name")
 
     @Mapping(target = "serviceItems", ignore = true)
-    public abstract AppointmentResponse toAppointmentResponse(Appointment appointment);
+    AppointmentResponse toAppointmentResponse(Appointment appointment);
 
     @AfterMapping
-    protected void mapServiceItems(Appointment appointment, @MappingTarget AppointmentResponse response) {
+    default void mapServiceItems(Appointment appointment, @MappingTarget AppointmentResponse response,
+                                  @Context ModelPackageItemRepository modelPackageItemRepository) {
         if (appointment.getServiceItems() == null || appointment.getServiceItems().isEmpty()) {
             response.setServiceItems(Collections.emptyList());
             return;

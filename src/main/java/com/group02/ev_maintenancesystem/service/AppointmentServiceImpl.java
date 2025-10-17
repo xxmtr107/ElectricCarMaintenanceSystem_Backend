@@ -19,7 +19,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,9 +62,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // Validate: Xe không thể đặt trùng ngày giờ
-        if(appointmentRepository.existsByVehicleIdAndAppointmentDate(request.getVehicleId(), request.getAppointmentDate())) {
+        LocalDate appointmentDay = request.getAppointmentDate().toLocalDate();
+
+        // Tính đầu ngày và cuối ngày (00:00:00 → 23:59:59)
+        LocalDateTime startOfDay = appointmentDay.atStartOfDay();
+        LocalDateTime endOfDay = appointmentDay.atTime(LocalTime.MAX);
+
+        boolean exists = appointmentRepository.existsByVehicleIdAndAppointmentDateBetween(
+                request.getVehicleId(),
+                startOfDay,
+                endOfDay
+        );
+
+        if (exists) {
             throw new AppException(ErrorCode.APPOINTMENT_ALREADY_EXISTS);
         }
+
 
         // Validate: Phải chọn ít nhất 1 (gói hoặc dịch vụ lẻ)
         if(request.getServicePackageId() == null &&

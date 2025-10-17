@@ -34,57 +34,65 @@ public class SecurityConfig {
     private final JwtDecoderConfig jwtDecoderConfig;
     //Của triết
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(AbstractHttpConfigurer::disable) // tắt CSRF cho REST API
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll() // tất cả request đều được phép
-//                )
-//                .oauth2ResourceServer((oauth2) -> oauth2
-//                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))); // Cấu hình JWT
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable) // tắt CSRF cho REST API
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll() // tất cả request đều được phép
+                )
+                .oauth2ResourceServer((oauth2) -> oauth2
+                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))); // Cấu hình JWT
+
+
+        return http.build();
+    }
+//@Bean
+//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//    http
+//            .csrf(AbstractHttpConfigurer::disable)
+//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//            .authorizeHttpRequests(auth -> auth
+//                    // Cho phép Swagger
+//                    .requestMatchers(
+//                            "/swagger-ui/**",
+//                            "/v3/api-docs/**",
+//                            "/swagger-ui.html"
+//                    ).permitAll()
 //
+//                    // Cho phép VNPay callback (return & ipn)
+//                    .requestMatchers("/vnpay/**").permitAll()
 //
-//        return http.build();
-//    }
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                    // Cho phép Swagger
-                    .requestMatchers(
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/swagger-ui.html"
-                    ).permitAll()
-
-                    // Cho phép VNPay callback (return & ipn)
-                    .requestMatchers("/vnpay/**").permitAll()
-
-                    // Cho phép đăng ký / login
-                    .requestMatchers("/auth/**").permitAll()
-
-                    // Còn lại cần JWT
-                    .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                    .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))
-            );
-
-    return http.build();
-}
+//                    // Cho phép đăng ký / login
+//                    .requestMatchers("/auth/**").permitAll()
+//
+//                    // Còn lại cần JWT
+//                    .anyRequest().authenticated()
+//            )
+//            .oauth2ResourceServer(oauth2 -> oauth2
+//                    .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))
+//            );
+//
+//    return http.build();
+//}
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "https://electric-car-maintenance.vercel.app"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+//        configuration.setAllowedOriginPatterns(Arrays.asList(
+//                "http://localhost:3000",
+//                "http://localhost:5173",
+//                "https://electric-car-maintenance.vercel.app",
+//                "https://reliable-rebirth-production.up.railway.app",  // Thêm domain Railway
+//                "https://electriccarmaintenancesystem-production.up.railway.app"  // Domain từ VNPay config
+//        ));
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+//        configuration.setAllowedHeaders(Arrays.asList("*"));
+//        configuration.setAllowCredentials(true);
+//        configuration.setMaxAge(3600L);
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

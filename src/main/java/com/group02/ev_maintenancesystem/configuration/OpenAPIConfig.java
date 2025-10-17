@@ -18,6 +18,9 @@ public class OpenAPIConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+                .servers(List.of(
+                    new Server().url("https://reliable-rebirth-production.up.railway.app/api").description("Production"),
+                    new Server().url("http://localhost:8080/api").description("Local")))
                 .info(new Info()
                         .title("Electric Car Maintenance System API")
                         .version("1.0.0")
@@ -29,10 +32,6 @@ public class OpenAPIConfig {
                         .license(new License()
                                 .name("Apache 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
-                .servers(List.of(
-                        new Server().url("http://localhost:8080/api").description("Local Development Server"),
-                        new Server().url("https://reliable-rebirth-production.up.railway.app/api").description("Production Server")
-                ))
                 // Thêm Bearer Token Authentication
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new io.swagger.v3.oas.models.Components()
