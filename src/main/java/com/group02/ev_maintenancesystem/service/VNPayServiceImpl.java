@@ -9,11 +9,9 @@ import com.group02.ev_maintenancesystem.entity.Payment;
 import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
-import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
 import com.group02.ev_maintenancesystem.repository.InvoiceRepository;
 import com.group02.ev_maintenancesystem.repository.PaymentRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,16 +77,19 @@ public class VNPayServiceImpl implements  VNPayService {
             vnp_Params.put("vnp_BankCode", request.getBankCode());
             vnp_Params.put("vnp_TxnRef", transactionCode);
             vnp_Params.put("vnp_OrderType", "other");
-            vnp_Params.put("vnp_OrderInfo","Pay for voice with id+ "+invoice);
+            vnp_Params.put("vnp_OrderInfo","Pay for invoice with id+ "+invoice.getId());
             vnp_Params.put("vnp_Locale","vn");
             vnp_Params.put("vnp_IpAddr", ipAddress);
             vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getVnp_ReturnUrl());
-            vnp_Params.put("vnp_CreateDate", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+            //Tạo thời gian trùng với múi giờ GM+7 của VNPay
+            Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+            String createDate = formatter.format(cld.getTime());
+            vnp_Params.put("vnp_CreateDate", createDate);
 
             //Sort các field trong để ký
             List<String> fieldName = new ArrayList<>(vnp_Params.keySet());
             Collections.sort(fieldName);
-
             StringBuilder hashData = new StringBuilder();
             StringBuilder query = new StringBuilder();
 
@@ -96,7 +97,7 @@ public class VNPayServiceImpl implements  VNPayService {
                 String name = fieldName.get(i);
                 String value = vnp_Params.get(name);
                 if(value != null && !value.trim().isEmpty()){
-                    hashData.append(name).append("=").append(value);
+                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
                     query.append(URLEncoder.encode(name, StandardCharsets.US_ASCII)).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
                     if(i<fieldName.size() -1){
                         hashData.append("&");
@@ -127,13 +128,13 @@ public class VNPayServiceImpl implements  VNPayService {
     private String getIpAddress(HttpServletRequest request){
         String ipAddress = request.getHeader("X-FORWARDED-FOR");
 
-        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknow")){
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
             ipAddress= request.getHeader("Proxy-Client-IP");
         }
-        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknow")){
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
             ipAddress= request.getHeader("WL-Proxy-Client-IP");
         }
-        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase(")unknow")){
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
             ipAddress= request.getRemoteAddr();
             //Đối với localhost thì trả về IPv6 ::1
             if("127.0.0.1".equals(ipAddress)){
@@ -160,7 +161,8 @@ public class VNPayServiceImpl implements  VNPayService {
         for(int i=0; i<fieldNames.size(); i++){
             String name = fieldNames.get(i);
             String value = param.get(name);
-            hashData.append(name).append("=").append(value);
+            hashData.append(name).append("=");
+            hashData.append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
             if(i < fieldNames.size()-1 ){
                 hashData.append("&");
             }
@@ -190,14 +192,17 @@ public class VNPayServiceImpl implements  VNPayService {
         //Cập nhập trạng thái các mã phản hổi
         if("00".equals(responseCode)){
             payment.setStatus(PaymentStatus.PAID);
+            paymentRepository.save(payment);
             return true;
         }
         if("24".equals(responseCode)){
             payment.setStatus(PaymentStatus.CANCELLED);
+            paymentRepository.save(payment);
             return false;
         }
         else{
             payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
             return false;
         }
     }
