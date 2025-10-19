@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Appointment Reminder</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background-color: #0078D7; color: white; padding: 20px; text-align: center; }
+        .header img { max-width: 120px; }
+        .content { padding: 20px; color: #333333; line-height: 1.6; }
+        .content h2 { color: #0078D7; }
+        .button { display: inline-block; padding: 12px 24px; margin-top: 20px; background-color: #0078D7; color: white; text-decoration: none; border-radius: 4px; }
+        .footer { padding: 15px; text-align: center; font-size: 12px; color: #777777; background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="https://tse2.mm.bing.net/th/id/OIP.Mj9gJd-Ge5Dbj1pp90AmDwHaGu?pid=Api&P=0&h=220" alt="Brand Logo">
+        <h1>Service Appointment Reminder</h1>
+    </div>
+    <div class="content">
+        <p>Dear <strong th:text="${name}">Customer Name</strong>,</p>
+        <p>Thank you for booking your vehicle maintenance with VINFAST.</p>
+        <h2>Upcoming Service Details</h2>
+        <p>
+            <strong>Date & Time:</strong> <br>
+            <strong>Vehicle:</strong> <br>
+            <strong>Service Center:</strong> <br>
+            <strong>Address:</strong>
+        </p>
+        <p>Please arrive <strong>10–15 minutes before your scheduled time</strong> to ensure a smooth check-in process.</p>
+        <p>If you need to <strong>reschedule or cancel</strong> your appointment, please contact us at:<br>
+            📞 <span>[Phone Number]</span> | ✉️ <span>[Support Email]</span>
+        </p>
+    </div>
+    <div class="footer">
+        <p>We look forward to serving you!<br>
+            &copy; <span >2025</span> <span >Brand Name</span>. All rights reserved.<br>
+            📞 Hotline: <span>[Phone Number]</span> | 🌐 <a>[Website]</a></p>
+    </div>
+</div>
+</body>
+</html>
