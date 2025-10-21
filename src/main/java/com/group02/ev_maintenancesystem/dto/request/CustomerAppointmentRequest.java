@@ -3,6 +3,7 @@ package com.group02.ev_maintenancesystem.dto.request;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -22,6 +23,7 @@ public class CustomerAppointmentRequest {
     @Future(message = "DATE_INVALID")
     @NotNull(message = "NOT_BLANK")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Schema(example = "2025-11-01 14:36")
     LocalDateTime appointmentDate;
 
     @NotNull(message = "VEHICLE_NOT_FOUND")
