@@ -38,10 +38,17 @@ public class VNPayServiceImpl implements  VNPayService {
 
     @Override
     public VNPayResponse createPayment(VNPayRequest request, HttpServletRequest httpServletRequest) {
-        try {
+
             //check appointment
             Invoice invoice = invoiceRepository.findById(request.getInVoiceId())
                     .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
+
+            //Kiểm tra trạng thái của hóa đơn
+            if("PAID".equalsIgnoreCase(invoice.getStatus())){
+                throw new AppException(ErrorCode.INVOICE_ALREADY_PAID);
+            }
+
+            BigDecimal totalAmount = invoice.getTotalAmount();
 
             // Tạo transactionCode duy nhất
             String transactionCode = "APP" + request.getInVoiceId() + "_" + System.currentTimeMillis();
@@ -49,7 +56,7 @@ public class VNPayServiceImpl implements  VNPayService {
             //Lưu vào db trước khi điều hướng qua VNPay
             Payment payment = Payment.builder()
                     .transactionCode(transactionCode)
-                    .amount(request.getAmount())
+                    .amount(totalAmount)
                     .status(PaymentStatus.UN_PAID)
                     .invoice(invoice)
                     .method("VNPay")
@@ -66,7 +73,7 @@ public class VNPayServiceImpl implements  VNPayService {
             vnp_Params.put("vnp_TmnCode", vnPayConfig.getVnp_TmnCode());
 
             //Chuyển kiểu dữ liệu từ bigdecimal về long
-            long amountVNP = request.getAmount().multiply(BigDecimal.valueOf(100)).longValue();
+            long amountVNP = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
             vnp_Params.put("vnp_Amount", String.valueOf(amountVNP));
 
             vnp_Params.put("vnp_CurrCode", "VND");
@@ -119,9 +126,7 @@ public class VNPayServiceImpl implements  VNPayService {
             return response;
 
 
-        }catch (Exception e){
-            throw new AppException(ErrorCode.CREATE_PAYMENT_FAILD);
-        }
+
     }
 
     //Lấy địa chỉ IP của khách hàng
@@ -191,18 +196,32 @@ public class VNPayServiceImpl implements  VNPayService {
 
         //Cập nhập trạng thái các mã phản hổi
         if("00".equals(responseCode)){
+            //payment set status
             payment.setStatus(PaymentStatus.PAID);
             paymentRepository.save(payment);
+
+            //invoice set Status
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("PAID");
+            invoiceRepository.save(invoice);
             return true;
         }
         if("24".equals(responseCode)){
             payment.setStatus(PaymentStatus.CANCELLED);
             paymentRepository.save(payment);
+
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("CANCELLED");
+            invoiceRepository.save(invoice);
             return false;
         }
         else{
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
+
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("FAIL");
+            invoiceRepository.save(invoice);
             return false;
         }
     }

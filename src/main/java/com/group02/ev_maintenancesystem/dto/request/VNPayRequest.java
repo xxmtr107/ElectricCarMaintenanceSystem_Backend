@@ -12,5 +12,4 @@ import java.math.BigDecimal;
 public class VNPayRequest {
     private Long inVoiceId;
     private String bankCode;
-    private BigDecimal amount;
 }

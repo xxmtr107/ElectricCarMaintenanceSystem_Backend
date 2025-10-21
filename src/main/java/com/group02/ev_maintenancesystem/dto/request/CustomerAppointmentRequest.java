@@ -21,7 +21,6 @@ public class CustomerAppointmentRequest {
 
     @Future(message = "DATE_INVALID")
     @NotNull(message = "NOT_BLANK")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime appointmentDate;
 
     @NotNull(message = "VEHICLE_NOT_FOUND")
