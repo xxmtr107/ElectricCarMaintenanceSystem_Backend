@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -62,7 +63,15 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customerMapper.toCustomerResponse(userRepository.save(customer));
     }
+    @Override
+    public CustomerResponse getMyInfo() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
 
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return customerMapper.toCustomerResponse(user);
+    }
     @Override
     public CustomerResponse getCustomerById(Long customerId) {
         User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)

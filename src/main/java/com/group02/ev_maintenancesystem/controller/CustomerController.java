@@ -52,7 +52,12 @@ public class CustomerController {
                 .result(customerService.getCustomerById(customerId))
                 .build();
     }
-
+    @GetMapping("/my-info")
+    ApiResponse<CustomerResponse> getMyInfo() {
+        return ApiResponse.<CustomerResponse>builder()
+                .result(customerService.getMyInfo())
+                .build();
+    }
     @DeleteMapping("/{customerId}")
     ApiResponse<String> deleteCustomer(@PathVariable Long customerId) {
         customerService.deleteCustomer(customerId);

@@ -33,7 +33,7 @@ public class Appointment extends BaseEntity {
 
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id")
     User customerUser;
 
     @ManyToOne(fetch = FetchType.EAGER)

@@ -9,29 +9,29 @@ INSERT IGNORE INTO roles (name, create_at, created_by) VALUES
 
 -- ========================================
 -- 2. USERS
--- Password for all: "baobao1234" → BCrypt hash: $2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq
+-- Password for all: "triet123" → BCrypt hash: $2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq
 -- ========================================
 INSERT IGNORE INTO users (username, email, password, phone, full_name, gender, role_id, specialization, experience_years, create_at, update_at) VALUES
 -- CUSTOMER (role_id = 1)
-('baobao1', 'baobao1@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234001', N'Bảo Bảo', 'MALE', 1, NULL, NULL, NOW(), NOW()),
-('triettriet1', 'triettriet1@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234002', N'Triết Triết', 'FEMALE', 1, NULL, NULL, NOW(), NOW()),
-('nguyennguyen1', 'nguyennguyen1@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234003', N'Nguyên Nguyên', 'MALE', 1, NULL, NULL, NOW(), NOW()),
-('thaothao1', 'thaothao1@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234004', N'Thảo Thảo', 'FEMALE', 1, NULL, NULL, NOW(), NOW()),
+('baobao1', 'baobao1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234001', N'Bảo Bảo', 'MALE', 1, NULL, NULL, NOW(), NOW()),
+('triettriet1', 'triettriet1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234002', N'Triết Triết', 'FEMALE', 1, NULL, NULL, NOW(), NOW()),
+('nguyennguyen1', 'nguyennguyen1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234003', N'Nguyên Nguyên', 'MALE', 1, NULL, NULL, NOW(), NOW()),
+('thaothao1', 'thaothao1@example.com', '$$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234004', N'Thảo Thảo', 'FEMALE', 1, NULL, NULL, NOW(), NOW()),
 -- TECHNICIAN (role_id = 2)
-('baobao2', 'baobao2@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234005', N'Bảo Bảo', 'MALE', 2, N'Hệ thống pin', 3, NOW(), NOW()),
-('triettriet2', 'triettriet2@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234006', N'Triết Triết', 'FEMALE', 2, N'Động cơ điện', 5, NOW(), NOW()),
-('nguyennguyen2', 'nguyennguyen2@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234007', N'Nguyên Nguyên', 'MALE', 2, N'Hệ thống phanh', 2, NOW(), NOW()),
-('thaothao2', 'thaothao2@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234008', N'Thảo Thảo', 'FEMALE', 2, N'Điện tử', 4, NOW(), NOW()),
+('baobao2', 'baobao2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234005', N'Bảo Bảo', 'MALE', 2, N'Hệ thống pin', 3, NOW(), NOW()),
+('triettriet2', 'triettriet2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234006', N'Triết Triết', 'FEMALE', 2, N'Động cơ điện', 5, NOW(), NOW()),
+('nguyennguyen2', 'nguyennguyen2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234007', N'Nguyên Nguyên', 'MALE', 2, N'Hệ thống phanh', 2, NOW(), NOW()),
+('thaothao2', 'thaothao2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234008', N'Thảo Thảo', 'FEMALE', 2, N'Điện tử', 4, NOW(), NOW()),
 -- STAFF (role_id = 3)
-('baobao3', 'baobao3@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234009', N'Bảo Bảo', 'MALE', 3, NULL, NULL, NOW(), NOW()),
-('triettriet3', 'triettriet3@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234010', N'Triết Triết', 'FEMALE', 3, NULL, NULL, NOW(), NOW()),
-('nguyennguyen3', 'nguyennguyen3@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234011', N'Nguyên Nguyên', 'MALE', 3, NULL, NULL, NOW(), NOW()),
-('thaothao3', 'thaothao3@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234012', N'Thảo Thảo', 'FEMALE', 3, NULL, NULL, NOW(), NOW()),
+('baobao3', 'baobao3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234009', N'Bảo Bảo', 'MALE', 3, NULL, NULL, NOW(), NOW()),
+('triettriet3', 'triettriet3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234010', N'Triết Triết', 'FEMALE', 3, NULL, NULL, NOW(), NOW()),
+('nguyennguyen3', 'nguyennguyen3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234011', N'Nguyên Nguyên', 'MALE', 3, NULL, NULL, NOW(), NOW()),
+('thaothao3', 'thaothao3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234012', N'Thảo Thảo', 'FEMALE', 3, NULL, NULL, NOW(), NOW()),
 -- ADMIN (role_id = 4)
-('baobao4', 'baobao4@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234013', N'Bảo Bảo', 'MALE', 4, NULL, NULL, NOW(), NOW()),
-('triettriet4', 'triettriet4@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234014', N'Triết Triết', 'FEMALE', 4, NULL, NULL, NOW(), NOW()),
-('nguyennguyen4', 'nguyennguyen4@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234015', N'Nguyên Nguyên', 'MALE', 4, NULL, NULL, NOW(), NOW()),
-('thaothao4', 'thaothao4@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye5pYXKF9eRkCW9fUJdpQfE1mZ7nLXUGq', '0901234016', N'Thảo Thảo', 'FEMALE', 4, NULL, NULL, NOW(), NOW());
+('baobao4', 'baobao4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234013', N'Bảo Bảo', 'MALE', 4, NULL, NULL, NOW(), NOW()),
+('triettriet4', 'triettriet4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234014', N'Triết Triết', 'FEMALE', 4, NULL, NULL, NOW(), NOW()),
+('nguyennguyen4', 'nguyennguyen4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234015', N'Nguyên Nguyên', 'MALE', 4, NULL, NULL, NOW(), NOW()),
+('thaothao4', 'thaothao4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234016', N'Thảo Thảo', 'FEMALE', 4, NULL, NULL, NOW(), NOW());
 
 -- ========================================
 -- 3. VEHICLE MODELS
