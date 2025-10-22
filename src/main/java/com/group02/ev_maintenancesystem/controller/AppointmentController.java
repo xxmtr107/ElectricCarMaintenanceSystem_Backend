@@ -117,6 +117,24 @@ public class AppointmentController {
                 .build();
     }
 
+    @PutMapping("/update/{appointmentId}")
+    public ApiResponse<AppointmentResponse> update(
+            @PathVariable Long appointmentId,
+            @RequestBody @Valid AppointmentUpdateRequest request) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment updated successfully")
+                .result(appointmentService.setStatusAppointment(appointmentId, request))
+                .build();
+    }
+
+    @PutMapping("/cancel/{appointmentId}")
+    public ApiResponse<AppointmentResponse> cancel(@PathVariable Long appointmentId) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment cancelled successfully")
+                .result(appointmentService.cancelAppointment(appointmentId))
+                .build();
+    }
+
 //    @GetMapping("/getByTechnicianIdAndAppointmentDate/{technicianId}/{date}")
 //    public ApiResponse<List<AppointmentResponse>> getByTechnicianAndSchedule(
 //            @PathVariable long technicianId,
