@@ -50,6 +50,9 @@ public enum ErrorCode {
     DATE_INVALID(404, "Invalid appointment date", HttpStatus.BAD_REQUEST),
     INVALID_DATE_RANGE(405, "Start date must be before end date", HttpStatus.BAD_REQUEST),
     DUPLICATE_SERVICE_ITEMS(406, "Duplicated service items", HttpStatus.BAD_REQUEST),
+    CANNOT_CANCEL_COMPLETED_APPOINTMENT(407, "Cannot cancel completed appointment", HttpStatus.BAD_REQUEST),
+    APPOINTMENT_ALREADY_CANCELLED(408, "Appointment is already cancelled", HttpStatus.BAD_REQUEST),
+
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(501, "Invalid key", HttpStatus.BAD_REQUEST),

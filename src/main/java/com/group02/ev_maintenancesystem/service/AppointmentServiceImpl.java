@@ -184,7 +184,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointment.setEstimatedCost(totalCost);
 
-        return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // Truyền repository làm context
+        AppointmentResponse response = appointmentMapper.toAppointmentResponse(savedAppointment);
+        appointmentMapper.mapServiceItems(savedAppointment, response, modelPackageItemRepository);
+
+        return response;
     }
 
 
@@ -260,8 +266,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<AppointmentResponse> getAll() {
         return appointmentRepository.findAll().stream()
-                .map(appointmentMapper::toAppointmentResponse)
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+                    appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+                    return response;
+                })
                 .toList();
+
     }
 
     // Admin role
@@ -277,6 +288,18 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .map(appointmentMapper::toAppointmentResponse)
                 .toList();
     }
+    @Override
+    public AppointmentResponse setStatusAppointment(Long id, AppointmentUpdateRequest request) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        // Update status
+        if (request.getStatus() != null) {
+            appointment.setStatus(request.getStatus());
+        }
+
+        return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
+    }
 
     @Override
     public AppointmentResponse updateAppointment(Long id, AppointmentUpdateRequest appointment) {
@@ -285,9 +308,23 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponse cancelAppointment(Long appointmentId) {
-        return null;
-    }
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
+        // Validate: Không thể hủy appointment đã hoàn thành
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new AppException(ErrorCode.CANNOT_CANCEL_COMPLETED_APPOINTMENT);
+        }
+
+        // Validate: Không thể hủy appointment đã bị hủy
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new AppException(ErrorCode.APPOINTMENT_ALREADY_CANCELLED);
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+
+        return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
+    }
 //    @Override
 //    public AppointmentResponse createAppointment(AppointmentRegistrationRequest request) {
 //        Appointment appointment = appointmentMapper.toAppointment(request);
