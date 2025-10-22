@@ -19,7 +19,7 @@ public class OpenAPIConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .servers(List.of(
-                    new Server().url("https://reliable-rebirth-production.up.railway.app/api").description("Production"),
+                    new Server().url("https://electriccarmaintenancesystembackend-production.up.railway.app/api").description("Production"),
                     new Server().url("http://localhost:8080/api").description("Local")))
                 .info(new Info()
                         .title("Electric Car Maintenance System API")
