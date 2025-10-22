@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleModel extends  BaseEntity {
+    @Column(nullable = false, unique = true)
     String name;
 
     @Column(name = "model_year")

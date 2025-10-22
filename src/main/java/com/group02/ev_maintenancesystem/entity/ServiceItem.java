@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class ServiceItem extends BaseEntity {
 
-    @Column(columnDefinition = "NVARCHAR(100)", nullable = false)
+    @Column(columnDefinition = "NVARCHAR(100)", nullable = false, unique = true)
     String name;
 
     @JsonIgnore
