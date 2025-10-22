@@ -41,7 +41,7 @@ public class Appointment extends BaseEntity {
     User technicianUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "vehicle_id", nullable = false)
+    @JoinColumn(name = "vehicle_id")
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,5 +58,9 @@ public class Appointment extends BaseEntity {
 
     @OneToOne(mappedBy = "appointment",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     MaintenanceRecord maintenanceRecord;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "center_id")
+    ServiceCenter serviceCenter;
 
 }

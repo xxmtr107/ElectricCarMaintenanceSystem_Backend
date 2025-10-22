@@ -4,18 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleModelUpdateResponse {
+public class ServicePackageResponse {
     Long id;
     String name;
-    String modelYear;
-    Integer basicMaintenance;
-    Integer comprehensiveMaintenance;
-    Integer basicMaintenanceTime;
-    Integer comprehensiveMaintenanceTime;
+    BigDecimal price;
+    String description;
+    LocalDateTime createdAt;
+    String createBy;
     LocalDateTime updateAt;
     String updateBy;
 

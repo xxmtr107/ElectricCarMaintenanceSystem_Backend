@@ -30,4 +30,8 @@ public class Invoice extends BaseEntity {
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Payment> payments = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "center_id")
+    private ServiceCenter serviceCenter;
 }

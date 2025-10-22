@@ -5,7 +5,16 @@ import com.group02.ev_maintenancesystem.dto.request.AppointmentUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.CustomerAppointmentRequest;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
+import com.group02.ev_maintenancesystem.entity.ModelPackageItem;
+import com.group02.ev_maintenancesystem.entity.ServiceItem;
+import com.group02.ev_maintenancesystem.repository.ModelPackageItemRepository;
 import org.mapstruct.*;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 
 @Mapper(componentModel = "spring",
@@ -33,9 +42,55 @@ public interface AppointmentMapper {
     @Mapping(target = "servicePackageId", source = "servicePackage.id")
     @Mapping(target = "servicePackageName", source = "servicePackage.name")
 
-    @Mapping(target = "serviceItems", source = "serviceItems")
+    @Mapping(target = "serviceItems", ignore = true)
     AppointmentResponse toAppointmentResponse(Appointment appointment);
 
-//    List<AppointmentResponse> toAppointmentResponse(List<Appointment> appointments);
-}
+    @AfterMapping
+    default void mapServiceItems(Appointment appointment, @MappingTarget AppointmentResponse response,
+                                  @Context ModelPackageItemRepository modelPackageItemRepository) {
+        if (appointment.getServiceItems() == null || appointment.getServiceItems().isEmpty()) {
+            response.setServiceItems(Collections.emptyList());
+            return;
+        }
 
+        Long modelId = appointment.getVehicle().getModel().getId();
+        Long packageId = appointment.getServicePackage() != null ?
+                        appointment.getServicePackage().getId() : null;
+
+        List<AppointmentResponse.ServiceItemDTO> dtoList = new ArrayList<>();
+
+        for (ServiceItem item : appointment.getServiceItems()) {
+            BigDecimal price = item.getPrice(); // Giá mặc định
+
+            // Tìm giá theo model
+            if (packageId != null) {
+                // Tìm dịch vụ trong gói
+                Optional<ModelPackageItem> modelItem = modelPackageItemRepository
+                    .findByVehicleModelIdAndServicePackageIdAndServiceItemId(
+                        modelId, packageId, item.getId());
+                if (modelItem.isPresent()) {
+                    price = modelItem.get().getPrice();
+                }
+            } else {
+                // Tìm dịch vụ lẻ
+                Optional<ModelPackageItem> modelItem = modelPackageItemRepository
+                    .findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(
+                        modelId, item.getId());
+                if (modelItem.isPresent()) {
+                    price = modelItem.get().getPrice();
+                }
+            }
+
+            AppointmentResponse.ServiceItemDTO dto = AppointmentResponse.ServiceItemDTO.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .price(price)
+                .build();
+
+            dtoList.add(dto);
+        }
+
+        response.setServiceItems(dtoList);
+    }
+}

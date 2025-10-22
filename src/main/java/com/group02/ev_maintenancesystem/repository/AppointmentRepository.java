@@ -3,11 +3,9 @@ package com.group02.ev_maintenancesystem.repository;
 
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
-import com.group02.ev_maintenancesystem.entity.ServiceItem;
+import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -47,10 +45,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByAppointmentDateBetween(LocalDateTime start, LocalDateTime end);
 
     // Check vehicle appointment conflict
-    boolean existsByVehicleIdAndAppointmentDate(Long vehicleId, LocalDateTime appointmentDate);
+    boolean existsByVehicleIdAndAppointmentDateBetween(
+            Long vehicleId,
+            LocalDateTime startOfDay,
+            LocalDateTime endOfDay
+    );
 
     // Find by technician and date
     List<Appointment> findByTechnicianUserIdAndAppointmentDate(Long technicianId, LocalDateTime scheduleDate);
 
+    List<Appointment> deleteByVehicleId(Long vehicleId);
+
+    List<Appointment> findByAppointmentDate(LocalDateTime date);
 }
 

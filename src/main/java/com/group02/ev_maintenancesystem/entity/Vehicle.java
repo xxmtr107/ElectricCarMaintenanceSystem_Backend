@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,4 +38,6 @@ public class Vehicle extends BaseEntity{
 
     @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
     List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
+
+
 }

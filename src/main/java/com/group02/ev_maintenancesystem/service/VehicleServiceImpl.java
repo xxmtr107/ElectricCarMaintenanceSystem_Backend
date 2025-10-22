@@ -6,6 +6,7 @@ import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
+import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
@@ -16,6 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,12 +116,14 @@ public class VehicleServiceImpl implements VehicleService{
     }
 
     @Override
-    public List<VehicleResponse> getAllVehicle() {
-        List<Vehicle> vehicleList = vehicleRepository.findAll();
-
-        return vehicleList.stream()
-                .map(vehicleList1 -> modelMapper.map(vehicleList1, VehicleResponse.class))
-                .toList();
+    public Page<VehicleResponse> getAllVehicle(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Vehicle> vehicleList = vehicleRepository.findAll(pageable);
+        if(vehicleList.isEmpty()){
+            throw new AppException(ErrorCode.VEHICLE_NOT_FOUND);
+        }
+        return vehicleList
+                .map(vehicleList1 -> modelMapper.map(vehicleList1, VehicleResponse.class));
     }
 
     @Override
@@ -125,7 +131,9 @@ public class VehicleServiceImpl implements VehicleService{
         //Tìm xem id của xe có tồn tại hay không
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        vehicle.setCurrentKm(request.getCurrentKm());
+        if(request.getCurrentKm() != null) {
+            vehicle.setCurrentKm(request.getCurrentKm());
+        }
 
         vehicleRepository.save(vehicle);
         return modelMapper.map(vehicle, VehicleResponse.class);
@@ -134,13 +142,24 @@ public class VehicleServiceImpl implements VehicleService{
     @Override
     @Transactional
     public VehicleResponse deleteVehicle(Long vehicleId) {
-//        Vehicle vehicle = vehicleRepository.findById(vehicleId).
-//                orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-//        appointmentRepository.deleteByVehicleId(vehicleId);
-//        vehicleRepository.deleteById(vehicleId);
-       /* return modelMapper.map(vehicle, VehicleResponse.class);
-    }*/
-        return null;
+        Vehicle vehicle = vehicleRepository.findById(vehicleId).
+                orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+        //appointmentRepository.deleteByVehicleId(vehicleId);
+        List<Appointment> appointment = appointmentRepository.findByVehicleId(vehicleId);
+        //Nếu empty thì xóa
+        if(appointment.isEmpty()){
+            vehicleRepository.deleteById(vehicleId);
+        }
+
+        //CHỈ XÓA NHỮNG XE CÓ TRẠNG THÁI COMPLETED VÀ CANCELLED
+        boolean hasActiveAppointment = appointment.stream()
+                .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
+                        && app.getStatus() != AppointmentStatus.CANCELLED);
+        if(hasActiveAppointment){
+            throw new AppException(ErrorCode.CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
+        }
+        vehicleRepository.deleteById(vehicleId);
+        return modelMapper.map(vehicle, VehicleResponse.class);
     }
 
 }

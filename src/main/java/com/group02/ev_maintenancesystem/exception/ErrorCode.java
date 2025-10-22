@@ -29,6 +29,7 @@ public enum ErrorCode {
     KILOMETER_INVALID_RANGE(206, "Kilometers must be between 0 and 999999", HttpStatus.BAD_REQUEST),
     LICENSE_PLATE_INVALID(207, "License plate format is invalid", HttpStatus.BAD_REQUEST),
     VEHICLE_NOT_BELONG_TO_CUSTOMER(208, "Vehicle does not belong to the customer", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT(209, "Cannot delete vehicle because it has active appointments (not completed or canceled).", HttpStatus.BAD_REQUEST),
 
     // ========================= VEHICLE MODEL ERRORS (300 - 399) =========================
     MODEL_NAME_INVALID(300, "Name of model must follow format like VFe34 or VF8", HttpStatus.BAD_REQUEST),
@@ -40,6 +41,7 @@ public enum ErrorCode {
     VEHICLE_MODEL_NAME_DUPLICATE(306, "Vehicle model name already exists", HttpStatus.BAD_REQUEST),
     VEHICLE_MODEL_NOT_FOUND(307, "Vehicle model not found", HttpStatus.NOT_FOUND),
 
+
     // ========================= APPOINTMENT ERRORS (400 - 499) =========================
     APPOINTMENT_NOT_FOUND(400, "Appointment not found", HttpStatus.NOT_FOUND),
     APPOINTMENT_ALREADY_EXISTS(401, "Appointment already exists", HttpStatus.BAD_REQUEST),
@@ -47,7 +49,7 @@ public enum ErrorCode {
     STATUS_INVALID(403, "Invalid appointment status", HttpStatus.BAD_REQUEST),
     DATE_INVALID(404, "Invalid appointment date", HttpStatus.BAD_REQUEST),
     INVALID_DATE_RANGE(405, "Start date must be before end date", HttpStatus.BAD_REQUEST),
-
+    DUPLICATE_SERVICE_ITEMS(406, "Duplicated service items", HttpStatus.BAD_REQUEST),
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(501, "Invalid key", HttpStatus.BAD_REQUEST),
@@ -56,16 +58,35 @@ public enum ErrorCode {
     // ========================= SERVICE ITEMS & SERVICE PACKAGES (600 - 699) =========================
     MUST_SELECT_SERVICE(600, "Must select at least one service package or service item", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NOT_FOUND(601, "Service package not found", HttpStatus.BAD_REQUEST),
-    SERVICE_ITEM_NOT_FOUND(602, "Service item not found", HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_NOT_FOUND(602, "Service item not found", HttpStatus.NOT_FOUND),
+    SERVICE_ITEM_NAME_INVALID(603, "Service must between 10-100 and just contain / or : ", HttpStatus.BAD_REQUEST),
+    SERVICE_PRICE_INVALID(604, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_NAME_DUPLICATE(605, "Service item name already exists", HttpStatus.BAD_REQUEST),
+    SERVICE_DESCRIPTION_INVALID(606, "Description must between 10-150", HttpStatus.BAD_REQUEST),
+    SERVICE_PACKAGE_NAME_INVALID(607, "Package name must between 10-100 and just contain / or :", HttpStatus.BAD_REQUEST),
+    SERVICE_PACKAGE_NAME_DUPLICATE(608, "Service package name already exists",HttpStatus.BAD_REQUEST),
 
-    // ========================= SERVER ERRORS (900 - 999) =========================
-    INTERNAL_SERVER_ERROR(900, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
-    UNCATEGORIZED(901, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    // ========================= PAYMENT ERRORS (700 - 799) =========================
+    FIELD_INVALID(701, "Invalid field", HttpStatus.BAD_REQUEST),
+    HASH_DATA_FAIL(703, "Hash data fail", HttpStatus.INTERNAL_SERVER_ERROR),
+    SIGNATURE_INVALID(704, "Invalid VNPay signature", HttpStatus.BAD_REQUEST),
+    PAYMENT_FAILED(705, "Payment failed", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_FOUND(706, "Payment not found", HttpStatus.NOT_FOUND),
 
-    // ========================= MAINTENANCE RECORD ERRORS (1000-1100) =========================
-    MAINTENANCE_RECORD_NOT_FOUND(1000,"Maintenance record not found",HttpStatus.BAD_REQUEST),
-    DELETE_FAILED(1001,"Failed to delete",HttpStatus.BAD_REQUEST);
+    // ========================= INVOICE ERRORS (800 - 899) =========================
+    INVOICE_NOT_FOUND(800, "Invoice already exists for this appointment", HttpStatus.BAD_REQUEST),
 
+    // ========================= MODEL PACKAGE ITEM ERRORS (900 - 999) =========================
+    MODEL_PACKAGE_ITEM_NOT_FOUND(900, "Model package item not found", HttpStatus.NOT_FOUND),
+    MODEL_PACKAGE_ITEM_EXISTED(901, "Model package item already exists", HttpStatus.BAD_REQUEST),
+    PRICE_INVALID(902, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
+
+    // ========================= SERVER ERRORS (1000 - 1099) =========================
+    INTERNAL_SERVER_ERROR(1000, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNCATEGORIZED(1001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+
+
+    MAINTENANCE_RECORD_NOT_FOUND(1100, "Maintenance record not found", HttpStatus.NOT_FOUND);
     private final int code;
     private final String message;
     private final HttpStatus httpStatus;

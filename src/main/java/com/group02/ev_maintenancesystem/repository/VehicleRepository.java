@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.repository;
 
+import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.stereotype.Repository;
