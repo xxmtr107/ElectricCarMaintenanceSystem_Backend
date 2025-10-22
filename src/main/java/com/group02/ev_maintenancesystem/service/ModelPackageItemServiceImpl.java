@@ -14,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -169,5 +171,23 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
 
         modelPackageItemRepository.deleteById(id);
     }
+    @Override
+    public BigDecimal getPackageTotalPrice(Long vehicleModelId, Long servicePackageId) {
+        if (!vehicleModelRepository.existsById(vehicleModelId)) {
+            throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
+        }
+        if (!servicePackageRepository.existsById(servicePackageId)) {
+            throw new AppException(ErrorCode.SERVICE_PACKAGE_NOT_FOUND);
+        }
+
+        List<ModelPackageItem> items = modelPackageItemRepository
+                .findByVehicleModelIdAndServicePackageId(vehicleModelId, servicePackageId);
+
+        return items.stream()
+                .map(ModelPackageItem::getPrice)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
 }
 

@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -93,4 +94,14 @@ public class ModelPackageItemController {
                 .message("Model package item deleted successfully")
                 .build();
     }
+    @GetMapping("/total/model/{vehicleModelId}/package/{servicePackageId}")
+    public ApiResponse<BigDecimal> getPackageTotalPrice(
+            @PathVariable Long vehicleModelId,
+            @PathVariable Long servicePackageId) {
+        BigDecimal total = modelPackageItemService.getPackageTotalPrice(vehicleModelId, servicePackageId);
+        return ApiResponse.<BigDecimal>builder()
+                .result(total)
+                .build();
+    }
+
 }

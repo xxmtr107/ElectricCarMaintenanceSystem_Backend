@@ -30,4 +30,6 @@ public class ModelPackageItem extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "service_item_id")
     ServiceItem serviceItem;
+
+
 }
