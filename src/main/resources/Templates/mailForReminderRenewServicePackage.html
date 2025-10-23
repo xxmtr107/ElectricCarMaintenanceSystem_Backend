@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Package Renewal Reminder</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background-color: #0078D7; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; color: #333; line-height: 1.6; }
+        .content h2 { color: #0078D7; }
+        .button { display: inline-block; padding: 10px 20px; background: #0078D7; color: white; border-radius: 4px; text-decoration: none; margin-top: 15px; }
+        .footer { background-color: #f4f4f4; text-align: center; padding: 15px; font-size: 12px; color: #777; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="https://tse2.mm.bing.net/th/id/OIP.Mj9gJd-Ge5Dbj1pp90AmDwHaGu?pid=Api&P=0&h=220" alt="Brand Logo">
+        <h1>Service Package Renewal</h1>
+    </div>
+    <div class="content">
+        <p>Dear <strong th:text="${name}">Customer Name</strong>,</p>
+        <p>Your current service package will expire soon. To continue enjoying uninterrupted benefits, please renew before the expiry date.</p>
+        <h2>Package Details</h2>
+        <p>
+            <strong>Vehicle Identification Number:</strong> <span th:text="${vin}"></span><br>
+            <strong>Vehicle:</strong> <span th:text="${vehicle}"></span><br>
+            <strong>Package Name:</strong> <span th:text="${packageName}">Premium Maintenance Plan</span><br>
+            <strong>Expiry Date:</strong> <span th:text="${expiryDate}">30 Oct 2025</span><br>
+        </p>
+        <p>Renew now to maintain your vehicle’s best performance and avoid service interruptions.</p>
+        <a class="button" th:href="${renewLink}">Renew Now</a>
+        <p>If you have any questions or need assistance, please contact us:<br>📞 <span th:text="${phone}">1900 23 23 89</span> | ✉️ <span th:text="${email}">support@vinfastauto.com</span></p>
+    </div>
+    <div class="footer">
+        <p>Thank you for choosing VINFAST.<br>
+            &copy; <span>2025</span> <span>VinFast Auto</span>. All rights reserved.<br>
+            🌐 <a href="www.vinfastauto.com" >www.vinfastauto.com</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

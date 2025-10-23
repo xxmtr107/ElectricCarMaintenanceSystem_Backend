@@ -86,9 +86,10 @@ public enum ErrorCode {
 
     // ========================= SERVER ERRORS (1000 - 1099) =========================
     INTERNAL_SERVER_ERROR(1000, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
-    UNCATEGORIZED(1001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR);
+    UNCATEGORIZED(1001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 
 
+    MAINTENANCE_RECORD_NOT_FOUND(1100, "Maintenance record not found", HttpStatus.NOT_FOUND);
     private final int code;
     private final String message;
     private final HttpStatus httpStatus;

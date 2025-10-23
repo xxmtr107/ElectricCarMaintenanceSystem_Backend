@@ -50,8 +50,8 @@ public class AppointmentController {
     public ApiResponse<List<AppointmentResponse>> getAllAppointments() {
         return ApiResponse.<List<AppointmentResponse>>builder()
                 .message("All appointments fetched successfully")
-                .result(appointmentService.getAll())
-                .build();
+                .result(appointmentService.getAll()).build();
+
     }
 
     @GetMapping("/{appointmentId}")

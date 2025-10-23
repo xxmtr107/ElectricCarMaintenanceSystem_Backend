@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upcoming Service Appointment Reminder</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background-color: #0078D7; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; color: #333; line-height: 1.6; }
+        .content h2 { color: #0078D7; }
+        .button { display: inline-block; padding: 10px 20px; background: #0078D7; color: white; border-radius: 4px; text-decoration: none; margin-top: 15px; }
+        .footer { background-color: #f4f4f4; text-align: center; padding: 15px; font-size: 12px; color: #777; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="https://tse2.mm.bing.net/th/id/OIP.Mj9gJd-Ge5Dbj1pp90AmDwHaGu?pid=Api&P=0&h=220" alt="Brand Logo">
+        <h1>Upcoming Appointment Reminder</h1>
+    </div>
+    <div class="content">
+        <p>Dear <strong th:text="${name}"></strong>,</p>
+        <p>This is a friendly reminder of your upcoming vehicle service appointment.</p>
+        <h2>Appointment Details</h2>
+        <p>
+            <strong>Date & Time:</strong> <span th:text="${dateTime}"></span><br>
+            <strong>Service Center:</strong> <span th:text="${center}"></span><br>
+            <strong>Address:</strong> <span th:text="${address}"></span><br>
+            <strong>Vehicle:</strong> <span th:text="${vehicle}"></span>
+        </p>
+        <p>Please arrive 10–15 minutes before your scheduled time for check-in.</p>
+        <p>If you have any questions or need assistance, please contact us:<br>
+            📞 <span th:text="${phone}"></span> | ✉️ <span th:text="${email}"></span></p>
+    </div>
+    <div class="footer">
+        <p>Thank you for choosing VINFAST.<br>
+            &copy; <span>2025</span> <span>VinFast Auto</span>. All rights reserved.<br>
+            🌐 <a href="www.vinfastauto.com" >www.vinfastauto.com</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

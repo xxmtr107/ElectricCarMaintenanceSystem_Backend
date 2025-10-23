@@ -59,4 +59,9 @@ public class MaintenanceRecord extends  BaseEntity {
 
     @OneToMany(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<PartUsage> partUsages = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "center_id")
+    ServiceCenter serviceCenter;
+
 }
