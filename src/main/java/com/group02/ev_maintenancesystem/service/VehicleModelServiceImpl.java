@@ -58,15 +58,6 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
         VehicleModel savedModel = vehicleModelRepository.save(newVehicleModel);
 
 
-//        VehicleModelCreationResponse vehicleModelResponse = VehicleModelCreationResponse.builder()
-//                .id(savedModel.getId())
-//                .name(savedModel.getName())
-//                .modelYear(savedModel.getModelYear())
-//                .basicMaintenance(savedModel.getBasicMaintenance())
-//                .comprehensiveMaintenance(savedModel.getComprehensiveMaintenance())
-//                .basicMaintenanceTime(savedModel.getBasicMaintenanceTime())
-//                .comprehensiveMaintenanceTime(savedModel.getComprehensiveMaintenanceTime())
-//                .build();
 
 
         return modelMapper.map(savedModel, VehicleModelResponse.class);

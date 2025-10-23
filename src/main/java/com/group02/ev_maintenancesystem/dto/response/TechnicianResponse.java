@@ -19,8 +19,6 @@ public class TechnicianResponse {
     String email;
     String phone;
     Gender gender;
-    String specialization;
-    Integer experienceYears;
     String role;
 
 }

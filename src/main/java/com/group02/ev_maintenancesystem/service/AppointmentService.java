@@ -37,7 +37,7 @@ public interface AppointmentService {
     // Assign technician to appointment
     AppointmentResponse assignTechnician(Long appointmentId, Long technicianId);
 
-    AppointmentResponse setStatusAppointment(Long id, AppointmentUpdateRequest request);
+    AppointmentResponse setStatusAppointment(Long id, AppointmentStatus newStatus);
 
 
 //    boolean isTechnicianAvailable(long technicianId, LocalDateTime scheduleDate);

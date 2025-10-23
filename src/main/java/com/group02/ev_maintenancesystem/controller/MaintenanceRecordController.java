@@ -1,17 +1,12 @@
 package com.group02.ev_maintenancesystem.controller;
 
-import com.group02.ev_maintenancesystem.dto.request.MaintenanceRecordRegistrationRequest;
-import com.group02.ev_maintenancesystem.dto.request.MaintenanceRecordUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
-import com.group02.ev_maintenancesystem.exception.AppException;
-import com.group02.ev_maintenancesystem.repository.MaintenanceRecordRepository;
 import com.group02.ev_maintenancesystem.service.MaintenanceRecordService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -87,12 +82,5 @@ public class MaintenanceRecordController {
 //                build();
 //    }
 
-    @DeleteMapping("/{id}")
-    public ApiResponse<String> deleteMaintenanceRecord(@PathVariable long id){
 
-            maintenanceRecordService.delete(id);
-            return ApiResponse.<String>builder()
-                    .message("Maintenance record deleted successfully")
-                    .build();
-    }
 }

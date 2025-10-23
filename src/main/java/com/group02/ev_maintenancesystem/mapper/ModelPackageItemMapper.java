@@ -18,6 +18,7 @@ public interface ModelPackageItemMapper {
     @Mapping(target = "servicePackageName", source = "servicePackage.name")
     @Mapping(target = "serviceItemId", source = "serviceItem.id")
     @Mapping(target = "serviceItemName", source = "serviceItem.name")
+    @Mapping(target = "actionType", source = "actionType")
     ModelPackageItemResponse toModelPackageItemResponse(ModelPackageItem modelPackageItem);
 
     void updateModelPackageItem(ModelPackageItemRequest request, @MappingTarget ModelPackageItem modelPackageItem);

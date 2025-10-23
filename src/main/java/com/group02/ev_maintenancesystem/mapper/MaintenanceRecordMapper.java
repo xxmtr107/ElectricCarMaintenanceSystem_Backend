@@ -1,11 +1,7 @@
 package com.group02.ev_maintenancesystem.mapper;
 
 
-import com.group02.ev_maintenancesystem.dto.request.MaintenanceRecordRegistrationRequest;
-import com.group02.ev_maintenancesystem.dto.request.MaintenanceRecordUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
-import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
 import org.mapstruct.*;
 
@@ -13,9 +9,6 @@ import org.mapstruct.*;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface MaintenanceRecordMapper {
-    MaintenanceRecord toMaintenanceRecord(MaintenanceRecordRegistrationRequest request);
-
-    void updateMaintenanceRecord(MaintenanceRecordUpdateRequest request, @MappingTarget MaintenanceRecord maintenanceRecord);
 
     @Mapping(target = "appointmentId", source = "appointment.id")
     @Mapping(target = "customerId", source = "appointment.customerUser.id")

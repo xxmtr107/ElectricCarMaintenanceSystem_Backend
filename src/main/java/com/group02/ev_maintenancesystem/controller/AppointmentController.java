@@ -117,13 +117,13 @@ public class AppointmentController {
                 .build();
     }
 
-    @PutMapping("/update/{appointmentId}")
+    @PutMapping("/setStatus/{appointmentId}")
     public ApiResponse<AppointmentResponse> update(
             @PathVariable Long appointmentId,
-            @RequestBody @Valid AppointmentUpdateRequest request) {
+            @RequestBody AppointmentStatus newStatus) {
         return ApiResponse.<AppointmentResponse>builder()
                 .message("Appointment updated successfully")
-                .result(appointmentService.setStatusAppointment(appointmentId, request))
+                .result(appointmentService.setStatusAppointment(appointmentId, newStatus))
                 .build();
     }
 

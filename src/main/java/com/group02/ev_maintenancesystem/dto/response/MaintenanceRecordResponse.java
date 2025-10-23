@@ -22,8 +22,7 @@ public class MaintenanceRecordResponse {
     Long appointmentId;
     Long customerId;
     String customerName;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+
 
     Long servicePackageId;
     String servicePackageName;
@@ -38,4 +37,6 @@ public class MaintenanceRecordResponse {
     String notes;
     List<ServiceItem> serviceItems;
 
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }
