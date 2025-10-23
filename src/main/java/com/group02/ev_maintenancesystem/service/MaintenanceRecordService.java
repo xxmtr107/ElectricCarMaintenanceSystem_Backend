@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MaintenanceRecordService {
-    List<MaintenanceRecordResponse> createMaintenanceRecord(Authentication authentication);
+//    List<MaintenanceRecordResponse> createMaintenanceRecord(Authentication authentication);
 
     MaintenanceRecordResponse getByMaintenanceRecordId(long MaintenanceRecordId);
 

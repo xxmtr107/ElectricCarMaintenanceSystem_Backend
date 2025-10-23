@@ -37,34 +37,34 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     ServicePackageRepository servicePackageRepository;
     ServiceItemRepository serviceItemRepository;
 
-    @Override
-    public List<MaintenanceRecordResponse> createMaintenanceRecord(Authentication authentication) {
-
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        Long customerId = jwt.getClaim("userId");
-
-        List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
-        List<MaintenanceRecordResponse> responses = new ArrayList<>();
-        for (Appointment appointment : appointments) {
-            if ((appointment.getStatus().equals(AppointmentStatus.COMPLETED) ||
-                    appointment.getStatus().equals(AppointmentStatus.CANCELLED)) &&
-                    maintenanceRecordRepository.findByAppointment_Id(appointment.getId()) == null) {
-
-                MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
-                maintenanceRecord.setOdometer(appointment.getVehicle().getCurrentKm());
-                maintenanceRecord.setAppointment(appointment);
-                maintenanceRecord.setServicePackage(appointment.getServicePackage());
-                maintenanceRecord.setTechnicianUser(appointment.getTechnicianUser());
-                maintenanceRecord.setVehicle(appointment.getVehicle());
-                List<ServiceItem> items = serviceItemRepository.findByServicePackages_Id(appointment.getServicePackage().getId());
-                maintenanceRecord.setServiceItems(items);
-                maintenanceRecord.setPerformedAt(appointment.getAppointmentDate());
-                maintenanceRecord = maintenanceRecordRepository.save(maintenanceRecord);
-                responses.add(maintenanceRecordMapper.toMaintenanceRecordResponse(maintenanceRecord));
-            }
-        }
-        return responses;
-    }
+//    @Override
+//    public List<MaintenanceRecordResponse> createMaintenanceRecord(Authentication authentication) {
+//
+//        Jwt jwt = (Jwt) authentication.getPrincipal();
+//        Long customerId = jwt.getClaim("userId");
+//
+//        List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
+//        List<MaintenanceRecordResponse> responses = new ArrayList<>();
+//        for (Appointment appointment : appointments) {
+//            if ((appointment.getStatus().equals(AppointmentStatus.COMPLETED) ||
+//                    appointment.getStatus().equals(AppointmentStatus.CANCELLED)) &&
+//                    maintenanceRecordRepository.findByAppointment_Id(appointment.getId()) == null) {
+//
+//                MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
+//                maintenanceRecord.setOdometer(appointment.getVehicle().getCurrentKm());
+//                maintenanceRecord.setAppointment(appointment);
+//                maintenanceRecord.setServicePackage(appointment.getServicePackage());
+//                maintenanceRecord.setTechnicianUser(appointment.getTechnicianUser());
+//                maintenanceRecord.setVehicle(appointment.getVehicle());
+//                List<ServiceItem> items = serviceItemRepository.findByServicePackageId(appointment.getServicePackage().getId());
+//                maintenanceRecord.setServiceItems(items);
+//                maintenanceRecord.setPerformedAt(appointment.getAppointmentDate());
+//                maintenanceRecord = maintenanceRecordRepository.save(maintenanceRecord);
+//                responses.add(maintenanceRecordMapper.toMaintenanceRecordResponse(maintenanceRecord));
+//            }
+//        }
+//        return responses;
+//    }
 
     @Override
     public MaintenanceRecordResponse getByMaintenanceRecordId(long MaintenanceRecordId) {

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ServiceItemRepository extends JpaRepository<ServiceItem, Long> {
     List<ServiceItem> findAllByIdIn(List<Long> ids);
-    List<ServiceItem> findByServicePackages_Id(Long servicePackageId);
+//    List<ServiceItem> findByServicePackageId(Long servicePackageId);
     Page<ServiceItem> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
     boolean existsByName(String itemName);
 }
