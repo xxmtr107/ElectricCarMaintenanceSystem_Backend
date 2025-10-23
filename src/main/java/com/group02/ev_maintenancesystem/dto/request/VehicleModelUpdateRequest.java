@@ -1,5 +1,8 @@
 package com.group02.ev_maintenancesystem.dto.request;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,8 +13,18 @@ import lombok.NoArgsConstructor;
 public class VehicleModelUpdateRequest {
     private String name;
     String modelYear;
-    Integer basicMaintenance;
-    Integer comprehensiveMaintenance;
-    Integer basicMaintenanceTime;
-    Integer comprehensiveMaintenanceTime;
+    Integer basicCycleKm;
+    Integer basicCycleMonths;
+
+
+    Integer standardCycleKm;
+    Integer standardCycleMonths;
+
+    // Premium cycle
+    Integer premiumCycleKm;
+    Integer premiumCycleMonths;
+
+    // Battery cycle
+    Integer batteryCycleKm;
+    Integer batteryCycleMonths;
 }

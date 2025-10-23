@@ -163,11 +163,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                         .findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(modelId, item.getId());
 
                 BigDecimal itemPrice;
-                if (modelItem.isPresent()) {
-                    itemPrice = modelItem.get().getPrice();
-                } else {
-                    itemPrice = item.getPrice(); // Giá mặc định nếu không tìm thấy giá theo model
-                }
+
+                itemPrice = modelItem.get().getPrice();
+
 
                 serviceItemsTotal = serviceItemsTotal.add(itemPrice);
             }

@@ -2,19 +2,19 @@ package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.VehicleModelGetResponse;
+import com.group02.ev_maintenancesystem.dto.response.VehicleModelResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface VehicleModelService {
-    VehicleModelGetResponse createVehicleModel(VehicleModelRequest request);
+    VehicleModelResponse createVehicleModel(VehicleModelRequest request);
 
-    VehicleModelGetResponse getVehicleModelById(Long vehicleModelId);
+    VehicleModelResponse getVehicleModelById(Long vehicleModelId);
 
-    List<VehicleModelGetResponse> getAllVehicleModel();
+    List<VehicleModelResponse> getAllVehicleModel();
 
-    Page<VehicleModelGetResponse> searchVehicleModelByName(String keyword, int page, int size);
-    VehicleModelGetResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request);
-    VehicleModelGetResponse deleteVehicleModelById(Long vehicleId);
+    Page<VehicleModelResponse> searchVehicleModelByName(String keyword, int page, int size);
+    VehicleModelResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request);
+    VehicleModelResponse deleteVehicleModelById(Long vehicleId);
 }

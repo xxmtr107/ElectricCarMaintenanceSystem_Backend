@@ -50,12 +50,6 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING) // Store the enum as a string in the database
     Gender gender;
 
-    // ========== TECHNICIAN-SPECIFIC FIELDS (nullable for non-technicians) ==========
-    String specialization;
-
-    @Column(name = "experience_years")
-    Integer experienceYears;
-
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)

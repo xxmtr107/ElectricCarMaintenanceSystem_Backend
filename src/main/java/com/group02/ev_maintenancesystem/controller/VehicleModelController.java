@@ -21,8 +21,8 @@ public class VehicleModelController {
 
     //Tạo 1 model xe mới
     @PostMapping("/create")
-    public ApiResponse<VehicleModelGetResponse> createVehicleModel(@Valid @RequestBody VehicleModelRequest request){
-        return ApiResponse. <VehicleModelGetResponse>builder()
+    public ApiResponse<VehicleModelResponse> createVehicleModel(@Valid @RequestBody VehicleModelRequest request){
+        return ApiResponse. <VehicleModelResponse>builder()
                 .message("Create vehicle model successfully")
                 .result(vehicleModelService.createVehicleModel(request))
                 .build();
@@ -30,8 +30,8 @@ public class VehicleModelController {
 
     //Lấy thông tin của model xe bằng id của model
     @GetMapping("/{vehicleModelId}")
-    public ApiResponse<VehicleModelGetResponse> getVehicleModelById(@PathVariable Long vehicleModelId){
-        return ApiResponse.<VehicleModelGetResponse>builder()
+    public ApiResponse<VehicleModelResponse> getVehicleModelById(@PathVariable Long vehicleModelId){
+        return ApiResponse.<VehicleModelResponse>builder()
                 .message("Get vehicle model succesfully")
                 .result(vehicleModelService.getVehicleModelById(vehicleModelId))
                 .build();
@@ -39,8 +39,8 @@ public class VehicleModelController {
 
     //Lấy tất cả model
     @GetMapping
-    public ApiResponse<List<VehicleModelGetResponse>> getAllVehicleModel(){
-        return ApiResponse.<List<VehicleModelGetResponse>>builder()
+    public ApiResponse<List<VehicleModelResponse>> getAllVehicleModel(){
+        return ApiResponse.<List<VehicleModelResponse>>builder()
                 .message("Get vehicle model successfully")
                 .result(vehicleModelService.getAllVehicleModel())
                 .build();
@@ -48,8 +48,8 @@ public class VehicleModelController {
 
     //Search model bằng keyword là name
     @GetMapping("/search")
-    public ApiResponse<Page<VehicleModelGetResponse>> getVehicleModelByKeyword(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
-        return ApiResponse.<Page<VehicleModelGetResponse>>builder()
+    public ApiResponse<Page<VehicleModelResponse>> getVehicleModelByKeyword(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        return ApiResponse.<Page<VehicleModelResponse>>builder()
                 .message("Get vehicle model successfully")
                 .result(vehicleModelService.searchVehicleModelByName(keyword, page, size))
                 .build();
@@ -57,8 +57,8 @@ public class VehicleModelController {
 
     //Update model bằng id
     @PutMapping("/{vehicleModelId}")
-    public ApiResponse<VehicleModelGetResponse> updateVehicleModel(@PathVariable Long vehicleModelId, @RequestBody @Valid VehicleModelUpdateRequest request){
-        return ApiResponse.<VehicleModelGetResponse>builder()
+    public ApiResponse<VehicleModelResponse> updateVehicleModel(@PathVariable Long vehicleModelId, @RequestBody @Valid VehicleModelUpdateRequest request){
+        return ApiResponse.<VehicleModelResponse>builder()
                 .message("Update vehicle successfully")
                 .result(vehicleModelService.updateVehicleMode(vehicleModelId, request))
                 .build();
@@ -66,8 +66,8 @@ public class VehicleModelController {
 
     //Delete bằng modelId
     @DeleteMapping("/{vehicleModelId}")
-    public ApiResponse<VehicleModelGetResponse> deleteVehicleModelById(@PathVariable Long vehicleModelId){
-        return ApiResponse.<VehicleModelGetResponse>builder()
+    public ApiResponse<VehicleModelResponse> deleteVehicleModelById(@PathVariable Long vehicleModelId){
+        return ApiResponse.<VehicleModelResponse>builder()
                 .message("Delete vehicle model successfully")
                 .result(vehicleModelService.deleteVehicleModelById(vehicleModelId))
                 .build();

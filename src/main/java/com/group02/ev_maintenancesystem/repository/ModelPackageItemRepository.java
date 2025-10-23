@@ -1,6 +1,8 @@
 package com.group02.ev_maintenancesystem.repository;
 
 import com.group02.ev_maintenancesystem.entity.ModelPackageItem;
+import com.group02.ev_maintenancesystem.entity.ServicePackage;
+import com.group02.ev_maintenancesystem.entity.VehicleModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -25,4 +27,6 @@ public interface ModelPackageItemRepository extends JpaRepository<ModelPackageIt
     boolean existsByVehicleModelIdAndServicePackageIdAndServiceItemId(Long modelId, Long packageId, Long itemId);
 
     boolean existsByVehicleModelIdAndServicePackageIsNullAndServiceItemId(Long modelId, Long itemId);
+
+    List<ModelPackageItem> findByVehicleModelAndServicePackage(VehicleModel model, ServicePackage recommendedPackage);
 }

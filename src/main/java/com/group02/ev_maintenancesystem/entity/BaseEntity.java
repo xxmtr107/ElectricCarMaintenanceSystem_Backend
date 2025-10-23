@@ -25,7 +25,7 @@ public abstract class BaseEntity {
 
     @JsonIgnore
     @CreatedDate // Automatically set the creation date
-    @Column(name = "create_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP(0)")
+    @Column(name = "create_at", updatable = false, columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdAt;
 
     @JsonIgnore

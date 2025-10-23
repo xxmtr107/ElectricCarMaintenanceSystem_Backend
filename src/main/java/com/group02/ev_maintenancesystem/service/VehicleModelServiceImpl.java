@@ -2,8 +2,7 @@ package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.VehicleModelCreationResponse;
-import com.group02.ev_maintenancesystem.dto.response.VehicleModelGetResponse;
+import com.group02.ev_maintenancesystem.dto.response.VehicleModelResponse;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
@@ -32,7 +31,7 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
 
 
     @Override
-    public VehicleModelGetResponse createVehicleModel(VehicleModelRequest request) {
+    public VehicleModelResponse createVehicleModel(VehicleModelRequest request) {
         //check xem có bị trùng tên hay không
         String modelName = request.getName().trim();
         List<VehicleModel> existModelName = vehicleModelRepository.findAll();
@@ -47,11 +46,14 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
         VehicleModel newVehicleModel = new VehicleModel();
         newVehicleModel.setName(request.getName());
         newVehicleModel.setModelYear(request.getModelYear());
-        newVehicleModel.setBasicMaintenance(request.getBasicMaintenance());
-        newVehicleModel.setComprehensiveMaintenance(request.getComprehensiveMaintenance());
-        newVehicleModel.setBasicMaintenanceTime(request.getBasicMaintenanceTime());
-        newVehicleModel.setComprehensiveMaintenanceTime(request.getComprehensiveMaintenanceTime());
-
+        newVehicleModel.setBasicCycleKm(request.getBasicCycleKm());
+        newVehicleModel.setBasicCycleMonths(request.getBasicCycleMonths());
+        newVehicleModel.setStandardCycleKm(request.getStandardCycleKm());
+        newVehicleModel.setStandardCycleMonths(request.getStandardCycleMonths());
+        newVehicleModel.setPremiumCycleKm(request.getPremiumCycleKm());
+        newVehicleModel.setPremiumCycleMonths(request.getPremiumCycleMonths());
+        newVehicleModel.setBatteryCycleKm(request.getBatteryCycleKm());
+        newVehicleModel.setBatteryCycleMonths(request.getBatteryCycleMonths());
 
         VehicleModel savedModel = vehicleModelRepository.save(newVehicleModel);
 
@@ -67,39 +69,39 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
 //                .build();
 
 
-        return modelMapper.map(savedModel, VehicleModelGetResponse.class);
+        return modelMapper.map(savedModel, VehicleModelResponse.class);
     }
 
     @Override
-    public VehicleModelGetResponse getVehicleModelById(Long vehicleModelId) {
+    public VehicleModelResponse getVehicleModelById(Long vehicleModelId) {
         VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleModelId)
                 .orElseThrow(()->new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        return modelMapper.map(vehicleModel, VehicleModelGetResponse.class);
+        return modelMapper.map(vehicleModel, VehicleModelResponse.class);
     }
 
     @Override
-    public List<VehicleModelGetResponse> getAllVehicleModel() {
+    public List<VehicleModelResponse> getAllVehicleModel() {
         List<VehicleModel> vehicleModelList = vehicleModelRepository.findAll();
         if(vehicleModelList.isEmpty()){
             throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
         }
         return vehicleModelList.stream()
-                .map(vehicleModelList1-> modelMapper.map(vehicleModelList1, VehicleModelGetResponse.class)).toList();
+                .map(vehicleModelList1-> modelMapper.map(vehicleModelList1, VehicleModelResponse.class)).toList();
     }
 
     @Override
-    public Page<VehicleModelGetResponse> searchVehicleModelByName(String keyword, int page, int size) {
+    public Page<VehicleModelResponse> searchVehicleModelByName(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<VehicleModel> vehicleModelList = vehicleModelRepository.findByNameContainingIgnoreCase(keyword,pageable);
         if(vehicleModelList.isEmpty()){
             throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
         }
         return vehicleModelList
-                .map(vehicleModelList1 -> modelMapper.map(vehicleModelList1, VehicleModelGetResponse.class));
+                .map(vehicleModelList1 -> modelMapper.map(vehicleModelList1, VehicleModelResponse.class));
     }
 
     @Override
-    public VehicleModelGetResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request) {
+    public VehicleModelResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request) {
         VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleModelId)
                 .orElseThrow(()->new AppException(ErrorCode.VEHICLE_NOT_FOUND));
 
@@ -116,29 +118,42 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
         if(!request.getModelYear().trim().isEmpty()) {
             vehicleModel.setModelYear(request.getModelYear());
         }
-        if(request.getBasicMaintenance() != null) {
-            vehicleModel.setBasicMaintenance(request.getBasicMaintenance());
+        if(request.getBatteryCycleKm() != null) {
+            vehicleModel.setBasicCycleKm(request.getBatteryCycleKm());
         }
-        if(request.getComprehensiveMaintenance() != null) {
-            vehicleModel.setComprehensiveMaintenance(request.getComprehensiveMaintenance());
+        if(request.getStandardCycleKm() != null) {
+            vehicleModel.setStandardCycleKm(request.getStandardCycleKm());
         }
-        if(request.getBasicMaintenanceTime() != null) {
-            vehicleModel.setBasicMaintenanceTime(request.getBasicMaintenanceTime());
+        if(request.getBasicCycleMonths() != null) {
+            vehicleModel.setBasicCycleMonths(request.getBasicCycleMonths());
         }
-        if(request.getComprehensiveMaintenanceTime() != null) {
-            vehicleModel.setComprehensiveMaintenanceTime(request.getComprehensiveMaintenanceTime());
+        if(request.getStandardCycleMonths() != null) {
+            vehicleModel.setStandardCycleMonths(request.getStandardCycleMonths());
+        }
+        if(request.getPremiumCycleKm() != null) {
+            vehicleModel.setPremiumCycleKm(request.getPremiumCycleKm());
+        }
+        if(request.getPremiumCycleMonths() != null) {
+            vehicleModel.setPremiumCycleMonths(request.getPremiumCycleMonths());
+        }
+        if(request.getBatteryCycleKm() != null) {
+            vehicleModel.setBatteryCycleKm(request.getBatteryCycleKm());
+        }
+        if(request.getBatteryCycleMonths() != null) {
+            vehicleModel.setBatteryCycleMonths(request.getBatteryCycleMonths());
         }
 
+
         VehicleModel savedVehicleModel = vehicleModelRepository.save(vehicleModel);
-        return modelMapper.map(savedVehicleModel, VehicleModelGetResponse.class);
+        return modelMapper.map(savedVehicleModel, VehicleModelResponse.class);
     }
 
     @Override
-    public VehicleModelGetResponse deleteVehicleModelById(Long vehicleId) {
+    public VehicleModelResponse deleteVehicleModelById(Long vehicleId) {
         VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleId)
                 .orElseThrow(()->new AppException(ErrorCode.VEHICLE_NOT_FOUND));
         vehicleModelRepository.delete(vehicleModel);
-        return modelMapper.map(vehicleModel, VehicleModelGetResponse.class);
+        return modelMapper.map(vehicleModel, VehicleModelResponse.class);
     }
 
 }

@@ -11,16 +11,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VehicleModelGetResponse {
+public class VehicleModelResponse {
     Long id;
     String name;
     String modelYear;
-    Integer basicMaintenance;
-    Integer comprehensiveMaintenance;
-    Integer basicMaintenanceTime;
-    Integer comprehensiveMaintenanceTime;
-    LocalDateTime createdAt;
-    String createBy;
-    LocalDateTime updateAt;
-    String updateBy;
+
+    Integer basicCycleKm;
+    Integer standardCycleKm;
+    Integer premiumCycleKm;
+    Integer batteryCycleKm;
+
+    Integer basicCycleMonths;
+    Integer standardCycleMonths;
+    Integer premiumCycleMonths;
+    Integer batteryCycleMonths;
+
 }
