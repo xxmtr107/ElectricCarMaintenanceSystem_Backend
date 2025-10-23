@@ -56,8 +56,8 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                 maintenanceRecord.setServicePackage(appointment.getServicePackage());
                 maintenanceRecord.setTechnicianUser(appointment.getTechnicianUser());
                 maintenanceRecord.setVehicle(appointment.getVehicle());
-//                List<ServiceItem> items = serviceItemRepository.findByServicePackages_Id(appointment.getServicePackage().getId());
-//                maintenanceRecord.setServiceItems(items);
+                List<ServiceItem> items = serviceItemRepository.findByServicePackages_Id(appointment.getServicePackage().getId());
+                maintenanceRecord.setServiceItems(items);
                 maintenanceRecord.setPerformedAt(appointment.getAppointmentDate());
                 maintenanceRecord = maintenanceRecordRepository.save(maintenanceRecord);
                 responses.add(maintenanceRecordMapper.toMaintenanceRecordResponse(maintenanceRecord));
