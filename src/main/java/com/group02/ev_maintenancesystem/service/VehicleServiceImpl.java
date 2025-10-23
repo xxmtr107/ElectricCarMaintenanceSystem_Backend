@@ -63,6 +63,7 @@ public class VehicleServiceImpl implements VehicleService{
         vehicle.setLicensePlate(vehicleCreationRequest.getLicensePlate());
         vehicle.setVin(vehicleCreationRequest.getVin());
         vehicle.setCurrentKm(vehicleCreationRequest.getCurrentKm());
+        vehicle.setPurchaseYear(vehicleCreationRequest.getPurchaseYear());
 
 
         //check xem modelId có tồn tại chưa
@@ -88,7 +89,7 @@ public class VehicleServiceImpl implements VehicleService{
         response.setCurrentKm(savedVehicle.getCurrentKm());
         response.setModelId(savedVehicle.getModel().getId());
         response.setCustomerId(savedVehicle.getCustomerUser().getId());
-
+        response.setPurchaseYear(savedVehicle.getPurchaseYear());
         return response;
     }
 

@@ -73,14 +73,5 @@ public class MaintenanceRecordController {
                 build();
     }
 
-//    @PostMapping
-//    public ApiResponse<List<MaintenanceRecordResponse>>
-//    createMaintenanceRecord(Authentication authentication){
-//        return ApiResponse.<List<MaintenanceRecordResponse>>builder().
-//                message("Maintenance record created successfully").
-//                result(maintenanceRecordService.createMaintenanceRecord(authentication)).
-//                build();
-//    }
-
 
 }

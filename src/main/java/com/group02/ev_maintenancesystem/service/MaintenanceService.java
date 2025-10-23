@@ -1,6 +1,6 @@
 package com.group02.ev_maintenancesystem.service;
 
-import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendation;
+import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendationDTO;
 import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
 import com.group02.ev_maintenancesystem.entity.ServicePackage;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MaintenanceService {
-    List<MaintenanceRecommendation> getRecommendations(Long vehicleId);
+    List<MaintenanceRecommendationDTO> getRecommendations(Long vehicleId);
 
-    Optional<MaintenanceRecommendation> checkRule(
+    Optional<MaintenanceRecommendationDTO> checkRule(
             Vehicle vehicle,
             List<MaintenanceRecord> fullHistory,
             ServicePackage packageToCheck,

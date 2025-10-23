@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +27,9 @@ public class VehicleCreationRequest {
     @Min(value = 0, message = "KILOMETER_INVALID_RANGE")
     @Max(value =999999, message ="KILOMETER_INVALID_RANGE")
     private Integer currentKm;
+
+    @NotNull(message = "NOT_BLANK")
+    LocalDate purchaseYear;
 
     @NotNull(message = "NOT_BLANK")
     private Long modelId;

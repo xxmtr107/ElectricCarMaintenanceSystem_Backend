@@ -1,6 +1,6 @@
 package com.group02.ev_maintenancesystem.controller;
 
-import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendation;
+import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendationDTO;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.service.MaintenanceService;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +28,10 @@ public class MaintenanceController {
      * (với 1 là vehicleId)
      */
     @GetMapping("/recommendations/{vehicleId}")
-    public ApiResponse<List<MaintenanceRecommendation>> getMaintenanceRecommendations(
+    public ApiResponse<List<MaintenanceRecommendationDTO>> getMaintenanceRecommendations(
             @PathVariable Long vehicleId) {
 
-        // 1. Gọi service "bộ não"
-        List<MaintenanceRecommendation> recommendations = maintenanceService.getRecommendations(vehicleId);
-
-        // 2. Trả về kết quả (danh sách có thể rỗng nếu không có gì đến hạn)
-        return ApiResponse.<List<MaintenanceRecommendation>>builder()
+        return ApiResponse.<List<MaintenanceRecommendationDTO>>builder()
                 .message("success")
                 .result(maintenanceService.getRecommendations(vehicleId))
                 .build();
