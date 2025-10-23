@@ -418,4 +418,28 @@ FROM model_package_items WHERE vehicle_model_id = 6 AND service_package_id = 4;
 -- DỊCH VỤ LẺ (service_package_id = NULL) cho VF 9
 INSERT INTO model_package_items (vehicle_model_id, service_package_id, service_item_id, price, action_type)
 SELECT 7, NULL, service_item_id, price * 1.15, action_type
-FROM model_package_items WHERE vehicle_model_id = 6 AND service_package_id IS NULL;
+FROM model_package_items WHERE vehicle_model_id = 6 AND service_package_id IS NULL
+
+-- SERVICE CENTER
+    INSERT INTO service_centers (name, address, ward, district, city, phone)
+VALUES
+    ('Showroom Vin3S TT Hóc Môn', '166 Lý Thường Kiệt, Khu phố 3', 'Thị trấn Hóc Môn', 'Huyện Hóc Môn', 'TP Hồ Chí Minh', '0762718718'),
+    ('Showroom Vin3S 39A Hà Huy Giáp', '39A Hà Huy Giáp', NULL, 'Quận 12', 'TP Hồ Chí Minh', '0702721721'),
+    ('Showroom Vin3S 314 Nguyễn Ảnh Thủ - Hiệp Thành', '314A Đường Nguyễn Ảnh Thủ', 'Phường Hiệp Thành', 'Quận 12', 'TP Hồ Chí Minh', '0796621621'),
+    ('Showroom Vin3S Nhà Bè', '2250 Huỳnh Tấn Phát', 'Xã Phú Xuân', 'Huyện Nhà Bè', 'TP Hồ Chí Minh', '0946143939'),
+    ('Showroom Vin3S TT Củ Chi', '158 TL8', 'Thị trấn Củ Chi', 'Huyện Củ Chi', 'TP Hồ Chí Minh', '0904404692'),
+    ('Showroom Vin3S 217A Bến Vân Đồn', '217A Bến Vân Đồn', 'Phường 2', 'Quận 4', 'TP Hồ Chí Minh', '0938362217'),
+    ('Showroom Vin3S 57 Phạm Ngọc Thạch', '57 Phạm Ngọc Thạch', 'Phường 6', 'Quận 3', 'TP Hồ Chí Minh', '0938399843'),
+    ('Showroom Vin3S Lê Quang Định', '486 Lê Quang Định', 'Phường 11', 'Quận Bình Thạnh', 'TP Hồ Chí Minh', '0796553553'),
+    ('Showroom Vin3S Nguyễn Thị Tú', '212 Nguyễn Thị Tú, Khu Phố 2', 'Phường Bình Hưng Hòa B', 'Quận Bình Tân', 'TP Hồ Chí Minh', '0973565179'),
+    ('Showroom Vin3S 677 Âu Cơ', '677 Âu Cơ', 'Phường Tân Thành', 'Quận Tân Phú', 'TP Hồ Chí Minh', '0971971010'),
+    ('Showroom Vin3S 594 Lê Văn Quới', '594 Lê Văn Quới', 'Phường Bình Hưng Hòa A', 'Quận Bình Tân', 'TP Hồ Chí Minh', '0867036536'),
+    ('Showroom Vin3S 307 Lạc Long Quân', '305-307-309 Lạc Long Quân', 'Phường 3', 'Quận 11', 'TP Hồ Chí Minh', '0979905353'),
+    ('Showroom Vin3S 255 Hiệp Bình Phước', '255 Quốc lộ 13', 'Phường Hiệp Bình Phước', 'TP Thủ Đức', 'TP Hồ Chí Minh', '0964100808'),
+    ('Showroom Vin3S 460 Nguyễn Văn Luông', '460 Nguyễn Văn Luông', 'Phường 12', 'Quận 6', 'TP Hồ Chí Minh', '0971801010'),
+    ('Showroom Vin3S 337 Đỗ Xuân Hợp', '337 Đỗ Xuân Hợp', 'Phường Phước Long B', 'TP Thủ Đức', 'TP Hồ Chí Minh', '0768420420'),
+    ('Showroom Vin3S Bình Chánh', 'C8/1 Phạm Hùng', 'Xã Bình Hưng', 'Huyện Bình Chánh', 'TP Hồ Chí Minh', '0963764839'),
+    ('NPP ủy quyền 3S VinFast Thuận Nhân', '447- 447A- 447B Cộng Hòa', 'Phường 15', 'Quận Tân Bình', 'TP Hồ Chí Minh', '0965201018'),
+    ('NPP ủy quyền 3S VinFast Skytt', '214 Nguyễn Oanh', 'Phường 17', 'Quận Gò Vấp', 'TP Hồ Chí Minh', '02873032689'),
+    ('VinFast Lê Văn Việt', 'Tầng 1, TTTM Vincom Plaza Lê Văn Việt, 50 Lê Văn Việt', 'Phường Hiệp Phú', 'Quận 9', 'TP Hồ Chí Minh', '0981335517'),
+    ('VinFast Thảo Điền', 'Tầng L1, TTTM Vincom Mega Mall Thảo Điền, 159 Xa lộ Hà Nội', 'Phường Thảo Điền', 'Quận 2', 'TP Hồ Chí Minh', '0981335514');

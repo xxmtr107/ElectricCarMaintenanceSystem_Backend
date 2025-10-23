@@ -94,7 +94,6 @@ public class EmailServiceImpl {
             context.setVariable("address", appointment.getServiceCenter().getAddress());
             context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
             context.setVariable("phone", appointment.getServiceCenter().getPhone());
-            context.setVariable("email", appointment.getServiceCenter().getEmail());
             String htmlContent = templateEngine.process("mailForReminderSchedule", context);
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());

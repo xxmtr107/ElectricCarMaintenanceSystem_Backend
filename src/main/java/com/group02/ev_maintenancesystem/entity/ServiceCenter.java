@@ -16,36 +16,31 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceCenter extends BaseEntity {
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 255)
     String name;
 
-    @Column(nullable = false, length = 200)
     String address;
 
-    @Column(length = 100)
+    @Column(name = "ward", length = 100) // Cột Phường/Xã
+    String ward;
+
+    @Column(name = "district", nullable = false, length = 100) // Cột Quận/Huyện
+    String district;
+
+    @Column(name = "city", nullable = false, length = 100) // Cột Tỉnh/Thành phố
     String city;
 
-    @Column(length = 15)
     String phone;
 
-    @Column(length = 100)
-    String email;
-
-    @Column(length = 100)
-    String managerName;
-
-    @Column(length = 255)
-    String description;
-
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<User> users;
-
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Appointment> appointments;
-
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Invoice> invoices;
-
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<MaintenanceRecord> maintenanceRecords;
+//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    List<User> users;
+//
+//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    List<Appointment> appointments;
+//
+//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    List<Invoice> invoices;
+//
+//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    List<MaintenanceRecord> maintenanceRecords;
 }

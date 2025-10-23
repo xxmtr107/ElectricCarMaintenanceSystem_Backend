@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface ServiceCenterRepository extends JpaRepository<ServiceCenter,Long> {
-    ServiceCenter findServiceCenterByAppointments_Id(Long id);
+//    ServiceCenter findServiceCenterByAppointments_Id(Long id);
 }
