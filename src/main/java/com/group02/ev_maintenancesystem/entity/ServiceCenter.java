@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,7 +17,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceCenter extends BaseEntity {
 
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", length = 255)
     String name;
 
     String address;
@@ -34,6 +35,7 @@ public class ServiceCenter extends BaseEntity {
     List<User> users;
 
     @OneToMany(mappedBy = "serviceCenter")
+    @JsonIgnore
     List<Appointment> appointments;
 
     @OneToMany(mappedBy = "serviceCenter")

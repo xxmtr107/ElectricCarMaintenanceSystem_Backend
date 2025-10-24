@@ -14,9 +14,9 @@ public interface UserMapper {
     User toUser(UserRegistrationRequest request);
 
     // Update thông tin Customer từ UserUpdateRequest
-    void updateUser(UserUpdateRequest request, @MappingTarget User customer); // @MappingTarget để chỉ định đối tượng đích cần cập nhật
+    void updateUser(UserUpdateRequest request, @MappingTarget User user); // @MappingTarget để chỉ định đối tượng đích cần cập nhật
 
     // Mapping User sang UserResponse
     @Mapping(target = "role", source = "role.name") // Chuyển đổi role.name sang role trong UserResponse
-    UserResponse toUserResponse(User customer);
+    UserResponse toUserResponse(User user);
 }

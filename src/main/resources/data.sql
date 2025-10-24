@@ -418,7 +418,7 @@ FROM model_package_items WHERE vehicle_model_id = 6 AND service_package_id = 4;
 -- DỊCH VỤ LẺ (service_package_id = NULL) cho VF 9
 INSERT INTO model_package_items (vehicle_model_id, service_package_id, service_item_id, price, action_type)
 SELECT 7, NULL, service_item_id, price * 1.15, action_type
-FROM model_package_items WHERE vehicle_model_id = 6 AND service_package_id IS NULL
+FROM model_package_items WHERE vehicle_model_id = 6 AND service_package_id IS NULL;
 
 -- SERVICE CENTER
     INSERT INTO service_centers (name, address, district, city, phone)

@@ -30,7 +30,7 @@ public class MaintenanceRecord extends  BaseEntity {
 
     // Relationships
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "appointment_id", nullable = false, unique = true)
+    @JoinColumn(name = "appointment_id")
     Appointment appointment;
 
     @ManyToOne(fetch = FetchType.EAGER)

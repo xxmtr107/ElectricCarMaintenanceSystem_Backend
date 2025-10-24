@@ -5,12 +5,12 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://metro.proxy.rlwy.net:48958/railway"
+    url: "jdbc:mysql://gondola.proxy.rlwy.net:41052/railway"
     username: "root"
-    password: "bMMmnsTJfSonnnmBakRFexMMaUmNJfjT"
+    password: "yhnLlvlxzUMQmvdtFUKGwyxfxrHDzJtm"
   jpa:
     hibernate:
-        ddl-auto: update
+        ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -18,7 +18,7 @@ spring:
     defer-datasource-initialization: true
   sql:
     init:
-      mode: never
+      mode: always
       continue-on-error: false  # Dừng nếu có lỗi
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
