@@ -21,13 +21,11 @@ public class ServiceCenter extends BaseEntity {
 
     String address;
 
-    @Column(name = "ward", length = 100) // Cột Phường/Xã
-    String ward;
 
-    @Column(name = "district", nullable = false, length = 100) // Cột Quận/Huyện
+    @Column(name = "district", length = 100) // Cột Quận/Huyện
     String district;
 
-    @Column(name = "city", nullable = false, length = 100) // Cột Tỉnh/Thành phố
+    @Column(name = "city", length = 100) // Cột Tỉnh/Thành phố
     String city;
 
     String phone;

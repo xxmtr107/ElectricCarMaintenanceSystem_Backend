@@ -2,6 +2,7 @@ package com.group02.ev_maintenancesystem.dto.response;
 
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -37,6 +38,11 @@ public class AppointmentResponse {
     BigDecimal estimatedCost;
     Long servicePackageId;
     String servicePackageName;
+
+
+    String nameCenter;
+    String addressCenter;
+    String districtCenter;
 
     // DTO nhỏ cho service items với giá theo model
     @Data

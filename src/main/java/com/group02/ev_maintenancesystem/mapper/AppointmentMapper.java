@@ -41,6 +41,9 @@ public interface AppointmentMapper {
     @Mapping(target = "servicePackageId", source = "servicePackage.id")
     @Mapping(target = "servicePackageName", source = "servicePackage.name")
 
+    @Mapping(target = "nameCenter",source = "serviceCenter.name")
+    @Mapping(target = "addressCenter",source = "serviceCenter.address")
+    @Mapping(target = "districtCenter",source = "serviceCenter.district")
     @Mapping(target = "serviceItems", ignore = true)
     AppointmentResponse toAppointmentResponse(Appointment appointment);
 
