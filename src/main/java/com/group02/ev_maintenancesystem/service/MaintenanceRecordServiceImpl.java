@@ -90,15 +90,15 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     }
 
     @Override
-    public MaintenanceRecordResponse findByCustomerId(long customerId) {
-        userRepository.findById(customerId).
-                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        MaintenanceRecord record = maintenanceRecordRepository.findByAppointment_CustomerUser_Id(customerId);
-        if (record == null) {
-            throw new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND);
-        }
+    public List<MaintenanceRecordResponse> findByCustomerId(long customerId) {
+        userRepository.findById(customerId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        return maintenanceRecordMapper.toMaintenanceRecordResponse(record);
+        List<MaintenanceRecord> records = maintenanceRecordRepository.findByAppointment_CustomerUser_Id(customerId);
+
+        return records.stream()
+                .map(maintenanceRecordMapper::toMaintenanceRecordResponse)
+                .toList();
     }
 
     @Override

@@ -31,7 +31,7 @@ public class Invoice extends BaseEntity {
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Payment> payments = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "center_id")
-    private ServiceCenter serviceCenter;
+    ServiceCenter serviceCenter;
 }

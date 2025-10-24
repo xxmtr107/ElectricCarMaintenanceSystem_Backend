@@ -1,16 +1,16 @@
 package com.group02.ev_maintenancesystem.service;
 
-import com.group02.ev_maintenancesystem.dto.request.CustomerRegistrationRequest;
-import com.group02.ev_maintenancesystem.dto.request.CustomerUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.CustomerResponse;
+import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
+import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.response.UserResponse;
 
 import java.util.List;
 
 public interface CustomerService {
-    CustomerResponse registerCustomer(CustomerRegistrationRequest request);
-    CustomerResponse updateCustomer(Long customerId, CustomerUpdateRequest request);
-    CustomerResponse getCustomerById(Long customerId);
-    List<CustomerResponse> getAllCustomers();
+    UserResponse registerCustomer(UserRegistrationRequest request);
+    UserResponse updateCustomer(Long customerId, UserUpdateRequest request);
+    UserResponse getCustomerById(Long customerId);
+    List<UserResponse> getAllCustomers();
     void deleteCustomer(Long customerId);
-    CustomerResponse getMyInfo();
+    UserResponse getMyInfo();
 }

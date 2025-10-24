@@ -32,15 +32,15 @@ public class ServiceCenter extends BaseEntity {
 
     String phone;
 
-//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<User> users;
-//
-//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<Appointment> appointments;
-//
-//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<Invoice> invoices;
-//
-//    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    List<MaintenanceRecord> maintenanceRecords;
+    @OneToMany(mappedBy = "serviceCenter")
+    List<User> users;
+
+    @OneToMany(mappedBy = "serviceCenter")
+    List<Appointment> appointments;
+
+    @OneToMany(mappedBy = "serviceCenter")
+    List<Invoice> invoices;
+
+    @OneToMany(mappedBy = "serviceCenter")
+    List<MaintenanceRecord> maintenanceRecords;
 }

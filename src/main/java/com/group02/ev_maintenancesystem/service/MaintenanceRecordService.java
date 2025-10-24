@@ -13,7 +13,7 @@ public interface MaintenanceRecordService {
 
     List<MaintenanceRecordResponse> getAll();
 
-    MaintenanceRecordResponse findByCustomerId(long customerId);
+    List<MaintenanceRecordResponse> findByCustomerId(long customerId);
 
     List<MaintenanceRecordResponse>findMaintenanceRecordsByVehicleId(long vehicleId);
 

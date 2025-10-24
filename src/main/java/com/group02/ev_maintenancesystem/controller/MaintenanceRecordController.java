@@ -48,8 +48,8 @@ public class MaintenanceRecordController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public ApiResponse<MaintenanceRecordResponse>getByCustomerId(@PathVariable long customerId){
-        return ApiResponse.<MaintenanceRecordResponse>builder().
+    public ApiResponse<List<MaintenanceRecordResponse>>getByCustomerId(@PathVariable long customerId){
+        return ApiResponse.<List<MaintenanceRecordResponse>>builder().
                 message("All maintenance records fetched successfully").
                 result(maintenanceRecordService.findByCustomerId(customerId)).
                 build();
