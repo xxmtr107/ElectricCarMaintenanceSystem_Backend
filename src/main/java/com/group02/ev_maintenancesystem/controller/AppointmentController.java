@@ -50,8 +50,8 @@ public class AppointmentController {
     public ApiResponse<List<AppointmentResponse>> getAllAppointments() {
         return ApiResponse.<List<AppointmentResponse>>builder()
                 .message("All appointments fetched successfully")
-                .result(appointmentService.getAll())
-                .build();
+                .result(appointmentService.getAll()).build();
+
     }
 
     @GetMapping("/{appointmentId}")
@@ -114,6 +114,24 @@ public class AppointmentController {
         return ApiResponse.<AppointmentResponse>builder()
                 .message("Technician assigned successfully")
                 .result(appointmentService.assignTechnician(appointmentId, technicianId))
+                .build();
+    }
+
+    @PutMapping("/setStatus/{appointmentId}")
+    public ApiResponse<AppointmentResponse> update(
+            @PathVariable Long appointmentId,
+            @RequestBody AppointmentStatus newStatus) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment updated successfully")
+                .result(appointmentService.setStatusAppointment(appointmentId, newStatus))
+                .build();
+    }
+
+    @PutMapping("/cancel/{appointmentId}")
+    public ApiResponse<AppointmentResponse> cancel(@PathVariable Long appointmentId) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment cancelled successfully")
+                .result(appointmentService.cancelAppointment(appointmentId))
                 .build();
     }
 

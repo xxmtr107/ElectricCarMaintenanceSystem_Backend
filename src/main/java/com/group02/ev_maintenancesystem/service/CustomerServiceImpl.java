@@ -1,20 +1,21 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
-import com.group02.ev_maintenancesystem.dto.request.CustomerRegistrationRequest;
-import com.group02.ev_maintenancesystem.dto.request.CustomerUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.CustomerResponse;
+import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
+import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.response.UserResponse;
 import com.group02.ev_maintenancesystem.entity.Role;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
-import com.group02.ev_maintenancesystem.mapper.CustomerMapper;
+import com.group02.ev_maintenancesystem.mapper.UserMapper;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import com.group02.ev_maintenancesystem.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -27,11 +28,11 @@ public class CustomerServiceImpl implements CustomerService {
     UserRepository userRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
-    CustomerMapper customerMapper;
+    UserMapper userMapper;
 
     @Override
-    public CustomerResponse registerCustomer(CustomerRegistrationRequest request) {
-        User customer = customerMapper.toCustomer(request);
+    public UserResponse registerCustomer(UserRegistrationRequest request) {
+        User customer = userMapper.toUser(request);
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Role role = roleRepository.findByName(PredefinedRole.CUSTOMER)
@@ -49,37 +50,45 @@ public class CustomerServiceImpl implements CustomerService {
                 throw new AppException(ErrorCode.EMAIL_EXISTED);
             }
         }
-        return customerMapper.toCustomerResponse(customer);
+        return userMapper.toUserResponse(customer);
     }
 
     @Override
-    public CustomerResponse updateCustomer(Long customerId, CustomerUpdateRequest request) {
+    public UserResponse updateCustomer(Long customerId, UserUpdateRequest request) {
         User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        customerMapper.updateCustomer(request, customer);
+        userMapper.updateUser(request, customer);
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        return customerMapper.toCustomerResponse(userRepository.save(customer));
+        return userMapper.toUserResponse(userRepository.save(customer));
     }
-
     @Override
-    public CustomerResponse getCustomerById(Long customerId) {
+    public UserResponse getMyInfo() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return userMapper.toUserResponse(user);
+    }
+    @Override
+    public UserResponse getCustomerById(Long customerId) {
         User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
 
-        return customerMapper.toCustomerResponse(customer);
+        return userMapper.toUserResponse(customer);
 
     }
 
     @Override
-    public List<CustomerResponse> getAllCustomers() {
+    public List<UserResponse> getAllCustomers() {
         Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         return userRepository.findAllByRole(customerRole).stream()
-                .map(customerMapper::toCustomerResponse)
+                .map(userMapper::toUserResponse)
                 .toList();
     }
 

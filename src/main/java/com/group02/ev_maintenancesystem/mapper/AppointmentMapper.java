@@ -33,7 +33,6 @@ public interface AppointmentMapper {
 
     @Mapping(target = "technicianId", source = "technicianUser.id")
     @Mapping(target = "technicianName", source = "technicianUser.fullName")
-    @Mapping(target = "technicianSpecialization", source = "technicianUser.specialization")
 
     @Mapping(target = "vehicleId", source = "vehicle.id")
     @Mapping(target = "vehicleLicensePlate", source = "vehicle.licensePlate")
@@ -42,6 +41,9 @@ public interface AppointmentMapper {
     @Mapping(target = "servicePackageId", source = "servicePackage.id")
     @Mapping(target = "servicePackageName", source = "servicePackage.name")
 
+    @Mapping(target = "nameCenter",source = "serviceCenter.name")
+    @Mapping(target = "addressCenter",source = "serviceCenter.address")
+    @Mapping(target = "districtCenter",source = "serviceCenter.district")
     @Mapping(target = "serviceItems", ignore = true)
     AppointmentResponse toAppointmentResponse(Appointment appointment);
 
@@ -60,7 +62,7 @@ public interface AppointmentMapper {
         List<AppointmentResponse.ServiceItemDTO> dtoList = new ArrayList<>();
 
         for (ServiceItem item : appointment.getServiceItems()) {
-            BigDecimal price = item.getPrice(); // Giá mặc định
+            BigDecimal price = null; // Giá mặc định
 
             // Tìm giá theo model
             if (packageId != null) {

@@ -1,14 +1,14 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
-import com.group02.ev_maintenancesystem.dto.request.TechnicianRegistrationRequest;
-import com.group02.ev_maintenancesystem.dto.request.TechnicianUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.TechnicianResponse;
+import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
+import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.response.UserResponse;
 import com.group02.ev_maintenancesystem.entity.Role;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
-import com.group02.ev_maintenancesystem.mapper.TechnicianMapper;
+import com.group02.ev_maintenancesystem.mapper.UserMapper;
 import com.group02.ev_maintenancesystem.repository.RoleRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +24,14 @@ import java.util.List;
 @Slf4j
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class TechnicianServiceImpl implements TechnicianService {
-    UserRepository technicianRepository;
+    UserRepository userRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
-    TechnicianMapper technicianMapper;
+    UserMapper userMapper;
 
     @Override
-    public TechnicianResponse registerTechnician(TechnicianRegistrationRequest request) {
-        User technician = technicianMapper.toTechnician(request);
+    public UserResponse registerTechnician(UserRegistrationRequest request) {
+        User technician = userMapper.toUser(request);
         technician.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Role role = roleRepository.findByName(PredefinedRole.TECHNICIAN)
@@ -39,7 +39,7 @@ public class TechnicianServiceImpl implements TechnicianService {
 
         technician.setRole(role);
         try {
-            technician = technicianRepository.save(technician);
+            technician = userRepository.save(technician);
         } catch (DataIntegrityViolationException e) {
             String message = e.getMostSpecificCause().getMessage();
             if (message.contains("UK_username")) {
@@ -49,47 +49,47 @@ public class TechnicianServiceImpl implements TechnicianService {
                 throw new AppException(ErrorCode.EMAIL_EXISTED);
             }
         }
-        return technicianMapper.toTechnicianResponse(technician);
+        return userMapper.toUserResponse(technician);
     }
 
     @Override
-    public TechnicianResponse updateTechnician(Long technicianId, TechnicianUpdateRequest request) {
-        User technician = technicianRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+    public UserResponse updateTechnician(Long technicianId, UserUpdateRequest request) {
+        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        technicianMapper.updateTechnician(request, technician);
+        userMapper.updateUser(request, technician);
         technician.setPassword(passwordEncoder.encode(request.getPassword()));
 
 
-        return technicianMapper.toTechnicianResponse(technicianRepository.save(technician));
+        return userMapper.toUserResponse(userRepository.save(technician));
     }
 
 
     @Override
-    public TechnicianResponse getTechnicianById(Long technicianId) {
-        User technician = technicianRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+    public UserResponse getTechnicianById(Long technicianId) {
+        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return technicianMapper.toTechnicianResponse(technician);
+        return userMapper.toUserResponse(technician);
     }
 
 
 
     @Override
-    public List<TechnicianResponse> getAllTechnicians() {
+    public List<UserResponse> getAllTechnicians() {
         Role technicianRole = roleRepository.findByName(PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
-        return technicianRepository.findAllByRole(technicianRole).stream()
-                .map(technicianMapper::toTechnicianResponse)
+        return userRepository.findAllByRole(technicianRole).stream()
+                .map(userMapper::toUserResponse)
                 .toList();
     }
 
     @Override
     public void deleteTechnician(Long technicianId) {
 
-        User technician = technicianRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        technicianRepository.delete(technician);
+        userRepository.delete(technician);
     }
 }

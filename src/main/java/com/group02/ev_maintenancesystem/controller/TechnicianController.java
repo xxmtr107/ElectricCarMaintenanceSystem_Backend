@@ -1,9 +1,9 @@
 package com.group02.ev_maintenancesystem.controller;
 
-import com.group02.ev_maintenancesystem.dto.request.TechnicianRegistrationRequest;
-import com.group02.ev_maintenancesystem.dto.request.TechnicianUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
+import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
-import com.group02.ev_maintenancesystem.dto.response.TechnicianResponse;
+import com.group02.ev_maintenancesystem.dto.response.UserResponse;
 import com.group02.ev_maintenancesystem.service.TechnicianService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,32 +22,32 @@ public class TechnicianController {
     TechnicianService technicianService;
 
     @PostMapping("/register")
-    ApiResponse<TechnicianResponse> register(@RequestBody @Valid TechnicianRegistrationRequest request){
-        return ApiResponse.<TechnicianResponse>builder()
+    ApiResponse<UserResponse> register(@RequestBody @Valid UserRegistrationRequest request){
+        return ApiResponse.<UserResponse>builder()
                 .message("Technician registered successfully")
                 .result(technicianService.registerTechnician(request))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<TechnicianResponse>> findAll(){
-        return ApiResponse.<List<TechnicianResponse>>builder()
+    ApiResponse<List<UserResponse>> findAll(){
+        return ApiResponse.<List<UserResponse>>builder()
                 .message("Technicians fetched successfully")
                 .result(technicianService.getAllTechnicians())
                 .build();
     }
 
     @PutMapping("/{technicianId}")
-    ApiResponse<TechnicianResponse> updateTechnician(@PathVariable Long technicianId,@RequestBody @Valid TechnicianUpdateRequest request){
-        return ApiResponse.<TechnicianResponse>builder()
+    ApiResponse<UserResponse> updateTechnician(@PathVariable Long technicianId,@RequestBody @Valid UserUpdateRequest request){
+        return ApiResponse.<UserResponse>builder()
                 .message("Technician updated successfully")
                 .result(technicianService.updateTechnician(technicianId,request))
                 .build();
     }
 
     @GetMapping("/{technicianId}")
-    ApiResponse<TechnicianResponse> getTechnician(@PathVariable Long technicianId){
-        return ApiResponse.<TechnicianResponse>builder()
+    ApiResponse<UserResponse> getTechnician(@PathVariable Long technicianId){
+        return ApiResponse.<UserResponse>builder()
                 .message("Technician fetched successfully")
                 .result(technicianService.getTechnicianById(technicianId))
                 .build();

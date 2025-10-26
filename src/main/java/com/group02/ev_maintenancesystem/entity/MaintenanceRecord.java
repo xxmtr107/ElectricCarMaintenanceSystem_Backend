@@ -30,15 +30,15 @@ public class MaintenanceRecord extends  BaseEntity {
 
     // Relationships
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "appointment_id", nullable = false, unique = true)
+    @JoinColumn(name = "appointment_id")
     Appointment appointment;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "technician_id", nullable = false)
+    @JoinColumn(name = "technician_id")
     User technicianUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "vehicle_id", nullable = false)
+    @JoinColumn(name = "vehicle_id")
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -59,4 +59,9 @@ public class MaintenanceRecord extends  BaseEntity {
 
     @OneToMany(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<PartUsage> partUsages = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "center_id")
+    ServiceCenter serviceCenter;
+
 }

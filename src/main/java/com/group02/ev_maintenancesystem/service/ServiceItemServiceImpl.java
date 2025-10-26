@@ -43,7 +43,6 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
         }
         ServiceItem serviceItem = new ServiceItem();
         serviceItem.setName(request.getName());
-        serviceItem.setPrice(request.getPrice());
         serviceItem.setDescription(request.getDescription());
 
         ServiceItem savedserviceItem = serviceItemRepository.save(serviceItem);
@@ -108,9 +107,6 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
         }
         if(request.getDescription() != null && !request.getDescription().trim().isEmpty()){
             serviceItem.setDescription(request.getDescription());
-        }
-        if(request.getPrice() != null ){
-            serviceItem.setPrice(request.getPrice());
         }
         ServiceItem savedItem = serviceItemRepository.save(serviceItem);
         return modelMapper.map(savedItem, ServiceItemResponse.class);

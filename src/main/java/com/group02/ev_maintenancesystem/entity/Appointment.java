@@ -33,7 +33,7 @@ public class Appointment extends BaseEntity {
 
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id")
     User customerUser;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -58,5 +58,9 @@ public class Appointment extends BaseEntity {
 
     @OneToOne(mappedBy = "appointment",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     MaintenanceRecord maintenanceRecord;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "center_id")
+    ServiceCenter serviceCenter;
 
 }

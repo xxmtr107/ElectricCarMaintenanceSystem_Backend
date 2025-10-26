@@ -39,6 +39,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     ServicePackageRepository servicePackageRepository;
     ServiceItemRepository serviceItemRepository;
     ModelPackageItemRepository modelPackageItemRepository;
+    MaintenanceRecordService maintenanceRecordService;
 
     // Customer role
     @Override
@@ -68,13 +69,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDateTime startOfDay = appointmentDay.atStartOfDay();
         LocalDateTime endOfDay = appointmentDay.atTime(LocalTime.MAX);
 
-        boolean exists = appointmentRepository.existsByVehicleIdAndAppointmentDateBetween(
-                request.getVehicleId(),
-                startOfDay,
-                endOfDay
-        );
+        // Tìm appointment trùng ngày (nếu có)
+        List<Appointment> existingAppointments = appointmentRepository
+                .findByVehicleIdAndAppointmentDateBetween(
+                        request.getVehicleId(),
+                        startOfDay,
+                        endOfDay
+                );
 
-        if (exists) {
+        // Chỉ throw exception nếu có appointment cũ KHÔNG phải CANCELLED
+        boolean hasActiveAppointment = existingAppointments.stream()
+                .anyMatch(app -> app.getStatus() != AppointmentStatus.CANCELLED);
+
+        if (hasActiveAppointment) {
             throw new AppException(ErrorCode.APPOINTMENT_ALREADY_EXISTS);
         }
 
@@ -163,11 +170,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                         .findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(modelId, item.getId());
 
                 BigDecimal itemPrice;
-                if (modelItem.isPresent()) {
-                    itemPrice = modelItem.get().getPrice();
-                } else {
-                    itemPrice = item.getPrice(); // Giá mặc định nếu không tìm thấy giá theo model
-                }
+
+                itemPrice = modelItem.get().getPrice();
+
 
                 serviceItemsTotal = serviceItemsTotal.add(itemPrice);
             }
@@ -184,7 +189,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointment.setEstimatedCost(totalCost);
 
-        return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // Truyền repository làm context
+        AppointmentResponse response = appointmentMapper.toAppointmentResponse(savedAppointment);
+        appointmentMapper.mapServiceItems(savedAppointment, response, modelPackageItemRepository);
+
+        return response;
     }
 
 
@@ -194,7 +205,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER);
         List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
         return appointments.stream()
-                .map(appointmentMapper::toAppointmentResponse)
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+                    appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+                    return response;
+                })
                 .toList();
     }
 
@@ -207,7 +222,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
 
         return appointments.stream()
-                .map(appointmentMapper::toAppointmentResponse)
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+                    appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+                    return response;
+                })
                 .toList();
     }
 
@@ -216,7 +235,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponse getAppointmentByAppointmentId(Long appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-        return appointmentMapper.toAppointmentResponse(appointment);
+        AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+        appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+        return response;
     }
 
     // Admin role
@@ -224,7 +245,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentResponse> getAppointmentByStatus(AppointmentStatus status) {
         List<Appointment> appointments = appointmentRepository.findByStatus(status);
         return appointments.stream()
-                .map(appointmentMapper::toAppointmentResponse)
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+                    appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+                    return response;
+                })
                 .toList();
     }
 
@@ -237,7 +262,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Appointment> appointments = appointmentRepository.findByTechnicianUserId(technicianId);
 
         return appointments.stream()
-                .map(appointmentMapper::toAppointmentResponse)
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+                    appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+                    return response;
+                })
                 .toList();
     }
 
@@ -260,8 +289,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<AppointmentResponse> getAll() {
         return appointmentRepository.findAll().stream()
-                .map(appointmentMapper::toAppointmentResponse)
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+                    appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+                    return response;
+                })
                 .toList();
+
     }
 
     // Admin role
@@ -274,8 +308,32 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Appointment> appointments = appointmentRepository.findByAppointmentDateBetween(startDate, endDate);
 
         return appointments.stream()
-                .map(appointmentMapper::toAppointmentResponse)
+                .map(appointment -> {
+                    AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+                    appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository);
+                    return response;
+                })
                 .toList();
+    }
+    @Override
+    public AppointmentResponse setStatusAppointment(Long id, AppointmentStatus newStatus) {
+        if(newStatus==null) {
+            throw new AppException(ErrorCode.STATUS_INVALID);
+        }
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        // Update status
+        appointment.setStatus(newStatus);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        if(newStatus == AppointmentStatus.CANCELLED || newStatus == AppointmentStatus.COMPLETED) {
+            maintenanceRecordService.createMaintenanceRecord(savedAppointment);
+        }
+
+        AppointmentResponse response = appointmentMapper.toAppointmentResponse(savedAppointment);
+        appointmentMapper.mapServiceItems(savedAppointment, response, modelPackageItemRepository);
+        return response;
     }
 
     @Override
@@ -285,140 +343,26 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponse cancelAppointment(Long appointmentId) {
-        return null;
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        // Validate: Không thể hủy appointment đã hoàn thành
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new AppException(ErrorCode.CANNOT_CANCEL_COMPLETED_APPOINTMENT);
+        }
+
+        // Validate: Không thể hủy appointment đã bị hủy
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new AppException(ErrorCode.APPOINTMENT_ALREADY_CANCELLED);
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        maintenanceRecordService.createMaintenanceRecord(savedAppointment);
+
+        AppointmentResponse response = appointmentMapper.toAppointmentResponse(savedAppointment);
+        appointmentMapper.mapServiceItems(savedAppointment, response, modelPackageItemRepository);
+        return response;
     }
 
-//    @Override
-//    public AppointmentResponse createAppointment(AppointmentRegistrationRequest request) {
-//        Appointment appointment = appointmentMapper.toAppointment(request);
-//        User customer = customerRepository.findById(request.getCustomerId())
-//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        appointment.setCustomerUser(customer);
-//
-//        User technician = technicianRepository.findById(request.getTechnicianId())
-//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        appointment.setTechnicianUser(technician);
-//
-//        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-//                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-//
-//        appointment.setVehicle(vehicle);
-//
-//        AppointmentStatus status;
-//        try {
-//            status = AppointmentStatus.valueOf(request.getStatus().name());
-//        } catch (IllegalArgumentException e) {
-//            throw new AppException(ErrorCode.STATUS_INVALID);
-//        }
-//        boolean vehicleBooked = appointmentRepository.existsByVehicleIdAndAppointmentDate(request.getVehicleId(), request.getAppointmentDate());
-//        if (vehicleBooked) {
-//            throw new AppException(ErrorCode.APPOINTMENT_EXISTED);
-//        }
-//        boolean exist = appointmentRepository.existsByTechnicianUserIdAndAppointmentDate(request.getTechnicianId(), request.getAppointmentDate());
-//        if (exist) {
-//            throw new AppException(ErrorCode.APPOINTMENT_EXISTED);
-//        }
-//
-//        appointment = appointmentRepository.save(appointment);
-//        return appointmentMapper.toAppointmentResponse(appointment);
-//        return null;
-//    }
-
-
-//    @Override
-//    public List<AppointmentResponse> getAppointmentByCustomerId(long customerId) {
-//        List<Appointment> list = appointmentRepository.getAppointmentByCustomerUser_Id(customerId);
-//        if (list.isEmpty()) {
-//            throw new AppException(ErrorCode.USER_NOT_FOUND);
-//        }
-//        return list.stream()
-//                .map(appointmentMapper::toAppointmentResponse)
-//                .toList();
-//    }
-//
-//
-//    @Override
-//    public Optional<AppointmentResponse> getAppointmentByAppointmentId(long appointmentId) {
-//        return appointmentRepository.findById(appointmentId)
-//                .map(appointmentMapper::toAppointmentResponse);
-//    }
-//
-//    @Override
-//    public List<AppointmentResponse> getAll() {
-//        return appointmentRepository.findAll().stream()
-//                .map(appointmentMapper::toAppointmentResponse)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<AppointmentResponse> getAppointmentByStatus(AppointmentStatus status) {
-//        return appointmentRepository.findByStatus(status).stream()
-//                .map(appointmentMapper::toAppointmentResponse)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<AppointmentResponse> getTechnicianByTechnicianIdAndSchedule(long technicianId, LocalDateTime scheduleDate) {
-//        return appointmentRepository.findByTechnicianUserIdAndAppointmentDate(technicianId, scheduleDate).stream()
-//                .map(appointmentMapper::toAppointmentResponse)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public AppointmentResponse updateAppointment(Long appointmentId, AppointmentUpdateRequest request) {
-//        Appointment appointment = appointmentRepository.findById(appointmentId)
-//                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-//
-//        User customer = customerRepository.findById(request.getCustomerId())
-//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        appointment.setCustomerUser(customer);
-//
-//        User technician = technicianRepository.findById(request.getTechnicianId())
-//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        appointment.setTechnicianUser(technician);
-//
-//        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-//                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-//        appointment.setVehicle(vehicle);
-//
-//        appointment.setAppointmentDate(request.getAppointmentDate());
-//        appointment.setNotes(request.getNotes());
-//        appointment.setStatus(AppointmentStatus.valueOf(request.getStatus()));
-//
-//        appointmentMapper.updateAppointment(request,appointment);
-//
-//        Appointment updated = appointmentRepository.save(appointment);
-//
-//        return appointmentMapper.toAppointmentResponse(updated);
-//    }
-//
-//
-//    @Override
-//    public AppointmentResponse assignTechnician(long appointmentId, long technicianId) {
-//        Appointment appointment = appointmentRepository.findById(appointmentId)
-//                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-//        User technician = technicianRepository.findById(technicianId)
-//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//
-//        if (!isTechnicianAvailable(technicianId, appointment.getAppointmentDate())) {
-//            throw new AppException(ErrorCode.TECHNICIAN_NOT_AVAILABLE);
-//        }
-//
-//        appointment.setTechnicianUser(technician);
-//        appointment.setStatus(AppointmentStatus.CONFIRMED);
-//        return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
-//    }
-//
-//    @Override
-//    public AppointmentResponse cancelAppointment(long appointmentId) {
-//        Appointment appointment = appointmentRepository.findById(appointmentId)
-//                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-//        appointment.setStatus(AppointmentStatus.CANCELLED);
-//        return appointmentMapper.toAppointmentResponse(appointmentRepository.save(appointment));
-//    }
-//
-//    @Override
-//    public boolean isTechnicianAvailable(long technicianId, LocalDateTime scheduleDate) {
-//        return !appointmentRepository.existsByTechnicianUserIdAndAppointmentDate(technicianId, scheduleDate);
-//    }
 }

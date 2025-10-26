@@ -21,7 +21,7 @@ import java.util.List;
  * Loại dịch vụ (Bảo dưỡng sơ cấp , Bảo dưỡng trung cấp , Bảo dưỡng cao cấp)
  */
 public class ServicePackage extends BaseEntity {
-    @Column(columnDefinition = "NVARCHAR(100)", nullable = false)
+    @Column(columnDefinition = "NVARCHAR(100)", nullable = false, unique = true)
     String name;
 
     @Column(columnDefinition = "NVARCHAR(200)")
