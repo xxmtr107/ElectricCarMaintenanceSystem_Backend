@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
+import com.group02.ev_maintenancesystem.dto.request.PasswordUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.UserResponse;
@@ -72,6 +73,47 @@ public class CustomerServiceImpl implements CustomerService {
 
         return userMapper.toUserResponse(user);
     }
+
+    @Override
+    public void changeMyPassword(PasswordUpdateRequest request) {
+        // 1. Lấy thông tin người dùng đang đăng nhập
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)); // Hoặc UNAUTHENTICATED
+
+        // 2. Xác thực mật khẩu cũ
+        if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED); // Hoặc tạo ErrorCode.INVALID_OLD_PASSWORD
+        }
+
+        // 3. (Tùy chọn) Kiểm tra xem mật khẩu mới có trùng mật khẩu cũ không
+        if (passwordEncoder.matches(request.getNewPassword(), currentUser.getPassword())) {
+            throw new AppException(ErrorCode.NEW_PASSWORD_SAME_AS_OLD); // Hoặc tạo ErrorCode.NEW_PASSWORD_SAME_AS_OLD
+        }
+
+        // 4. Mã hóa và cập nhật mật khẩu mới
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        // 5. Lưu lại thông tin người dùng
+        userRepository.save(currentUser);
+
+        // Không cần trả về UserResponse vì API chỉ cần báo thành công
+    }
+
+    @Override
+    public UserResponse updateMyInfo(UserUpdateRequest request) {
+        // Lấy username từ context bảo mật
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)); // Hoặc UNAUTHENTICATED
+
+        // Cập nhật thông tin từ request (không cần kiểm tra role nữa vì đã qua @PreAuthorize)
+        userMapper.updateUser(request, currentUser);
+
+        User updatedUser = userRepository.save(currentUser);
+        return userMapper.toUserResponse(updatedUser);
+    }
+
     @Override
     public UserResponse getCustomerById(Long customerId) {
         User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)

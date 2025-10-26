@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.controller;
 
+import com.group02.ev_maintenancesystem.dto.request.PasswordUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -66,6 +68,22 @@ public class CustomerController {
                 .build();
     }
 
+    @PutMapping("/change-password") // Hoặc "/change-password"
+    @PreAuthorize("isAuthenticated()") // Bất kỳ ai đã đăng nhập đều có thể đổi pass của mình
+    public ApiResponse<Void> changeMyPassword(@RequestBody @Valid PasswordUpdateRequest request) {
+        customerService.changeMyPassword(request); // Gọi service mới
+        return ApiResponse.<Void>builder()
+                .message("Password updated successfully")
+                .build(); // Không cần trả về user info, chỉ cần thông báo thành công
+    }
 
+    @PutMapping("/my-info")
+    @PreAuthorize("hasRole('CUSTOMER')") // Chỉ customer mới tự update info
+    public ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UserUpdateRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .message("Customer info updated successfully")
+                .result(customerService.updateMyInfo(request)) // Gọi service mới
+                .build();
+    }
 
 }

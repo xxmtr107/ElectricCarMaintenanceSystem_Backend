@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.service;
 
+import com.group02.ev_maintenancesystem.dto.request.PasswordUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.UserResponse;
@@ -13,4 +14,6 @@ public interface CustomerService {
     List<UserResponse> getAllCustomers();
     void deleteCustomer(Long customerId);
     UserResponse getMyInfo();
+    void changeMyPassword(PasswordUpdateRequest request);
+    UserResponse updateMyInfo(UserUpdateRequest request);
 }

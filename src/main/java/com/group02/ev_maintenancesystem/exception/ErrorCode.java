@@ -18,7 +18,7 @@ public enum ErrorCode {
     USER_ALREADY_EXISTS(109, "User already exists", HttpStatus.BAD_REQUEST),
     ROLE_NOT_FOUND(110, "Role not found", HttpStatus.NOT_FOUND),
     USER_NOT_CUSTOMER(111, "User is not a customer", HttpStatus.BAD_REQUEST),
-
+    NEW_PASSWORD_SAME_AS_OLD(112, "New password same as old password", HttpStatus.BAD_REQUEST),
     // ========================= VEHICLE ERRORS (200 - 299) =========================
     VIN_ALREADY_EXISTS(200, "VIN already exists", HttpStatus.BAD_REQUEST),
     LICENSE_PLATE_ALREADY_EXISTS(201, "License plate already exists", HttpStatus.BAD_REQUEST),
