@@ -59,9 +59,6 @@ public class CustomerServiceImpl implements CustomerService {
         User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        userMapper.updateUser(request, customer);
-        customer.setPassword(passwordEncoder.encode(request.getPassword()));
-
         return userMapper.toUserResponse(userRepository.save(customer));
     }
     @Override

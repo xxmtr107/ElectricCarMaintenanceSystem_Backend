@@ -32,6 +32,7 @@ public class CustomerController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     ApiResponse<List<UserResponse>> findAll(){
         return ApiResponse.<List<UserResponse>>builder()
                 .message("Customers fetched successfully")
@@ -40,6 +41,7 @@ public class CustomerController {
     }
 
     @PutMapping("/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     ApiResponse<UserResponse> updateCustomer(@PathVariable Long customerId, @RequestBody @Valid UserUpdateRequest request){
         return ApiResponse.<UserResponse>builder()
                 .message("Customer updated successfully")
@@ -48,6 +50,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     ApiResponse<UserResponse> getCustomer(@PathVariable Long customerId){
         return ApiResponse.<UserResponse>builder()
                 .message("Customer fetched successfully")
@@ -55,12 +58,14 @@ public class CustomerController {
                 .build();
     }
     @GetMapping("/my-info")
+    @PreAuthorize("isAuthenticated()")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder()
                 .result(customerService.getMyInfo())
                 .build();
     }
     @DeleteMapping("/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     ApiResponse<String> deleteCustomer(@PathVariable Long customerId) {
         customerService.deleteCustomer(customerId);
         return ApiResponse.<String>builder()
