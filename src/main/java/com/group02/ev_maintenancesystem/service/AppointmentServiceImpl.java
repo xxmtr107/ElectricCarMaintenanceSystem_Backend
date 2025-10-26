@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,6 +44,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     // Customer role
     @Override
+    @Transactional
     public AppointmentResponse createAppointmentByCustomer(Authentication authentication, CustomerAppointmentRequest request) {
         Appointment appointment = appointmentMapper.toAppointmentCustomer(request);
 
@@ -202,7 +204,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     // Admin role
     @Override
     public List<AppointmentResponse> getAppointmentByCustomerId(Long customerId) {
-        userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER);
+        userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
         return appointments.stream()
                 .map(appointment -> {
@@ -342,10 +345,30 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentResponse cancelAppointment(Long appointmentId) {
+    public AppointmentResponse cancelAppointment(Long appointmentId, Authentication authentication) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        Long currentUserId = jwt.getClaim("userId");
+        String role = jwt.getClaim("scope");
+
+        // Validate ownership
+        if (!role.contains("ADMIN") && !role.contains("STAFF")) {
+            // Customer chỉ hủy được appointment của mình
+            if (role.contains("CUSTOMER")) {
+                if (!appointment.getCustomerUser().getId().equals(currentUserId)) {
+                    throw new AppException(ErrorCode.UNAUTHORIZED);
+                }
+            }
+            // Technician chỉ hủy được appointment được assign cho mình
+            else if (role.contains("TECHNICIAN")) {
+                if (appointment.getTechnicianUser() == null ||
+                        !appointment.getTechnicianUser().getId().equals(currentUserId)) {
+                    throw new AppException(ErrorCode.UNAUTHORIZED);
+                }
+            }
+        }
         // Validate: Không thể hủy appointment đã hoàn thành
         if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new AppException(ErrorCode.CANNOT_CANCEL_COMPLETED_APPOINTMENT);
@@ -355,6 +378,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
             throw new AppException(ErrorCode.APPOINTMENT_ALREADY_CANCELLED);
         }
+
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
         Appointment savedAppointment = appointmentRepository.save(appointment);

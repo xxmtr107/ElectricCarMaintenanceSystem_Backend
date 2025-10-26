@@ -9,6 +9,7 @@ import com.group02.ev_maintenancesystem.service.VehicleServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,6 +62,7 @@ public class VehicleController {
 
     //Cập nhâp vehicles
     @PutMapping("/{vehicleId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or #customerId == authentication.principal.claims['userId']")
     public ApiResponse<VehicleResponse> updateVehicle(@PathVariable Long vehicleId, @Valid @RequestBody VehicleUpdateRequest request){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Update vehicles successfully")

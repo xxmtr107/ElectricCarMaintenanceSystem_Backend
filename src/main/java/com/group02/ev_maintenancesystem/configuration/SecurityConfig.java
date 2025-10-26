@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -40,11 +41,44 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // tắt CSRF cho REST API
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // tất cả request đều được phép
+                        .requestMatchers(
+                                "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", // Swagger
+                                "/auth/**",                // Login, Refresh, Logout, Introspect
+                                "/customers/register"     // Đăng ký customer
+                        ).permitAll()
+                        // --- 2. Endpoint ADMIN (Quản lý hệ thống) ---
+                        .requestMatchers(
+                                "/staffs/**",              // Quản lý Staff
+                                "/technicians/**",         // Quản lý Technician
+                                "/vehicleModel/**",        // Quản lý Model xe
+                                "/servicePackage/**",      // Quản lý Gói
+                                "/serviceItem/**",         // Quản lý Hạng mục
+                                "/model-package-items/**"  // Quản lý Menu giá
+                        ).hasRole("ADMIN") // Chỉ ADMIN
+
+                        // --- 3. Endpoint STAFF & ADMIN (Nghiệp vụ) ---
+                        .requestMatchers(
+                                "/appointments", // GET all
+                                "/appointments/status/**",
+                                "/appointments/date-range",
+                                "/appointments/{appointmentId}/assign/{technicianId}",
+                                "/maintenance-records/**",
+                                "/vehicles" // GET all vehicles
+                        ).hasAnyRole("ADMIN", "STAFF")
+
+                        // --- 4. Endpoint TECHNICIAN (và cao hơn) ---
+                        .requestMatchers(
+                                "/appointments/setStatus/**"
+                        ).hasAnyRole("ADMIN", "STAFF", "TECHNICIAN")
+
+                        // --- 5. Các endpoint còn lại ---
+                        // Yêu cầu phải đăng nhập (Authenticated)
+                        // Quyền chi tiết (như CUSTOMER có đúng là chủ xe không)
+                        // sẽ được xử lý ở Service hoặc @PreAuthorize
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2
-                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))); // Cấu hình JWT
-
+                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))); // Kích hoạt xác thực JWT
 
         return http.build();
     }

@@ -138,10 +138,10 @@ public class AppointmentController {
 
     @PutMapping("/cancel/{appointmentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF','CUSTOMER','TECHNICIAN')")
-    public ApiResponse<AppointmentResponse> cancel(@PathVariable Long appointmentId) {
+    public ApiResponse<AppointmentResponse> cancel(@PathVariable Long appointmentId, Authentication authentication) {
         return ApiResponse.<AppointmentResponse>builder()
                 .message("Appointment cancelled successfully")
-                .result(appointmentService.cancelAppointment(appointmentId))
+                .result(appointmentService.cancelAppointment(appointmentId,authentication))
                 .build();
     }
 
