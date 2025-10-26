@@ -75,14 +75,17 @@ public enum ErrorCode {
     SIGNATURE_INVALID(704, "Invalid VNPay signature", HttpStatus.BAD_REQUEST),
     PAYMENT_FAILED(705, "Payment failed", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_FOUND(706, "Payment not found", HttpStatus.NOT_FOUND),
+    CREATE_PAYMENT_FAILD(707, "Create payment failed", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // ========================= INVOICE ERRORS (800 - 899) =========================
-    INVOICE_NOT_FOUND(800, "Invoice already exists for this appointment", HttpStatus.BAD_REQUEST),
+    INVOICE_NOT_FOUND(800, "Invoice not found for this appointment", HttpStatus.BAD_REQUEST),
+    INVOICE_ALREADY_PAID(801, "Invoice already paid", HttpStatus.BAD_REQUEST), // THÊM MÃ LỖI NÀY
 
     // ========================= MODEL PACKAGE ITEM ERRORS (900 - 999) =========================
     MODEL_PACKAGE_ITEM_NOT_FOUND(900, "Model package item not found", HttpStatus.NOT_FOUND),
     MODEL_PACKAGE_ITEM_EXISTED(901, "Model package item already exists", HttpStatus.BAD_REQUEST),
     PRICE_INVALID(902, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
+
 
     // ========================= SERVER ERRORS (1000 - 1099) =========================
     INTERNAL_SERVER_ERROR(1000, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),

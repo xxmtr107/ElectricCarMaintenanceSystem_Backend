@@ -9,10 +9,9 @@ import com.group02.ev_maintenancesystem.entity.Payment;
 import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
-import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
 import com.group02.ev_maintenancesystem.repository.InvoiceRepository;
 import com.group02.ev_maintenancesystem.repository.PaymentRepository;
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,22 +37,31 @@ public class VNPayServiceImpl implements  VNPayService {
 
 
     @Override
-    public VNPayResponse createPayment(VNPayRequest request) {
-        try {
+    public VNPayResponse createPayment(VNPayRequest request, HttpServletRequest httpServletRequest) {
+
             //check appointment
             Invoice invoice = invoiceRepository.findById(request.getInVoiceId())
                     .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
 
+            //Kiểm tra trạng thái của hóa đơn
+            if("PAID".equalsIgnoreCase(invoice.getStatus())){
+                throw new AppException(ErrorCode.INVOICE_ALREADY_PAID);
+            }
+
+            BigDecimal totalAmount = invoice.getTotalAmount();
+
             // Tạo transactionCode duy nhất
             String transactionCode = "APP" + request.getInVoiceId() + "_" + System.currentTimeMillis();
-
+            String ipAddress = getIpAddress(httpServletRequest);
             //Lưu vào db trước khi điều hướng qua VNPay
             Payment payment = Payment.builder()
                     .transactionCode(transactionCode)
-                    .amount(request.getAmount())
+                    .amount(totalAmount)
                     .status(PaymentStatus.UN_PAID)
                     .invoice(invoice)
+                    .method("VNPay")
                     .build();
+            paymentRepository.save(payment);
 //            payment.setPaymentDate(LocalDateTime.now());
 //            payment.setStatus(PaymentStatus.UN_PAID);
 //            payment.setAmount(request.getAmount());
@@ -65,7 +73,7 @@ public class VNPayServiceImpl implements  VNPayService {
             vnp_Params.put("vnp_TmnCode", vnPayConfig.getVnp_TmnCode());
 
             //Chuyển kiểu dữ liệu từ bigdecimal về long
-            long amountVNP = request.getAmount().multiply(BigDecimal.valueOf(100)).longValue();
+            long amountVNP = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
             vnp_Params.put("vnp_Amount", String.valueOf(amountVNP));
 
             vnp_Params.put("vnp_CurrCode", "VND");
@@ -74,18 +82,21 @@ public class VNPayServiceImpl implements  VNPayService {
                 throw new AppException(ErrorCode.NOT_BLANK);
             }
             vnp_Params.put("vnp_BankCode", request.getBankCode());
-            vnp_Params.put("vnp_TxnRef", String.valueOf(invoice));
+            vnp_Params.put("vnp_TxnRef", transactionCode);
             vnp_Params.put("vnp_OrderType", "other");
-            vnp_Params.put("vnp_OrderInfo","Pay for voice with id+ "+invoice);
+            vnp_Params.put("vnp_OrderInfo","Pay for invoice with id+ "+invoice.getId());
             vnp_Params.put("vnp_Locale","vn");
-            vnp_Params.put("vnp_IpAddr", "127.0.0.1");
+            vnp_Params.put("vnp_IpAddr", ipAddress);
             vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getVnp_ReturnUrl());
-            vnp_Params.put("vnp_CreateDate", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+            //Tạo thời gian trùng với múi giờ GM+7 của VNPay
+            Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+            String createDate = formatter.format(cld.getTime());
+            vnp_Params.put("vnp_CreateDate", createDate);
 
             //Sort các field trong để ký
             List<String> fieldName = new ArrayList<>(vnp_Params.keySet());
             Collections.sort(fieldName);
-
             StringBuilder hashData = new StringBuilder();
             StringBuilder query = new StringBuilder();
 
@@ -93,7 +104,7 @@ public class VNPayServiceImpl implements  VNPayService {
                 String name = fieldName.get(i);
                 String value = vnp_Params.get(name);
                 if(value != null && !value.trim().isEmpty()){
-                    hashData.append(name).append("=").append(value);
+                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
                     query.append(URLEncoder.encode(name, StandardCharsets.US_ASCII)).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
                     if(i<fieldName.size() -1){
                         hashData.append("&");
@@ -115,9 +126,31 @@ public class VNPayServiceImpl implements  VNPayService {
             return response;
 
 
-        }catch (Exception e){
-            throw new AppException(ErrorCode.HASH_DATA_FAIL);
+
+    }
+
+    //Lấy địa chỉ IP của khách hàng
+    private String getIpAddress(HttpServletRequest request){
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
+            ipAddress= request.getHeader("Proxy-Client-IP");
         }
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
+            ipAddress= request.getHeader("WL-Proxy-Client-IP");
+        }
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
+            ipAddress= request.getRemoteAddr();
+            //Đối với localhost thì trả về IPv6 ::1
+            if("127.0.0.1".equals(ipAddress)){
+                return "127.0.0.1";
+            }
+        }
+        //Xử lý trường trường hợp có nhiều IP (chọn IP đầu tiên)
+        if(ipAddress != null && ipAddress.contains(",")){
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
     }
 
     @Override
@@ -133,7 +166,8 @@ public class VNPayServiceImpl implements  VNPayService {
         for(int i=0; i<fieldNames.size(); i++){
             String name = fieldNames.get(i);
             String value = param.get(name);
-            hashData.append(name).append("=").append(value);
+            hashData.append(name).append("=");
+            hashData.append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
             if(i < fieldNames.size()-1 ){
                 hashData.append("&");
             }
@@ -155,7 +189,41 @@ public class VNPayServiceImpl implements  VNPayService {
         Payment payment = paymentRepository.findByTransactionCode(transactionCode)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
 
-        return false;
+        //Tránh xử lý lại giao dịch đã thành công
+        if(payment.getStatus() == PaymentStatus.PAID){
+            return true;
+        }
+
+        //Cập nhập trạng thái các mã phản hổi
+        if("00".equals(responseCode)){
+            //payment set status
+            payment.setStatus(PaymentStatus.PAID);
+            paymentRepository.save(payment);
+
+            //invoice set Status
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("PAID");
+            invoiceRepository.save(invoice);
+            return true;
+        }
+        if("24".equals(responseCode)){
+            payment.setStatus(PaymentStatus.CANCELLED);
+            paymentRepository.save(payment);
+
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("CANCELLED");
+            invoiceRepository.save(invoice);
+            return false;
+        }
+        else{
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("FAIL");
+            invoiceRepository.save(invoice);
+            return false;
+        }
     }
 
     //HmacSHA512 để tạo chữ ký khi kết hợp data và key
