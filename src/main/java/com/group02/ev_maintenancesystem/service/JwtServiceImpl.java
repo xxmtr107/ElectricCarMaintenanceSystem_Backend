@@ -35,14 +35,14 @@ public class JwtServiceImpl implements JwtService {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
         Date issueTime = new Date();
-        Date expiredTime = Date.from(issueTime.toInstant().plus(30, ChronoUnit.MINUTES));
+        Date expiredTime = Date.from(issueTime.toInstant().plus(1, ChronoUnit.HOURS));
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
                 .issueTime(issueTime)
                 .expirationTime(expiredTime)
                 .jwtID(UUID.randomUUID().toString())
-                .claim("role", user.getRole().getName())
+                .claim("scope", "ROLE_" + user.getRole().getName())
                 .claim("userId", user.getId())
                 .build();
 
@@ -69,7 +69,6 @@ public class JwtServiceImpl implements JwtService {
                 .subject(user.getUsername())
                 .issueTime(issueTime)
                 .expirationTime(expiredTime)
-                .claim("role", user.getRole().getName())
                 .build();
 
         Payload payload = new Payload(claimsSet.toJSONObject());
@@ -85,13 +84,16 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public SignedJWT verifyToken(String token) throws ParseException, JOSEException {
+    public SignedJWT verifyToken(String token, boolean isRefreshToken) throws ParseException, JOSEException {
         var signedJWT = SignedJWT.parse(token);
-
         Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
         var verify =  signedJWT.verify(new MACVerifier(signerKey.getBytes()));
+
         if (!(verify && expirationTime.after(new Date()))) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            if(isRefreshToken) {
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
+            }
         }
         if(invalidatedRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())){
             throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -100,14 +102,25 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
+    public SignedJWT verifyToken(String token) throws ParseException, JOSEException {
+        // Mặc định kiểm tra như là access token
+        return verifyToken(token, false);
+    }
+
+    @Override
     public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
-        var token =request.getToken();
+        var token = request.getToken();
         boolean isValid = true;
         try {
-            verifyToken(token);
+            verifyToken(token,false);
 
-        } catch (Exception e) {
+        } catch (AppException e) {
+            // Nếu verify ném AppException (sai chữ ký, hết hạn VÀ LÀ REFRESH TOKEN, bị logout) -> không valid
             isValid = false;
+        } catch (Exception e){
+            // Các lỗi khác (như ParseException) cũng là không valid
+            isValid = false;
+            log.error("Error introspecting token", e); // Log lỗi khác
         }
 
         return IntrospectResponse.builder()

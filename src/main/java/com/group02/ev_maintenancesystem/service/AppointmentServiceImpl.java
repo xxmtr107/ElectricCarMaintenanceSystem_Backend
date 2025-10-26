@@ -327,7 +327,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(newStatus);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        if(newStatus == AppointmentStatus.CANCELLED || newStatus == AppointmentStatus.COMPLETED) {
+        if(newStatus == AppointmentStatus.COMPLETED) {
             maintenanceRecordService.createMaintenanceRecord(savedAppointment);
         }
 
@@ -358,7 +358,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        maintenanceRecordService.createMaintenanceRecord(savedAppointment);
 
         AppointmentResponse response = appointmentMapper.toAppointmentResponse(savedAppointment);
         appointmentMapper.mapServiceItems(savedAppointment, response, modelPackageItemRepository);
