@@ -36,16 +36,17 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             12000, 24000, 36000, 48000, 60000,
             72000, 84000, 96000, 108000, 120000
     );
-    private static final int MONTHLY_THRESHOLD = 12; // Ngưỡng tháng (ví dụ: 12 tháng)
+    private static final int MONTHLY_THRESHOLD = 12; // Ngưỡng tháng
+    private static final int KM_THRESHOLD_NEARBY = 1000; // Ngưỡng KM coi là đã làm gần mốc
 
     @Override
     @Transactional(readOnly = true)
     public List<MaintenanceRecommendationDTO> getRecommendations(Long vehicleId) {
-        // 1. Lấy thông tin xe, model, km, ngày mua
+        // 1. Lấy thông tin xe
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
         VehicleModel model = vehicle.getModel();
-        LocalDate purchaseDate = vehicle.getPurchaseYear(); // Giả sử đây là LocalDate
+        LocalDate purchaseDate = vehicle.getPurchaseYear();
 
         if (model == null || purchaseDate == null) {
             log.error("Vehicle ID {} is missing VehicleModel or Purchase Year association.", vehicleId);
@@ -54,106 +55,64 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         Long modelId = model.getId();
         int currentKm = vehicle.getCurrentKm() != null ? vehicle.getCurrentKm() : 0;
 
-        // 2. Lấy lịch sử và xác định ngày tham chiếu cho việc tính thời gian
+        // 2. Lấy lịch sử và xác định ngày/km tham chiếu
         List<MaintenanceRecord> history = maintenanceRecordRepository.findByVehicle_IdOrderByPerformedAtDesc(vehicleId);
-        LocalDateTime referenceDateTime = history.stream()
-                .map(MaintenanceRecord::getPerformedAt)
-                .filter(Objects::nonNull)
-                .findFirst() // Lấy ngày của bản ghi mới nhất
-                .orElse(purchaseDate.atStartOfDay()); // Nếu không có lịch sử, lấy ngày mua
+        LocalDateTime referenceDateTime = purchaseDate.atStartOfDay();
+        int referenceKm; // Mốc KM đã hoàn thành gần nhất
+
+        if (!history.isEmpty()) {
+            MaintenanceRecord lastRecord = history.get(0);
+            if (lastRecord.getPerformedAt() != null) {
+                referenceDateTime = lastRecord.getPerformedAt();
+            }
+            if (lastRecord.getOdometer() != null && lastRecord.getOdometer() > 0) {
+                // Tìm mốc chuẩn gần nhất <= odometer của lần bảo dưỡng cuối
+                final int lastOdometer = lastRecord.getOdometer();
+                referenceKm = STANDARD_MILESTONES.stream()
+                        .filter(m -> m <= lastOdometer + KM_THRESHOLD_NEARBY) // Tìm mốc gần nhất đã qua
+                        .max(Integer::compareTo)
+                        .orElse(0); // Nếu lần bảo dưỡng cuối < 12k thì coi như chưa qua mốc nào
+            } else {
+                referenceKm = 0;
+            }
+        } else {
+            referenceKm = 0;
+        }
 
         // 3. Tính số tháng đã trôi qua
         Period period = Period.between(referenceDateTime.toLocalDate(), LocalDate.now());
         long monthsPassed = period.toTotalMonths();
 
-        // 4. Tìm cột mốc KM đến hạn tiếp theo (hoặc mốc hiện tại nếu chưa làm)
-        Integer nextMilestoneBasedOnKm = STANDARD_MILESTONES.stream()
-                .filter(milestone -> milestone > currentKm)
+        // 4. Xác định mốc KM cần kiểm tra tiếp theo (mốc đầu tiên > referenceKm)
+        Integer nextMilestoneInSequence = STANDARD_MILESTONES.stream()
+                .filter(m -> m > referenceKm)
                 .min(Integer::compareTo)
-                .orElse(null);
+                .orElse(null); // Null nếu đã hoàn thành/vượt qua mốc cuối cùng
 
-        Integer currentMilestoneExactMatch = STANDARD_MILESTONES.stream()
-                .filter(m -> m == currentKm).findFirst().orElse(null);
-
-        Integer effectiveMilestone = nextMilestoneBasedOnKm; // Mặc định là mốc tiếp theo
-        boolean dueByKm = false;
-        String reason = "";
-
-        // Kiểm tra xem có cần bảo dưỡng ngay tại mốc hiện tại không
-        if (currentMilestoneExactMatch != null) {
-            boolean alreadyDoneAroundCurrent = history.stream()
-                    .anyMatch(r -> r.getOdometer() != null && Math.abs(r.getOdometer() - currentKm) < 1000); // Sai số 1000km
-            if (!alreadyDoneAroundCurrent) {
-                effectiveMilestone = currentMilestoneExactMatch; // Ưu tiên mốc hiện tại nếu chưa làm
-                dueByKm = true; // Đến hạn do KM (đang ở đúng mốc)
-                log.info("Vehicle ID {} is at milestone {}km and hasn't been serviced recently. Setting this as effective milestone.", vehicleId, currentKm);
-            }
-        }
-        // Nếu không phải mốc hiện tại cần làm, kiểm tra mốc tiếp theo
-        else if (nextMilestoneBasedOnKm != null && currentKm >= nextMilestoneBasedOnKm) {
-            // Mặc dù logic tìm nextMilestone > currentKm, nhưng để chắc chắn
-            // Hoặc logic này nên là: currentKm đã tiến gần đến nextMilestone (ví dụ: trong vòng 1000km)
-            // Tạm thời giữ logic đơn giản: chỉ kích hoạt khi currentKm >= effectiveMilestone (nếu effective = next)
-            // --> Logic này chưa ổn, phải là currentKm >= milestone *trước đó* + chu kỳ.
-            // --> Quay lại logic đơn giản nhất: Tìm mốc ĐẦU TIÊN >= currentKm mà chưa làm.
-
-            // Tìm mốc đầu tiên >= currentKm
-            Integer firstMilestoneDue = STANDARD_MILESTONES.stream()
-                    .filter(m -> m >= currentKm)
-                    .min(Integer::compareTo)
-                    .orElse(null);
-
-            if(firstMilestoneDue != null) {
-                // Kiểm tra xem mốc này đã làm gần đây chưa
-                final int finalMilestone = firstMilestoneDue; // Biến final cho lambda
-                boolean alreadyDoneAroundMilestone = history.stream()
-                        .anyMatch(r -> r.getOdometer() != null && Math.abs(r.getOdometer() - finalMilestone) < 1000);
-
-                if (!alreadyDoneAroundMilestone) {
-                    effectiveMilestone = firstMilestoneDue;
-                    dueByKm = true; // Đến hạn vì đã đạt hoặc vượt mốc này mà chưa làm
-                    log.info("Vehicle ID {} reached/passed milestone {}km and hasn't been serviced recently. Setting this as effective milestone.", vehicleId, firstMilestoneDue);
-                } else if (nextMilestoneBasedOnKm != null) {
-                    // Đã làm mốc hiện tại/vừa qua, xem xét mốc tiếp theo
-                    effectiveMilestone = nextMilestoneBasedOnKm;
-                    dueByKm = false; // Chưa đến hạn KM cho mốc *tiếp theo* này
-                    log.info("Vehicle ID {} serviced around {}km. Considering next milestone {}.", vehicleId, firstMilestoneDue, nextMilestoneBasedOnKm);
-                } else {
-                    // Đã làm mốc cuối cùng hoặc đã qua hết mốc
-                    effectiveMilestone = null;
-                }
-            } else {
-                // Đã vượt qua tất cả các mốc
-                effectiveMilestone = null;
-            }
-        } else if (nextMilestoneBasedOnKm != null) {
-            // Chưa đến mốc KM tiếp theo
-            effectiveMilestone = nextMilestoneBasedOnKm;
-            dueByKm = false;
-        } else {
-            // Đã vượt qua tất cả các mốc
-            effectiveMilestone = null;
+        if (nextMilestoneInSequence == null) {
+            log.info("Vehicle ID {} seems to have completed or passed all standard milestones based on last service KM {}.", vehicleId, referenceKm);
+            return Collections.emptyList(); // Không còn mốc nào trong chuỗi
         }
 
-
-        // 5. Kiểm tra đến hạn do thời gian
+        // 5. Kiểm tra điều kiện đến hạn
+        boolean dueByKm = currentKm >= nextMilestoneInSequence;
         boolean dueByTime = monthsPassed >= MONTHLY_THRESHOLD;
-
-        // 6. Xác định lý do và Mốc cuối cùng để đề xuất
+        String reason = "";
         Integer milestoneToRecommend = null;
+
         if (dueByKm && dueByTime) {
-            milestoneToRecommend = effectiveMilestone;
+            milestoneToRecommend = nextMilestoneInSequence;
             reason = "DUE_BY_KM_AND_TIME";
         } else if (dueByKm) {
-            milestoneToRecommend = effectiveMilestone;
+            milestoneToRecommend = nextMilestoneInSequence;
             reason = "DUE_BY_KM";
         } else if (dueByTime) {
-            // Nếu chỉ đến hạn do thời gian, đề xuất mốc KM hiệu lực (có thể là mốc sắp tới)
-            milestoneToRecommend = effectiveMilestone;
+            // Đến hạn do thời gian -> Đề xuất mốc tiếp theo trong chuỗi
+            milestoneToRecommend = nextMilestoneInSequence;
             reason = "DUE_BY_TIME";
         }
 
-        // 7. Nếu có mốc cần đề xuất (do KM hoặc Time)
+        // 6. Nếu có mốc cần đề xuất
         if (milestoneToRecommend != null) {
             // Lấy hạng mục cho mốc này
             List<ModelPackageItem> itemEntities = modelPackageItemRepository
@@ -161,6 +120,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
             if (itemEntities.isEmpty()) {
                 log.warn("No ModelPackageItem found for VehicleModel ID {} at milestone {}km. Cannot generate recommendation.", modelId, milestoneToRecommend);
+                // CÓ THỂ THỬ TÌM HẠNG MỤC CỦA MỐC GẦN NHẤT THẤP HƠN NẾU MỐC NÀY KHÔNG CÓ? (Logic phức tạp hơn)
                 return Collections.emptyList();
             }
 
@@ -170,11 +130,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                         ServiceItem serviceItem = entity.getServiceItem();
                         ServiceItemDTO itemInfoDTO = null;
                         if (serviceItem != null) {
-                            itemInfoDTO = new ServiceItemDTO(
-                                    serviceItem.getId(),
-                                    serviceItem.getName(),
-                                    serviceItem.getDescription()
-                            );
+                            itemInfoDTO = new ServiceItemDTO(serviceItem.getId(), serviceItem.getName(), serviceItem.getDescription());
                         } else {
                             log.warn("ModelPackageItem ID {} is missing ServiceItem association.", entity.getId());
                         }
@@ -195,6 +151,9 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             recommendation.setReason(reason);
             recommendation.setItems(itemDTOs);
             recommendation.setEstimatedTotal(estimatedTotal);
+            // Bỏ các trường không còn dùng
+            // recommendation.setDueAtKm(0);
+            // recommendation.setDueAtMonths(0);
 
             log.info("Generated recommendation for Vehicle ID {} at milestone {}km (Reason: {}) with {} items, total {}.",
                     vehicleId, milestoneToRecommend, reason, itemDTOs.size(), estimatedTotal);
@@ -202,9 +161,9 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             return List.of(recommendation);
         }
 
-        // Không có mốc nào đến hạn do KM hoặc Time
-        log.info("No maintenance milestone due for Vehicle ID {} (Current KM: {}, Months since last service/purchase: {}).",
-                vehicleId, currentKm, monthsPassed);
+        // Không đến hạn
+        log.info("No maintenance milestone due for Vehicle ID {} (Current KM: {}, Last Service KM around: {}, Months since last service/purchase: {}). Next milestone: {}",
+                vehicleId, currentKm, referenceKm, monthsPassed, nextMilestoneInSequence != null ? nextMilestoneInSequence : "None");
         return Collections.emptyList();
     }
 

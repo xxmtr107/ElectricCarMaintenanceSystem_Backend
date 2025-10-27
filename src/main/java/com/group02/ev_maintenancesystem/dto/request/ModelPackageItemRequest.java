@@ -17,7 +17,8 @@ public class ModelPackageItemRequest {
     @NotNull(message = "NOT_BLANK")
     Long vehicleModelId;
 
-    Long servicePackageId; // Null nếu là dịch vụ lẻ
+    @NotNull(message = "NOT_BLANK")
+    Integer milestoneKm;
 
     @NotNull(message = "NOT_BLANK")
     Long serviceItemId;

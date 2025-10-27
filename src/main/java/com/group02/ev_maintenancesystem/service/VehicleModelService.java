@@ -15,6 +15,6 @@ public interface VehicleModelService {
     List<VehicleModelResponse> getAllVehicleModel();
 
     Page<VehicleModelResponse> searchVehicleModelByName(String keyword, int page, int size);
-    VehicleModelResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request);
-    VehicleModelResponse deleteVehicleModelById(Long vehicleId);
+    VehicleModelResponse updateVehicleModel(Long vehicleModelId, VehicleModelUpdateRequest request);
+    void deleteVehicleModelById(Long vehicleId);
 }

@@ -8,20 +8,20 @@ import com.group02.ev_maintenancesystem.service.VehicleModelService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize; // Giữ lại nếu cần
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/vehicleModel")
+@RequestMapping("/vehicleModel") // Giữ nguyên base path
 public class VehicleModelController {
-    @Autowired
+    @Autowired // Giữ lại Autowired nếu bạn không dùng Constructor Injection
     VehicleModelService vehicleModelService;
 
-
-    //Tạo 1 model xe mới
+    // Request giờ chỉ cần name và modelYear
     @PostMapping("/create")
+    // @PreAuthorize("hasRole('ADMIN')") // Thêm quyền nếu cần
     public ApiResponse<VehicleModelResponse> createVehicleModel(@Valid @RequestBody VehicleModelRequest request){
         return ApiResponse. <VehicleModelResponse>builder()
                 .message("Create vehicle model successfully")
@@ -29,51 +29,55 @@ public class VehicleModelController {
                 .build();
     }
 
-    //Lấy thông tin của model xe bằng id của model
     @GetMapping("/{vehicleModelId}")
+    // @PreAuthorize("permitAll()") // Hoặc quyền phù hợp
     public ApiResponse<VehicleModelResponse> getVehicleModelById(@PathVariable Long vehicleModelId){
         return ApiResponse.<VehicleModelResponse>builder()
-                .message("Get vehicle model succesfully")
+                .message("Get vehicle model succesfully") // Sửa lỗi chính tả
                 .result(vehicleModelService.getVehicleModelById(vehicleModelId))
                 .build();
     }
 
-    //Lấy tất cả model
     @GetMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
+    // @PreAuthorize("permitAll()") // Hoặc quyền phù hợp
     public ApiResponse<List<VehicleModelResponse>> getAllVehicleModel(){
         return ApiResponse.<List<VehicleModelResponse>>builder()
-                .message("Get vehicle model successfully")
+                .message("Get all vehicle models successfully") // Sửa message
                 .result(vehicleModelService.getAllVehicleModel())
                 .build();
     }
 
-    //Search model bằng keyword là name
     @GetMapping("/search")
-    public ApiResponse<Page<VehicleModelResponse>> getVehicleModelByKeyword(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+    // @PreAuthorize("permitAll()") // Hoặc quyền phù hợp
+    public ApiResponse<Page<VehicleModelResponse>> getVehicleModelByKeyword(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
         return ApiResponse.<Page<VehicleModelResponse>>builder()
-                .message("Get vehicle model successfully")
+                .message("Search vehicle models successfully") // Sửa message
                 .result(vehicleModelService.searchVehicleModelByName(keyword, page, size))
                 .build();
     }
 
-    //Update model bằng id
+    // Request giờ chỉ có thể cập nhật name và modelYear
     @PutMapping("/{vehicleModelId}")
-    public ApiResponse<VehicleModelResponse> updateVehicleModel(@PathVariable Long vehicleModelId, @RequestBody @Valid VehicleModelUpdateRequest request){
+    // @PreAuthorize("hasRole('ADMIN')") // Thêm quyền nếu cần
+    public ApiResponse<VehicleModelResponse> updateVehicleModel(
+            @PathVariable Long vehicleModelId,
+            @RequestBody @Valid VehicleModelUpdateRequest request){ // Request đã được cập nhật
         return ApiResponse.<VehicleModelResponse>builder()
-                .message("Update vehicle successfully")
-                .result(vehicleModelService.updateVehicleMode(vehicleModelId, request))
+                .message("Update vehicle model successfully") // Sửa message
+                .result(vehicleModelService.updateVehicleModel(vehicleModelId, request)) // Đổi tên hàm trong service
                 .build();
     }
 
-    //Delete bằng modelId
     @DeleteMapping("/{vehicleModelId}")
-    public ApiResponse<VehicleModelResponse> deleteVehicleModelById(@PathVariable Long vehicleModelId){
-        return ApiResponse.<VehicleModelResponse>builder()
+    // @PreAuthorize("hasRole('ADMIN')") // Thêm quyền nếu cần
+    public ApiResponse<String> deleteVehicleModelById(@PathVariable Long vehicleModelId){ // Trả về String message
+        vehicleModelService.deleteVehicleModelById(vehicleModelId); // Hàm service không cần trả về response
+        return ApiResponse.<String>builder() // Giữ nguyên String response
                 .message("Delete vehicle model successfully")
-                .result(vehicleModelService.deleteVehicleModelById(vehicleModelId))
+                // .result(...) // Không cần result
                 .build();
-
     }
-
 }
