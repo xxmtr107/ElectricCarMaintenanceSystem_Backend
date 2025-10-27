@@ -46,14 +46,7 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
         VehicleModel newVehicleModel = new VehicleModel();
         newVehicleModel.setName(request.getName());
         newVehicleModel.setModelYear(request.getModelYear());
-        newVehicleModel.setBasicCycleKm(request.getBasicCycleKm());
-        newVehicleModel.setBasicCycleMonths(request.getBasicCycleMonths());
-        newVehicleModel.setStandardCycleKm(request.getStandardCycleKm());
-        newVehicleModel.setStandardCycleMonths(request.getStandardCycleMonths());
-        newVehicleModel.setPremiumCycleKm(request.getPremiumCycleKm());
-        newVehicleModel.setPremiumCycleMonths(request.getPremiumCycleMonths());
-        newVehicleModel.setBatteryCycleKm(request.getBatteryCycleKm());
-        newVehicleModel.setBatteryCycleMonths(request.getBatteryCycleMonths());
+
 
         VehicleModel savedModel = vehicleModelRepository.save(newVehicleModel);
 
@@ -108,30 +101,6 @@ public class VehicleModelServiceImpl implements  VehicleModelService {
         }
         if(!request.getModelYear().trim().isEmpty()) {
             vehicleModel.setModelYear(request.getModelYear());
-        }
-        if(request.getBatteryCycleKm() != null) {
-            vehicleModel.setBasicCycleKm(request.getBatteryCycleKm());
-        }
-        if(request.getStandardCycleKm() != null) {
-            vehicleModel.setStandardCycleKm(request.getStandardCycleKm());
-        }
-        if(request.getBasicCycleMonths() != null) {
-            vehicleModel.setBasicCycleMonths(request.getBasicCycleMonths());
-        }
-        if(request.getStandardCycleMonths() != null) {
-            vehicleModel.setStandardCycleMonths(request.getStandardCycleMonths());
-        }
-        if(request.getPremiumCycleKm() != null) {
-            vehicleModel.setPremiumCycleKm(request.getPremiumCycleKm());
-        }
-        if(request.getPremiumCycleMonths() != null) {
-            vehicleModel.setPremiumCycleMonths(request.getPremiumCycleMonths());
-        }
-        if(request.getBatteryCycleKm() != null) {
-            vehicleModel.setBatteryCycleKm(request.getBatteryCycleKm());
-        }
-        if(request.getBatteryCycleMonths() != null) {
-            vehicleModel.setBatteryCycleMonths(request.getBatteryCycleMonths());
         }
 
 

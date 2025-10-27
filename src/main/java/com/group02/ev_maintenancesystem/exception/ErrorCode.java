@@ -52,6 +52,7 @@ public enum ErrorCode {
     DUPLICATE_SERVICE_ITEMS(406, "Duplicated service items", HttpStatus.BAD_REQUEST),
     CANNOT_CANCEL_COMPLETED_APPOINTMENT(407, "Cannot cancel completed appointment", HttpStatus.BAD_REQUEST),
     APPOINTMENT_ALREADY_CANCELLED(408, "Appointment is already cancelled", HttpStatus.BAD_REQUEST),
+    TECHNICIAN_NOT_ASSIGNED(409, "Technician not assigned", HttpStatus.BAD_REQUEST),
 
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),

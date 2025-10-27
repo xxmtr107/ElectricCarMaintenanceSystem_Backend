@@ -13,18 +13,4 @@ import lombok.NoArgsConstructor;
 public class VehicleModelUpdateRequest {
     private String name;
     String modelYear;
-    Integer basicCycleKm;
-    Integer basicCycleMonths;
-
-
-    Integer standardCycleKm;
-    Integer standardCycleMonths;
-
-    // Premium cycle
-    Integer premiumCycleKm;
-    Integer premiumCycleMonths;
-
-    // Battery cycle
-    Integer batteryCycleKm;
-    Integer batteryCycleMonths;
 }

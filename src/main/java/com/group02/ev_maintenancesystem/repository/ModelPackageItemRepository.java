@@ -12,21 +12,29 @@ import java.util.Optional;
 @Repository
 public interface ModelPackageItemRepository extends JpaRepository<ModelPackageItem, Long> {
 
+
     List<ModelPackageItem> findByVehicleModelId(Long vehicleModelId);
 
-    List<ModelPackageItem> findByServicePackageId(Long servicePackageId);
+//    List<ModelPackageItem> findByServicePackageId(Long servicePackageId);
+//
+//    List<ModelPackageItem> findByVehicleModelIdAndServicePackageId(Long modelId, Long servicePackageId);
+//
+//    List<ModelPackageItem> findByVehicleModelIdAndServicePackageIsNull(Long vehicleModelId);
+//
+//    Optional<ModelPackageItem> findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(Long modelId, Long serviceItemId);
+//
+//    Optional<ModelPackageItem> findByVehicleModelIdAndServicePackageIdAndServiceItemId(Long modelId, Long packageId, Long itemId);
+//
+//    boolean existsByVehicleModelIdAndServicePackageIdAndServiceItemId(Long modelId, Long packageId, Long itemId);
+//
+//    boolean existsByVehicleModelIdAndServicePackageIsNullAndServiceItemId(Long modelId, Long itemId);
+//
+//    List<ModelPackageItem> findByVehicleModelAndServicePackage(VehicleModel model, ServicePackage recommendedPackage);
+//
+//    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKm(Long modelId, Integer milestoneToRecommend);
+    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKm(Long modelId, Integer milestoneKm);
 
-    List<ModelPackageItem> findByVehicleModelIdAndServicePackageId(Long modelId, Long servicePackageId);
+    Optional<ModelPackageItem> findByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long serviceItemId);
 
-    List<ModelPackageItem> findByVehicleModelIdAndServicePackageIsNull(Long vehicleModelId);
-
-    Optional<ModelPackageItem> findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(Long modelId, Long serviceItemId);
-
-    Optional<ModelPackageItem> findByVehicleModelIdAndServicePackageIdAndServiceItemId(Long modelId, Long packageId, Long itemId);
-
-    boolean existsByVehicleModelIdAndServicePackageIdAndServiceItemId(Long modelId, Long packageId, Long itemId);
-
-    boolean existsByVehicleModelIdAndServicePackageIsNullAndServiceItemId(Long modelId, Long itemId);
-
-    List<ModelPackageItem> findByVehicleModelAndServicePackage(VehicleModel model, ServicePackage recommendedPackage);
+    boolean existsByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long itemId);
 }

@@ -14,8 +14,6 @@ public interface ModelPackageItemMapper {
 
     @Mapping(target = "vehicleModelId", source = "vehicleModel.id")
     @Mapping(target = "vehicleModelName", source = "vehicleModel.name")
-    @Mapping(target = "servicePackageId", source = "servicePackage.id")
-    @Mapping(target = "servicePackageName", source = "servicePackage.name")
     @Mapping(target = "serviceItemId", source = "serviceItem.id")
     @Mapping(target = "serviceItemName", source = "serviceItem.name")
     @Mapping(target = "actionType", source = "actionType")

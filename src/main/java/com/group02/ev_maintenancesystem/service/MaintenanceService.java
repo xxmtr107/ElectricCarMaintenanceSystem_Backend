@@ -11,10 +11,5 @@ import java.util.Optional;
 public interface MaintenanceService {
     List<MaintenanceRecommendationDTO> getRecommendations(Long vehicleId);
 
-    Optional<MaintenanceRecommendationDTO> checkRule(
-            Vehicle vehicle,
-            List<MaintenanceRecord> fullHistory,
-            ServicePackage packageToCheck,
-            Integer cycleKm,
-            Integer cycleMonths);
+
 }

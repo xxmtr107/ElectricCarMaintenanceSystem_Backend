@@ -16,14 +16,5 @@ public class VehicleModelResponse {
     String name;
     String modelYear;
 
-    Integer basicCycleKm;
-    Integer standardCycleKm;
-    Integer premiumCycleKm;
-    Integer batteryCycleKm;
-
-    Integer basicCycleMonths;
-    Integer standardCycleMonths;
-    Integer premiumCycleMonths;
-    Integer batteryCycleMonths;
 
 }

@@ -64,12 +64,12 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         maintenanceRecord.setVehicle(appointment.getVehicle());
         maintenanceRecord.setPerformedAt(appointment.getAppointmentDate());
         maintenanceRecord.setServicePackage(appointment.getServicePackage());
-        List<ModelPackageItem> modelItems = modelPackageItemRepository
-                .findByVehicleModelIdAndServicePackageId(appointment.getVehicle().getModel().getId(), appointment.getServicePackage().getId());
-        List<ServiceItem> packageItems = modelItems.stream()
-                .map(ModelPackageItem::getServiceItem)
-                .collect(Collectors.toList());
-        maintenanceRecord.setServiceItems(packageItems);
+//        List<ModelPackageItem> modelItems = modelPackageItemRepository
+//                .findByVehicleModelIdAndServicePackageId(appointment.getVehicle().getModel().getId(), appointment.getServicePackage().getId());
+//        List<ServiceItem> packageItems = modelItems.stream()
+//                .map(ModelPackageItem::getServiceItem)
+//                .collect(Collectors.toList());
+//        maintenanceRecord.setServiceItems(packageItems);
         maintenanceRecordRepository.save(maintenanceRecord);
     }
 
