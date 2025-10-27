@@ -8,6 +8,7 @@ import com.group02.ev_maintenancesystem.service.VehicleModelService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class VehicleModelController {
 
     //Lấy tất cả model
     @GetMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<List<VehicleModelResponse>> getAllVehicleModel(){
         return ApiResponse.<List<VehicleModelResponse>>builder()
                 .message("Get vehicle model successfully")

@@ -2,6 +2,7 @@ package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
+import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,5 +21,7 @@ public interface MaintenanceRecordService {
     List<MaintenanceRecordResponse>findByTechnicianUserId(long technicianId);
 
     List<MaintenanceRecordResponse> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end);
+
+
 
 }
