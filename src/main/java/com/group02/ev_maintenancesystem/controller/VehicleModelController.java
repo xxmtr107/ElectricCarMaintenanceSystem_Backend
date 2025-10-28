@@ -39,7 +39,7 @@ public class VehicleModelController {
     }
 
     @GetMapping
-    // @PreAuthorize("permitAll()") // Hoặc quyền phù hợp
+//    @PreAuthorize("isAuthenticated()") // Hoặc quyền phù hợp
     public ApiResponse<List<VehicleModelResponse>> getAllVehicleModel(){
         return ApiResponse.<List<VehicleModelResponse>>builder()
                 .message("Get all vehicle models successfully") // Sửa message
