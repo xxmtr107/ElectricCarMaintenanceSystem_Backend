@@ -31,11 +31,13 @@ public interface AppointmentService {
     // Update appointment
     AppointmentResponse updateAppointment(Long id,AppointmentUpdateRequest appointment);
     // Cancel appointment
-    AppointmentResponse cancelAppointment(Long appointmentId);
+    AppointmentResponse cancelAppointment(Long appointmentId, Authentication authentication);
     // Get appointments between dates
     List<AppointmentResponse> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
     // Assign technician to appointment
     AppointmentResponse assignTechnician(Long appointmentId, Long technicianId);
+
+    AppointmentResponse setStatusAppointment(Long id, AppointmentStatus newStatus);
 
 
 //    boolean isTechnicianAvailable(long technicianId, LocalDateTime scheduleDate);

@@ -38,6 +38,7 @@ public class AppointmentController {
 
 
     @PostMapping("/customer")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<AppointmentResponse> createAppointment(@RequestBody @Valid CustomerAppointmentRequest appointment, Authentication authentication) {
 
 
@@ -47,6 +48,7 @@ public class AppointmentController {
                 .build();
     }
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<List<AppointmentResponse>> getAllAppointments() {
         return ApiResponse.<List<AppointmentResponse>>builder()
                 .message("All appointments fetched successfully")
@@ -55,6 +57,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{appointmentId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<AppointmentResponse> getAppointmentById(@PathVariable Long appointmentId) {
         return ApiResponse.<AppointmentResponse>builder()
                 .message("Appointment fetched successfully")
@@ -63,6 +66,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/customer/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or #customerId == authentication.principal.claims['userId']")
     public ApiResponse<List<AppointmentResponse>> getAppointmentsByCustomerId(@PathVariable Long customerId) {
         return ApiResponse.<List<AppointmentResponse>>builder()
                 .message("Appointments fetched successfully")
@@ -71,6 +75,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/vehicle/{vehicleId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<List<AppointmentResponse>> getAppointmentsByVehicleId(@PathVariable Long vehicleId) {
         return ApiResponse.<List<AppointmentResponse>>builder()
                 .message("Appointments fetched successfully")
@@ -79,6 +84,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/technician/{technicianId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<List<AppointmentResponse>> getAppointmentsByTechnicianId(@PathVariable Long technicianId) {
         return ApiResponse.<List<AppointmentResponse>>builder()
                 .message("Appointments fetched successfully")
@@ -97,6 +103,7 @@ public class AppointmentController {
 
     // Admin lấy appointments theo khoảng thời gian
     @GetMapping("/date-range")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<List<AppointmentResponse>> getAppointmentsBetweenDates(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate) {
@@ -108,12 +115,33 @@ public class AppointmentController {
 
     // Admin assign technician cho appointment
     @PutMapping("/{appointmentId}/assign/{technicianId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<AppointmentResponse> assignTechnician(
             @PathVariable Long appointmentId,
             @PathVariable Long technicianId) {
         return ApiResponse.<AppointmentResponse>builder()
                 .message("Technician assigned successfully")
                 .result(appointmentService.assignTechnician(appointmentId, technicianId))
+                .build();
+    }
+
+    @PutMapping("/setStatus/{appointmentId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<AppointmentResponse> update(
+            @PathVariable Long appointmentId,
+            @RequestBody AppointmentStatus newStatus) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment updated successfully")
+                .result(appointmentService.setStatusAppointment(appointmentId, newStatus))
+                .build();
+    }
+
+    @PutMapping("/cancel/{appointmentId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF','CUSTOMER','TECHNICIAN')")
+    public ApiResponse<AppointmentResponse> cancel(@PathVariable Long appointmentId, Authentication authentication) {
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment cancelled successfully")
+                .result(appointmentService.cancelAppointment(appointmentId,authentication))
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,36 +17,30 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceCenter extends BaseEntity {
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "name", length = 255)
     String name;
 
-    @Column(nullable = false, length = 200)
     String address;
 
-    @Column(length = 100)
+
+    @Column(name = "district", length = 100) // Cột Quận/Huyện
+    String district;
+
+    @Column(name = "city", length = 100) // Cột Tỉnh/Thành phố
     String city;
 
-    @Column(length = 15)
     String phone;
 
-    @Column(length = 100)
-    String email;
-
-    @Column(length = 100)
-    String managerName;
-
-    @Column(length = 255)
-    String description;
-
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "serviceCenter")
     List<User> users;
 
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "serviceCenter")
+    @JsonIgnore
     List<Appointment> appointments;
 
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "serviceCenter")
     List<Invoice> invoices;
 
-    @OneToMany(mappedBy = "serviceCenter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "serviceCenter")
     List<MaintenanceRecord> maintenanceRecords;
 }

@@ -25,13 +25,13 @@ public class Invoice extends BaseEntity {
 
     // Relationships
     @OneToOne(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
-    @JoinColumn(name = "record_id", nullable = false, unique = true)
+    @JoinColumn(name = "record_id")
     MaintenanceRecord maintenanceRecord;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "invoice")
     List<Payment> payments = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "center_id")
-    private ServiceCenter serviceCenter;
+    ServiceCenter serviceCenter;
 }

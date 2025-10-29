@@ -18,7 +18,7 @@ public enum ErrorCode {
     USER_ALREADY_EXISTS(109, "User already exists", HttpStatus.BAD_REQUEST),
     ROLE_NOT_FOUND(110, "Role not found", HttpStatus.NOT_FOUND),
     USER_NOT_CUSTOMER(111, "User is not a customer", HttpStatus.BAD_REQUEST),
-
+    NEW_PASSWORD_SAME_AS_OLD(112, "New password same as old password", HttpStatus.BAD_REQUEST),
     // ========================= VEHICLE ERRORS (200 - 299) =========================
     VIN_ALREADY_EXISTS(200, "VIN already exists", HttpStatus.BAD_REQUEST),
     LICENSE_PLATE_ALREADY_EXISTS(201, "License plate already exists", HttpStatus.BAD_REQUEST),
@@ -50,6 +50,10 @@ public enum ErrorCode {
     DATE_INVALID(404, "Invalid appointment date", HttpStatus.BAD_REQUEST),
     INVALID_DATE_RANGE(405, "Start date must be before end date", HttpStatus.BAD_REQUEST),
     DUPLICATE_SERVICE_ITEMS(406, "Duplicated service items", HttpStatus.BAD_REQUEST),
+    CANNOT_CANCEL_COMPLETED_APPOINTMENT(407, "Cannot cancel completed appointment", HttpStatus.BAD_REQUEST),
+    APPOINTMENT_ALREADY_CANCELLED(408, "Appointment is already cancelled", HttpStatus.BAD_REQUEST),
+    TECHNICIAN_NOT_ASSIGNED(409, "Technician not assigned", HttpStatus.BAD_REQUEST),
+
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(501, "Invalid key", HttpStatus.BAD_REQUEST),
@@ -72,14 +76,17 @@ public enum ErrorCode {
     SIGNATURE_INVALID(704, "Invalid VNPay signature", HttpStatus.BAD_REQUEST),
     PAYMENT_FAILED(705, "Payment failed", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_FOUND(706, "Payment not found", HttpStatus.NOT_FOUND),
+    CREATE_PAYMENT_FAILD(707, "Create payment failed", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // ========================= INVOICE ERRORS (800 - 899) =========================
-    INVOICE_NOT_FOUND(800, "Invoice already exists for this appointment", HttpStatus.BAD_REQUEST),
+    INVOICE_NOT_FOUND(800, "Invoice not found for this appointment", HttpStatus.BAD_REQUEST),
+    INVOICE_ALREADY_PAID(801, "Invoice already paid", HttpStatus.BAD_REQUEST), // THÊM MÃ LỖI NÀY
 
     // ========================= MODEL PACKAGE ITEM ERRORS (900 - 999) =========================
     MODEL_PACKAGE_ITEM_NOT_FOUND(900, "Model package item not found", HttpStatus.NOT_FOUND),
     MODEL_PACKAGE_ITEM_EXISTED(901, "Model package item already exists", HttpStatus.BAD_REQUEST),
     PRICE_INVALID(902, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
+
 
     // ========================= SERVER ERRORS (1000 - 1099) =========================
     INTERNAL_SERVER_ERROR(1000, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),

@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -23,13 +24,15 @@ public class ModelPackageItem extends BaseEntity {
     @JoinColumn(name = "vehicle_model_id", nullable = false)
     VehicleModel vehicleModel;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "service_package_id")
-    ServicePackage servicePackage;
+    @Column(name = "milestone_km", nullable = false)
+    Integer milestoneKm;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "service_item_id")
     ServiceItem serviceItem;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "action_type", nullable = false)
+    MaintenanceActionType actionType;
 
 }

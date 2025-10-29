@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,11 +20,12 @@ public class ModelPackageItemResponse {
     Long vehicleModelId;
     String vehicleModelName;
 
-    Long servicePackageId;
-    String servicePackageName;
+    Integer milestoneKm;
 
     Long serviceItemId;
     String serviceItemName;
+
+    MaintenanceActionType actionType;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

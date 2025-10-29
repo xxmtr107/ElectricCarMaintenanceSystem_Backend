@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +22,14 @@ public class Vehicle extends BaseEntity{
 
     @Column(name = "license_plate", nullable = false, unique = true)
     String licensePlate;
+
     String vin;
+
     @Column(name = "current_km")
     Integer currentKm = 0;
 
+    @Column(name = "purchase_year")
+    LocalDate purchaseYear;;
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)

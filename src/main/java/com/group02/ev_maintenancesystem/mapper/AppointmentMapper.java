@@ -33,7 +33,6 @@ public interface AppointmentMapper {
 
     @Mapping(target = "technicianId", source = "technicianUser.id")
     @Mapping(target = "technicianName", source = "technicianUser.fullName")
-    @Mapping(target = "technicianSpecialization", source = "technicianUser.specialization")
 
     @Mapping(target = "vehicleId", source = "vehicle.id")
     @Mapping(target = "vehicleLicensePlate", source = "vehicle.licensePlate")
@@ -42,55 +41,11 @@ public interface AppointmentMapper {
     @Mapping(target = "servicePackageId", source = "servicePackage.id")
     @Mapping(target = "servicePackageName", source = "servicePackage.name")
 
+    @Mapping(target = "nameCenter",source = "serviceCenter.name")
+    @Mapping(target = "addressCenter",source = "serviceCenter.address")
+    @Mapping(target = "districtCenter",source = "serviceCenter.district")
     @Mapping(target = "serviceItems", ignore = true)
     AppointmentResponse toAppointmentResponse(Appointment appointment);
 
-    @AfterMapping
-    default void mapServiceItems(Appointment appointment, @MappingTarget AppointmentResponse response,
-                                  @Context ModelPackageItemRepository modelPackageItemRepository) {
-        if (appointment.getServiceItems() == null || appointment.getServiceItems().isEmpty()) {
-            response.setServiceItems(Collections.emptyList());
-            return;
-        }
 
-        Long modelId = appointment.getVehicle().getModel().getId();
-        Long packageId = appointment.getServicePackage() != null ?
-                        appointment.getServicePackage().getId() : null;
-
-        List<AppointmentResponse.ServiceItemDTO> dtoList = new ArrayList<>();
-
-        for (ServiceItem item : appointment.getServiceItems()) {
-            BigDecimal price = item.getPrice(); // Giá mặc định
-
-            // Tìm giá theo model
-            if (packageId != null) {
-                // Tìm dịch vụ trong gói
-                Optional<ModelPackageItem> modelItem = modelPackageItemRepository
-                    .findByVehicleModelIdAndServicePackageIdAndServiceItemId(
-                        modelId, packageId, item.getId());
-                if (modelItem.isPresent()) {
-                    price = modelItem.get().getPrice();
-                }
-            } else {
-                // Tìm dịch vụ lẻ
-                Optional<ModelPackageItem> modelItem = modelPackageItemRepository
-                    .findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(
-                        modelId, item.getId());
-                if (modelItem.isPresent()) {
-                    price = modelItem.get().getPrice();
-                }
-            }
-
-            AppointmentResponse.ServiceItemDTO dto = AppointmentResponse.ServiceItemDTO.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .price(price)
-                .build();
-
-            dtoList.add(dto);
-        }
-
-        response.setServiceItems(dtoList);
-    }
 }

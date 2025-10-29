@@ -1,15 +1,14 @@
 package com.group02.ev_maintenancesystem.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class VNPayRequest {
-    private Long inVoiceId;
-    private String bankCode;
+@AllArgsConstructor
+public class RefreshTokenRequest {
+    @NotBlank
+    String refreshToken;
 }

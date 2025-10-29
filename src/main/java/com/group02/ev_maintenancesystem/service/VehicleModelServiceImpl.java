@@ -2,143 +2,136 @@ package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.VehicleModelCreationResponse;
-import com.group02.ev_maintenancesystem.dto.response.VehicleModelGetResponse;
+import com.group02.ev_maintenancesystem.dto.response.VehicleModelResponse;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.VehicleModelRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor; // Sử dụng Constructor Injection
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired; // Bỏ Autowired
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Thêm nếu cần
 
 import java.util.List;
+import java.util.stream.Collectors; // Thêm import
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor // Sử dụng Constructor Injection thay cho @Autowired
 @Slf4j
-public class VehicleModelServiceImpl implements  VehicleModelService {
+public class VehicleModelServiceImpl implements VehicleModelService {
 
-    @Autowired
-    VehicleModelRepository vehicleModelRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
-
+    // final thay cho @Autowired
+    private final VehicleModelRepository vehicleModelRepository;
+    private final ModelMapper modelMapper;
 
     @Override
-    public VehicleModelGetResponse createVehicleModel(VehicleModelRequest request) {
-        //check xem có bị trùng tên hay không
+    @Transactional // Thêm Transactional cho create/update/delete
+    public VehicleModelResponse createVehicleModel(VehicleModelRequest request) {
         String modelName = request.getName().trim();
-        List<VehicleModel> existModelName = vehicleModelRepository.findAll();
-
-        //So sánh model name
-        boolean exists = existModelName.stream()
-                .anyMatch(m -> m.getName().trim().equalsIgnoreCase(modelName));
-
-        if(exists){
+        // Bỏ kiểm tra bằng findAll, dùng existsByName cho hiệu quả
+        if (vehicleModelRepository.existsByName(modelName)) {
             throw new AppException(ErrorCode.VEHICLE_MODEL_NAME_DUPLICATE);
         }
-        VehicleModel newVehicleModel = new VehicleModel();
-        newVehicleModel.setName(request.getName());
-        newVehicleModel.setModelYear(request.getModelYear());
-        newVehicleModel.setBasicMaintenance(request.getBasicMaintenance());
-        newVehicleModel.setComprehensiveMaintenance(request.getComprehensiveMaintenance());
-        newVehicleModel.setBasicMaintenanceTime(request.getBasicMaintenanceTime());
-        newVehicleModel.setComprehensiveMaintenanceTime(request.getComprehensiveMaintenanceTime());
 
+        VehicleModel newVehicleModel = new VehicleModel();
+        newVehicleModel.setName(modelName); // Dùng tên đã trim
+        newVehicleModel.setModelYear(request.getModelYear());
+
+        // --- LOẠI BỎ SET CÁC TRƯỜNG CHU KỲ ---
+        // newVehicleModel.setBasicCycleKm(request.getBasicCycleKm());
+        // ... (các trường khác) ...
+        // --- KẾT THÚC LOẠI BỎ ---
 
         VehicleModel savedModel = vehicleModelRepository.save(newVehicleModel);
-
-
-//        VehicleModelCreationResponse vehicleModelResponse = VehicleModelCreationResponse.builder()
-//                .id(savedModel.getId())
-//                .name(savedModel.getName())
-//                .modelYear(savedModel.getModelYear())
-//                .basicMaintenance(savedModel.getBasicMaintenance())
-//                .comprehensiveMaintenance(savedModel.getComprehensiveMaintenance())
-//                .basicMaintenanceTime(savedModel.getBasicMaintenanceTime())
-//                .comprehensiveMaintenanceTime(savedModel.getComprehensiveMaintenanceTime())
-//                .build();
-
-
-        return modelMapper.map(savedModel, VehicleModelGetResponse.class);
+        return modelMapper.map(savedModel, VehicleModelResponse.class);
     }
 
     @Override
-    public VehicleModelGetResponse getVehicleModelById(Long vehicleModelId) {
+    public VehicleModelResponse getVehicleModelById(Long vehicleModelId) {
         VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleModelId)
-                .orElseThrow(()->new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        return modelMapper.map(vehicleModel, VehicleModelGetResponse.class);
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND)); // Sửa ErrorCode
+        return modelMapper.map(vehicleModel, VehicleModelResponse.class);
     }
 
     @Override
-    public List<VehicleModelGetResponse> getAllVehicleModel() {
+    public List<VehicleModelResponse> getAllVehicleModel() {
         List<VehicleModel> vehicleModelList = vehicleModelRepository.findAll();
-        if(vehicleModelList.isEmpty()){
-            throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
-        }
+        // Không cần kiểm tra empty vì findAll trả về list rỗng nếu không có
+        // if(vehicleModelList.isEmpty()){
+        //     throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
+        // }
         return vehicleModelList.stream()
-                .map(vehicleModelList1-> modelMapper.map(vehicleModelList1, VehicleModelGetResponse.class)).toList();
+                .map(vehicleModel -> modelMapper.map(vehicleModel, VehicleModelResponse.class))
+                .collect(Collectors.toList()); // Sử dụng collect
     }
 
     @Override
-    public Page<VehicleModelGetResponse> searchVehicleModelByName(String keyword, int page, int size) {
+    public Page<VehicleModelResponse> searchVehicleModelByName(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<VehicleModel> vehicleModelList = vehicleModelRepository.findByNameContainingIgnoreCase(keyword,pageable);
-        if(vehicleModelList.isEmpty()){
-            throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
-        }
-        return vehicleModelList
-                .map(vehicleModelList1 -> modelMapper.map(vehicleModelList1, VehicleModelGetResponse.class));
+        Page<VehicleModel> vehicleModelPage = vehicleModelRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        // Không cần kiểm tra empty vì Page có thông tin đó
+        // if(vehicleModelPage.isEmpty()){
+        //     throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
+        // }
+        return vehicleModelPage
+                .map(vehicleModel -> modelMapper.map(vehicleModel, VehicleModelResponse.class));
     }
 
+    // Đổi tên hàm cho khớp Controller
     @Override
-    public VehicleModelGetResponse updateVehicleMode(Long vehicleModelId, VehicleModelUpdateRequest request) {
+    @Transactional
+    public VehicleModelResponse updateVehicleModel(Long vehicleModelId, VehicleModelUpdateRequest request) {
         VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleModelId)
-                .orElseThrow(()->new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND)); // Sửa ErrorCode
 
-        //check name có duplicate ko
-        boolean exist = vehicleModelRepository.existsByName(request.getName());
-        if(exist){
-            throw new AppException(ErrorCode.VEHICLE_MODEL_NAME_DUPLICATE);
+        // Kiểm tra trùng tên CHỈ KHI tên được cung cấp và khác tên hiện tại
+        if (request.getName() != null && !request.getName().trim().isEmpty() &&
+                !request.getName().trim().equalsIgnoreCase(vehicleModel.getName())) {
+            String newName = request.getName().trim();
+            if (vehicleModelRepository.existsByName(newName)) {
+                throw new AppException(ErrorCode.VEHICLE_MODEL_NAME_DUPLICATE);
+            }
+            vehicleModel.setName(newName);
         }
 
-        //không duplicate thì set
-        if(request.getName() != null && !request.getName().trim().isEmpty()){
-            vehicleModel.setName(request.getName());
+        // Cập nhật modelYear nếu có
+        if (request.getModelYear() != null && !request.getModelYear().trim().isEmpty()) {
+            vehicleModel.setModelYear(request.getModelYear().trim());
         }
-        if(!request.getModelYear().trim().isEmpty()) {
-            vehicleModel.setModelYear(request.getModelYear());
-        }
-        if(request.getBasicMaintenance() != null) {
-            vehicleModel.setBasicMaintenance(request.getBasicMaintenance());
-        }
-        if(request.getComprehensiveMaintenance() != null) {
-            vehicleModel.setComprehensiveMaintenance(request.getComprehensiveMaintenance());
-        }
-        if(request.getBasicMaintenanceTime() != null) {
-            vehicleModel.setBasicMaintenanceTime(request.getBasicMaintenanceTime());
-        }
-        if(request.getComprehensiveMaintenanceTime() != null) {
-            vehicleModel.setComprehensiveMaintenanceTime(request.getComprehensiveMaintenanceTime());
-        }
+
+        // --- LOẠI BỎ CẬP NHẬT CÁC TRƯỜNG CHU KỲ ---
+        // if(request.getBasicCycleKm() != null) { ... }
+        // ... (các trường khác) ...
+        // --- KẾT THÚC LOẠI BỎ ---
 
         VehicleModel savedVehicleModel = vehicleModelRepository.save(vehicleModel);
-        return modelMapper.map(savedVehicleModel, VehicleModelGetResponse.class);
+        return modelMapper.map(savedVehicleModel, VehicleModelResponse.class);
     }
 
     @Override
-    public VehicleModelGetResponse deleteVehicleModelById(Long vehicleId) {
-        VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleId)
-                .orElseThrow(()->new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+    @Transactional
+    public void deleteVehicleModelById(Long vehicleModelId) { // Đổi kiểu trả về thành void
+        VehicleModel vehicleModel = vehicleModelRepository.findById(vehicleModelId)
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND)); // Sửa ErrorCode
+
+        // Thêm kiểm tra ràng buộc trước khi xóa nếu cần (ví dụ: còn xe nào thuộc model này không?)
+        // if (!vehicleModel.getVehicles().isEmpty()) {
+        //     throw new AppException(ErrorCode.CANNOT_DELETE_MODEL_WITH_VEHICLES); // Tạo ErrorCode này
+        // }
+        // Hoặc xử lý cascade delete (cẩn thận!)
+
         vehicleModelRepository.delete(vehicleModel);
-        return modelMapper.map(vehicleModel, VehicleModelGetResponse.class);
+        // Không cần trả về response từ service
     }
 
+    // --- CẦN CẬP NHẬT INTERFACE VehicleModelService ---
+    /* Trong VehicleModelService.java:
+    VehicleModelResponse updateVehicleModel(Long vehicleModelId, VehicleModelUpdateRequest request); // Đổi tên hàm
+    void deleteVehicleModelById(Long vehicleModelId); // Đổi kiểu trả về
+    */
 }

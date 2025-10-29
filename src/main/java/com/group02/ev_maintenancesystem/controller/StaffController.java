@@ -4,6 +4,7 @@ import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.UserResponse;
+import com.group02.ev_maintenancesystem.service.StaffService;
 import com.group02.ev_maintenancesystem.service.TechnicianService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,50 +15,50 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/technicians")
+@RequestMapping("/staffs")
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
-public class TechnicianController {
-    TechnicianService technicianService;
+public class StaffController {
+    StaffService staffService;
 
     @PostMapping("/register")
     ApiResponse<UserResponse> register(@RequestBody @Valid UserRegistrationRequest request){
         return ApiResponse.<UserResponse>builder()
-                .message("Technician registered successfully")
-                .result(technicianService.registerTechnician(request))
+                .message("Staff registered successfully")
+                .result(staffService.registerStaff(request))
                 .build();
     }
 
     @GetMapping
     ApiResponse<List<UserResponse>> findAll(){
         return ApiResponse.<List<UserResponse>>builder()
-                .message("Technicians fetched successfully")
-                .result(technicianService.getAllTechnicians())
+                .message("Staff fetched successfully")
+                .result(staffService.getAllStaffs())
                 .build();
     }
 
-    @PutMapping("/{technicianId}")
-    ApiResponse<UserResponse> updateTechnician(@PathVariable Long technicianId,@RequestBody @Valid UserUpdateRequest request){
+    @PutMapping("/{staffId}")
+    ApiResponse<UserResponse> updateStaff(@PathVariable Long staffId,@RequestBody @Valid UserUpdateRequest request){
         return ApiResponse.<UserResponse>builder()
-                .message("Technician updated successfully")
-                .result(technicianService.updateTechnician(technicianId,request))
+                .message("Staff updated successfully")
+                .result(staffService.updateStaff(staffId,request))
                 .build();
     }
 
-    @GetMapping("/{technicianId}")
-    ApiResponse<UserResponse> getTechnician(@PathVariable Long technicianId){
+    @GetMapping("/{staffId}")
+    ApiResponse<UserResponse> getStaff(@PathVariable Long staffId){
         return ApiResponse.<UserResponse>builder()
-                .message("Technician fetched successfully")
-                .result(technicianService.getTechnicianById(technicianId))
+                .message("Staff fetched successfully")
+                .result(staffService.getStaffById(staffId))
                 .build();
     }
 
-    @DeleteMapping("/{technicianId}")
-    ApiResponse<String> deleteTechnician(@PathVariable Long technicianId) {
-        technicianService.deleteTechnician(technicianId);
+    @DeleteMapping("/{staffId}")
+    ApiResponse<String> deleteStaff(@PathVariable Long staffId) {
+        staffService.deleteStaff(staffId);
         return ApiResponse.<String>builder()
-                .message("Technician deleted successfully")
+                .message("Staff deleted successfully")
                 .build();
     }
 

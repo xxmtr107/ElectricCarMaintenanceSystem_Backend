@@ -15,13 +15,10 @@ import java.util.*;
 public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord,Long> {
 
 
-    MaintenanceRecord findByAppointment_CustomerUser_Id(long customerId);
+    List<MaintenanceRecord> findByAppointment_CustomerUser_Id(long customerId);
     List<MaintenanceRecord> findByVehicle_Id(long vehicleId);
     List<MaintenanceRecord> findByAppointment_TechnicianUser_Id(long technicianId);
     List<MaintenanceRecord> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end);
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM MaintenanceRecord m WHERE m.id = :id")
-    void deleteByRecordId(@Param("id") long id);
     MaintenanceRecord findByAppointment_Id(long appointmentId);
+    List<MaintenanceRecord> findByVehicle_IdOrderByPerformedAtDesc(Long vehicleId);
 }

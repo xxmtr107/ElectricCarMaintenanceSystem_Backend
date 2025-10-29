@@ -13,8 +13,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TechnicianUpdateRequest {
-    @NotBlank(message = "NOT_BLANK")
+public class UserUpdateRequest {
     String password;
 
     @NotBlank(message = "NOT_BLANK")
@@ -28,12 +27,6 @@ public class TechnicianUpdateRequest {
     @Pattern(regexp = "^\\d{9,11}$", message = "PHONE_INVALID")
     String phone;
 
-    @NotNull(message = "NOT_BLANK")
+    @NotNull
     Gender gender;
-
-    @NotBlank(message = "NOT_BLANK")
-    String specialization;
-
-    @NotNull(message = "NOT_BLANK")
-    Integer experienceYears;
 }

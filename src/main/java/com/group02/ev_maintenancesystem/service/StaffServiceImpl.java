@@ -19,27 +19,28 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
-public class TechnicianServiceImpl implements TechnicianService {
+public class StaffServiceImpl implements StaffService {
     UserRepository userRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
 
     @Override
-    public UserResponse registerTechnician(UserRegistrationRequest request) {
-        User technician = userMapper.toUser(request);
-        technician.setPassword(passwordEncoder.encode(request.getPassword()));
+    public UserResponse registerStaff(UserRegistrationRequest request) {
+        User staff = userMapper.toUser(request);
+        staff.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Role role = roleRepository.findByName(PredefinedRole.TECHNICIAN)
+        Role role = roleRepository.findByName(PredefinedRole.STAFF)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
-        technician.setRole(role);
+        staff.setRole(role);
         try {
-            technician = userRepository.save(technician);
+            staff = userRepository.save(staff);
         } catch (DataIntegrityViolationException e) {
             String message = e.getMostSpecificCause().getMessage();
             if (message.contains("UK_username")) {
@@ -49,47 +50,47 @@ public class TechnicianServiceImpl implements TechnicianService {
                 throw new AppException(ErrorCode.EMAIL_EXISTED);
             }
         }
-        return userMapper.toUserResponse(technician);
+        return userMapper.toUserResponse(staff);
     }
 
     @Override
-    public UserResponse updateTechnician(Long technicianId, UserUpdateRequest request) {
-        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+    public UserResponse updateStaff(Long staffId, UserUpdateRequest request) {
+        User staff = userRepository.findByIdAndRoleName(staffId, PredefinedRole.STAFF)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        userMapper.updateUser(request, technician);
-        technician.setPassword(passwordEncoder.encode(request.getPassword()));
+        userMapper.updateUser(request, staff);
+        staff.setPassword(passwordEncoder.encode(request.getPassword()));
 
 
-        return userMapper.toUserResponse(userRepository.save(technician));
+        return userMapper.toUserResponse(userRepository.save(staff));
     }
 
 
     @Override
-    public UserResponse getTechnicianById(Long technicianId) {
-        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+    public UserResponse getStaffById(Long staffId) {
+        User staff = userRepository.findByIdAndRoleName(staffId, PredefinedRole.STAFF)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return userMapper.toUserResponse(technician);
+        return userMapper.toUserResponse(staff);
     }
 
 
 
     @Override
-    public List<UserResponse> getAllTechnicians() {
-        Role technicianRole = roleRepository.findByName(PredefinedRole.TECHNICIAN)
+    public List<UserResponse> getAllStaffs() {
+        Role staffRole = roleRepository.findByName(PredefinedRole.STAFF)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
-        return userRepository.findAllByRole(technicianRole).stream()
+        return userRepository.findAllByRole(staffRole).stream()
                 .map(userMapper::toUserResponse)
                 .toList();
     }
 
     @Override
-    public void deleteTechnician(Long technicianId) {
+    public void deleteStaff(Long staffId) {
 
-        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+        User staff = userRepository.findByIdAndRoleName(staffId, PredefinedRole.STAFF)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        userRepository.delete(technician);
+        userRepository.delete(staff);
     }
 }

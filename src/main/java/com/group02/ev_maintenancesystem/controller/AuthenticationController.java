@@ -3,6 +3,7 @@ package com.group02.ev_maintenancesystem.controller;
 import com.group02.ev_maintenancesystem.dto.request.IntrospectRequest;
 import com.group02.ev_maintenancesystem.dto.request.LoginRequest;
 import com.group02.ev_maintenancesystem.dto.request.LogoutRequest;
+import com.group02.ev_maintenancesystem.dto.request.RefreshTokenRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.AuthenticationResponse;
 import com.group02.ev_maintenancesystem.dto.response.IntrospectResponse;
@@ -49,6 +50,14 @@ public class AuthenticationController {
         authenticationService.logout(request);
         return ApiResponse.<Void>builder()
                 .message("Logout successful")
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    public ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
+        return ApiResponse.<AuthenticationResponse>builder()
+                .message("Token refreshed successfully")
+                .result(authenticationService.refreshToken(request.getRefreshToken()))
                 .build();
     }
 

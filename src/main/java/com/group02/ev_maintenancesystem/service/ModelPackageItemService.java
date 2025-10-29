@@ -8,25 +8,16 @@ import java.util.List;
 
 public interface ModelPackageItemService {
 
-    ModelPackageItemResponse createModelPackageItem(ModelPackageItemRequest request);
 
+    ModelPackageItemResponse createModelPackageItem(ModelPackageItemRequest request);
+    BigDecimal getMilestoneTotalPrice(Long vehicleModelId, Integer milestoneKm);
+    void deleteModelPackageItem(Long id);
+    ModelPackageItemResponse updateModelPackageItem(Long id, ModelPackageItemRequest request);
+    List<ModelPackageItemResponse> getByVehicleModelAndMilestoneKm(Long vehicleModelId, Integer milestoneKm);
+    List<ModelPackageItemResponse> getByVehicleModelId(Long vehicleModelId);
+    List<ModelPackageItemResponse> getAllModelPackageItems();
     ModelPackageItemResponse getModelPackageItemById(Long id);
 
-    List<ModelPackageItemResponse> getAllModelPackageItems();
-
-    List<ModelPackageItemResponse> getByVehicleModelId(Long vehicleModelId);
-
-    List<ModelPackageItemResponse> getByServicePackageId(Long servicePackageId);
-
-    List<ModelPackageItemResponse> getByVehicleModelAndPackage(Long vehicleModelId, Long servicePackageId);
-
-    List<ModelPackageItemResponse> getIndividualServicesByModel(Long vehicleModelId);
-
-    ModelPackageItemResponse updateModelPackageItem(Long id, ModelPackageItemRequest request);
-
-    BigDecimal getPackageTotalPrice(Long vehicleModelId, Long servicePackageId);
-
-    void deleteModelPackageItem(Long id);
 }
 
 

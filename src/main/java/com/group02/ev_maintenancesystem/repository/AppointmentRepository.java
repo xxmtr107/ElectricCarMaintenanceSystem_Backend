@@ -45,7 +45,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByAppointmentDateBetween(LocalDateTime start, LocalDateTime end);
 
     // Check vehicle appointment conflict
-    boolean existsByVehicleIdAndAppointmentDateBetween(
+    List<Appointment>  findByVehicleIdAndAppointmentDateBetween(
             Long vehicleId,
             LocalDateTime startOfDay,
             LocalDateTime endOfDay

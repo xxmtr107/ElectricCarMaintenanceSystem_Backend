@@ -16,22 +16,11 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleModel extends  BaseEntity {
+    @Column(nullable = false, unique = true)
     String name;
 
     @Column(name = "model_year")
     String modelYear;
-
-    @Column(name = "basic_maintenance", precision = 5, scale = 2)
-    Integer basicMaintenance = 10000; // Bảo dưỡng cơ bản (km)
-
-    @Column(name = "comprehensive_maintenance", precision = 6, scale = 2)
-    Integer comprehensiveMaintenance = 20000; // Bảo dưỡng toàn diện (km)
-
-    @Column(name = "basic_maintenance_time")
-    Integer basicMaintenanceTime = 6; // Bảo dưỡng cơ bản (tháng)
-
-    @Column(name = "comprehensive_maintenance_time")
-    Integer comprehensiveMaintenanceTime = 12; // Bảo dưỡng toàn diện (tháng)
 
     @OneToMany (mappedBy = "model", fetch = FetchType.LAZY)
     List<Vehicle> vehicles = new ArrayList<>();
