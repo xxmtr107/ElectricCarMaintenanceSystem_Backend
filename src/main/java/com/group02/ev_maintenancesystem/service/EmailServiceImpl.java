@@ -1,9 +1,12 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.entity.Appointment;
+import com.group02.ev_maintenancesystem.entity.Payment;
 import com.group02.ev_maintenancesystem.entity.ServiceCenter;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
+import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
+import com.group02.ev_maintenancesystem.repository.PaymentRepository;
 import com.group02.ev_maintenancesystem.repository.ServiceCenterRepository;
 import com.group02.ev_maintenancesystem.repository.VehicleRepository;
 import jakarta.mail.MessagingException;
@@ -33,49 +36,52 @@ public class EmailServiceImpl {
     VehicleRepository vehicleRepository;
     @Autowired
     AppointmentRepository appointmentRepository;
-//    @Autowired
-//    ServiceCenterRepository serviceCenterRepository;
-
-//    public List<String> reminderKm()
-//            throws MessagingException {
-//
-//        List<Vehicle> vehicles = vehicleRepository.findAll();
-//        List<String> receivers = new ArrayList<>();
-//        for (Vehicle vehicle : vehicles) {
-//            if (vehicle.getCurrentKm() >= 9900 && vehicle.getCurrentKm() <= 10100) {
-//                Context context = new Context();
-//                context.setVariable("name", vehicle.getCustomerUser().getFullName());
-//                context.setVariable("vin", vehicle.getVin());
-//                context.setVariable("vehicle", vehicle.getModel().getName());
-//                context.setVariable("currentKm", vehicle.getCurrentKm());
-//                context.setVariable("serviceKm", 10000);
-//                List<ServiceCenter> stations = getServiceCenters(vehicle.getId());
-//                context.setVariable("stations", stations);
-//                String htmlContent = templateEngine.process("mailForReminderKm", context);
-//                MimeMessage message = mailSender.createMimeMessage();
-//                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-//
-//                helper.setTo(vehicle.getCustomerUser().getEmail());
-//                helper.setSubject("EV Maintenance System - Service Reminder");
-//                helper.setText(htmlContent, true);
-//                mailSender.send(message);
-//                receivers.add(vehicle.getCustomerUser().getEmail());
-//            }
-//        }
-//        return receivers;
-//    }
-//
-//    public List<ServiceCenter> getServiceCenters(Long vehicleId) {
-//        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
-//        List<ServiceCenter> list = new ArrayList<>();
-//        for (Appointment appointment : appointments) {
-//            list.add(serviceCenterRepository.findServiceCenterByAppointments_Id(appointment.getId()));
-//        }
-//        return list;
-//    }
+    @Autowired
+    ServiceCenterRepository serviceCenterRepository;
+    @Autowired
+    PaymentRepository paymentRepository;
 
 //    @Scheduled(cron="0 0 8 * * ?")
-    public List<String> mailUpcomingAppointment() throws MessagingException {
+    public List<String> reminderKm()
+            throws MessagingException {
+
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        List<String> receivers = new ArrayList<>();
+        for (Vehicle vehicle : vehicles) {
+            if (vehicle.getCurrentKm() >= 9900 && vehicle.getCurrentKm() <= 10100) {
+                Context context = new Context();
+                context.setVariable("name", vehicle.getCustomerUser().getFullName());
+                context.setVariable("vin", vehicle.getVin());
+                context.setVariable("vehicle", vehicle.getModel().getName());
+                context.setVariable("currentKm", vehicle.getCurrentKm());
+                context.setVariable("serviceKm", 10000);
+                List<ServiceCenter> stations = getServiceCenters(vehicle.getId());
+                context.setVariable("stations", stations);
+                String htmlContent = templateEngine.process("mailForReminderKm", context);
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+
+                helper.setTo(vehicle.getCustomerUser().getFullName());
+                helper.setSubject("EV Maintenance System - Service Reminder");
+                helper.setText(htmlContent, true);
+                mailSender.send(message);
+                receivers.add(vehicle.getCustomerUser().getEmail());
+            }
+        }
+        return receivers;
+    }
+
+    public List<ServiceCenter> getServiceCenters(Long vehicleId) {
+        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
+        List<ServiceCenter> list = new ArrayList<>();
+        for (Appointment appointment : appointments) {
+            list.add(serviceCenterRepository.findServiceCenterByAppointments_Id(appointment.getId()));
+        }
+        return list;
+    }
+
+//    @Scheduled(cron="0 0 8 * * ?")
+    public List<String> upcomingAppointment() throws MessagingException {
         List<String> receivers = new ArrayList<>();
 
         LocalDateTime now = LocalDateTime.now();
@@ -98,7 +104,7 @@ public class EmailServiceImpl {
             String htmlContent = templateEngine.process("mailForReminderSchedule", context);
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setTo(appointment.getCustomerUser().getEmail());
+            helper.setTo(appointment.getCustomerUser().getFullName());
             helper.setSubject("EV Maintenance System - Appointment Reminder");
             helper.setText(htmlContent, true);
             mailSender.send(message);
@@ -106,4 +112,37 @@ public class EmailServiceImpl {
         }
         return receivers;
     }
+
+    //    @Scheduled(cron="0 0 8 * * ?")
+    public List<String> remindPayment() throws MessagingException{
+        List<String>receivers=new ArrayList<>();
+        List<Payment> list=paymentRepository.findAll();
+
+        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("mm:HH dd/MM/yyyy");
+
+        for(Payment payment:list){
+            if(payment.getStatus().equals(PaymentStatus.UN_PAID) ||
+            payment.getStatus().equals(PaymentStatus.FAILED)){
+                Context context=new Context();
+                context.setVariable("name", payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getFullName());
+                context.setVariable("vin",payment.getInvoice().getMaintenanceRecord().getAppointment().getVehicle().getVin());
+                context.setVariable("vehicle",payment.getInvoice().getMaintenanceRecord().getAppointment().getVehicle().getModel().getName());
+                context.setVariable("invoiceNo",payment.getInvoice().getId());
+                context.setVariable("amount",payment.getInvoice().getTotalAmount());
+                // DUE DATE IS APPOINTMENT DATE
+                context.setVariable("dueDate",payment.getInvoice().getMaintenanceRecord().getAppointment().getAppointmentDate().format(formatter));
+
+                String htmlContent=templateEngine.process("mailForReminderCheckout", context);
+                MimeMessage message=mailSender.createMimeMessage();
+                MimeMessageHelper helper=new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+                helper.setTo(payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getFullName());
+                helper.setSubject("EV Maintenance System - Checkout Reminder");
+                helper.setText(htmlContent, true);
+                mailSender.send(message);
+                receivers.add(payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail());
+            }
+        }
+        return receivers;
+    }
+
 }
