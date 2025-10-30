@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class Vehicle extends BaseEntity{
     Integer currentKm = 0;
 
     @Column(name = "purchase_year")
-    LocalDate purchaseYear;
+    YearMonth purchaseYear;
 
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)

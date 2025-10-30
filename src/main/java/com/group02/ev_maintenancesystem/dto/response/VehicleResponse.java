@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +16,7 @@ public class VehicleResponse {
       String licensePlate;
       String vin;
       Integer currentKm;
-      LocalDate purchaseYear;
+      YearMonth purchaseYear;
       Long modelId;
       Long customerId;
       LocalDateTime createdAt;

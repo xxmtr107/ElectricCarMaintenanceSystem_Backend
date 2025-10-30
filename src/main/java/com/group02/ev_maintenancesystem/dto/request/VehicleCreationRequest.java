@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 
 @Data
 @NoArgsConstructor
@@ -31,9 +32,7 @@ public class VehicleCreationRequest {
     private Integer currentKm;
 
     @NotNull(message = "NOT_BLANK")
-    @JsonFormat(pattern = "yyyy-MM")
-    @Schema(example = "2025-11")
-    LocalDate purchaseYear;
+    YearMonth purchaseYear;
 
     @NotNull(message = "NOT_BLANK")
     private Long modelId;
