@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/model-package-items")
+@RequestMapping("/model-package-items") // Giữ nguyên base path
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -27,6 +27,7 @@ public class ModelPackageItemController {
     public ApiResponse<ModelPackageItemResponse> createModelPackageItem(
             @Valid @RequestBody ModelPackageItemRequest request) {
         return ApiResponse.<ModelPackageItemResponse>builder()
+                .message("Model package item created successfully") // Thêm message
                 .result(modelPackageItemService.createModelPackageItem(request))
                 .build();
     }
@@ -34,6 +35,7 @@ public class ModelPackageItemController {
     @GetMapping("/{id}")
     public ApiResponse<ModelPackageItemResponse> getModelPackageItemById(@PathVariable Long id) {
         return ApiResponse.<ModelPackageItemResponse>builder()
+                .message("Model package item fetched successfully") // Thêm message
                 .result(modelPackageItemService.getModelPackageItemById(id))
                 .build();
     }
@@ -41,6 +43,7 @@ public class ModelPackageItemController {
     @GetMapping
     public ApiResponse<List<ModelPackageItemResponse>> getAllModelPackageItems() {
         return ApiResponse.<List<ModelPackageItemResponse>>builder()
+                .message("All model package items fetched successfully") // Thêm message
                 .result(modelPackageItemService.getAllModelPackageItems())
                 .build();
     }
@@ -49,40 +52,38 @@ public class ModelPackageItemController {
     public ApiResponse<List<ModelPackageItemResponse>> getByVehicleModelId(
             @PathVariable Long vehicleModelId) {
         return ApiResponse.<List<ModelPackageItemResponse>>builder()
+                .message("Model package items fetched by model successfully") // Thêm message
                 .result(modelPackageItemService.getByVehicleModelId(vehicleModelId))
                 .build();
     }
 
-    @GetMapping("/service-package/{servicePackageId}")
-    public ApiResponse<List<ModelPackageItemResponse>> getByServicePackageId(
-            @PathVariable Long servicePackageId) {
-        return ApiResponse.<List<ModelPackageItemResponse>>builder()
-                .result(modelPackageItemService.getByServicePackageId(servicePackageId))
-                .build();
-    }
+    // --- Endpoint này không còn phù hợp, có thể bỏ ---
+    // @GetMapping("/service-package/{servicePackageId}")
+    // public ApiResponse<List<ModelPackageItemResponse>> getByServicePackageId(...)
 
-    @GetMapping("/vehicle-model/{vehicleModelId}/package/{servicePackageId}")
-    public ApiResponse<List<ModelPackageItemResponse>> getByVehicleModelAndPackage(
+    // --- Endpoint này đổi thành theo milestoneKm ---
+    // @GetMapping("/vehicle-model/{vehicleModelId}/package/{servicePackageId}")
+    // public ApiResponse<List<ModelPackageItemResponse>> getByVehicleModelAndPackage(...)
+    @GetMapping("/vehicle-model/{vehicleModelId}/milestone/{milestoneKm}")
+    public ApiResponse<List<ModelPackageItemResponse>> getByVehicleModelAndMilestone(
             @PathVariable Long vehicleModelId,
-            @PathVariable Long servicePackageId) {
+            @PathVariable Integer milestoneKm) {
         return ApiResponse.<List<ModelPackageItemResponse>>builder()
-                .result(modelPackageItemService.getByVehicleModelAndPackage(vehicleModelId, servicePackageId))
+                .message("Model package items fetched by model and milestone successfully") // Thêm message
+                .result(modelPackageItemService.getByVehicleModelAndMilestoneKm(vehicleModelId, milestoneKm))
                 .build();
     }
 
-    @GetMapping("/vehicle-model/{vehicleModelId}/individual-services")
-    public ApiResponse<List<ModelPackageItemResponse>> getIndividualServicesByModel(
-            @PathVariable Long vehicleModelId) {
-        return ApiResponse.<List<ModelPackageItemResponse>>builder()
-                .result(modelPackageItemService.getIndividualServicesByModel(vehicleModelId))
-                .build();
-    }
+    // --- Endpoint này có thể không cần nữa ---
+    // @GetMapping("/vehicle-model/{vehicleModelId}/individual-services")
+    // public ApiResponse<List<ModelPackageItemResponse>> getIndividualServicesByModel(...)
 
     @PutMapping("/{id}")
     public ApiResponse<ModelPackageItemResponse> updateModelPackageItem(
             @PathVariable Long id,
             @Valid @RequestBody ModelPackageItemRequest request) {
         return ApiResponse.<ModelPackageItemResponse>builder()
+                .message("Model package item updated successfully") // Thêm message
                 .result(modelPackageItemService.updateModelPackageItem(id, request))
                 .build();
     }
@@ -94,14 +95,18 @@ public class ModelPackageItemController {
                 .message("Model package item deleted successfully")
                 .build();
     }
-    @GetMapping("/total/model/{vehicleModelId}/package/{servicePackageId}")
-    public ApiResponse<BigDecimal> getPackageTotalPrice(
+
+    // --- Endpoint này đổi thành tính tổng giá theo milestone ---
+    // @GetMapping("/total/model/{vehicleModelId}/package/{servicePackageId}")
+    // public ApiResponse<BigDecimal> getPackageTotalPrice(...)
+    @GetMapping("/total/model/{vehicleModelId}/milestone/{milestoneKm}")
+    public ApiResponse<BigDecimal> getMilestoneTotalPrice(
             @PathVariable Long vehicleModelId,
-            @PathVariable Long servicePackageId) {
-        BigDecimal total = modelPackageItemService.getPackageTotalPrice(vehicleModelId, servicePackageId);
+            @PathVariable Integer milestoneKm) {
+        BigDecimal total = modelPackageItemService.getMilestoneTotalPrice(vehicleModelId, milestoneKm);
         return ApiResponse.<BigDecimal>builder()
+                .message("Total price for milestone calculated successfully") // Thêm message
                 .result(total)
                 .build();
     }
-
 }

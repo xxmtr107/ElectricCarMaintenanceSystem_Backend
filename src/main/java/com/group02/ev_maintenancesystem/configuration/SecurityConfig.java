@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -44,8 +46,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", // Swagger
                                 "/auth/**",                // Login, Refresh, Logout, Introspect
-                                "/customers/register"     // Đăng ký customer
+                                "/customers/register"  // Đăng ký customer
                         ).permitAll()
+                        // Allow GET all vehicle models for CUSTOMER and ADMIN
+                        .requestMatchers(HttpMethod.GET, "/vehicleModel").permitAll()
+
                         // --- 2. Endpoint ADMIN (Quản lý hệ thống) ---
                         .requestMatchers(
                                 "/staffs/**",              // Quản lý Staff
@@ -78,38 +83,25 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2
-                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))); // Kích hoạt xác thực JWT
+                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                );
 
         return http.build();
     }
-//@Bean
-//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//    http
-//            .csrf(AbstractHttpConfigurer::disable)
-//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//            .authorizeHttpRequests(auth -> auth
-//                    // Cho phép Swagger
-//                    .requestMatchers(
-//                            "/swagger-ui/**",
-//                            "/v3/api-docs/**",
-//                            "/swagger-ui.html"
-//                    ).permitAll()
-//
-//                    // Cho phép VNPay callback (return & ipn)
-//                    .requestMatchers("/vnpay/**").permitAll()
-//
-//                    // Cho phép đăng ký / login
-//                    .requestMatchers("/auth/**").permitAll()
-//
-//                    // Còn lại cần JWT
-//                    .anyRequest().authenticated()
-//            )
-//            .oauth2ResourceServer(oauth2 -> oauth2
-//                    .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))
-//            );
-//
-//    return http.build();
-//}
+
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+
+        JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        authoritiesConverter.setAuthorityPrefix("");
+        authoritiesConverter.setAuthoritiesClaimName("scope");
+
+        jwtConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+        return jwtConverter;
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -166,5 +158,33 @@ public class SecurityConfig {
 //        return new CorsFilter(urlBasedCorsConfigurationSource);
 //    }
 
+    //@Bean
+//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//    http
+//            .csrf(AbstractHttpConfigurer::disable)
+//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//            .authorizeHttpRequests(auth -> auth
+//                    // Cho phép Swagger
+//                    .requestMatchers(
+//                            "/swagger-ui/**",
+//                            "/v3/api-docs/**",
+//                            "/swagger-ui.html"
+//                    ).permitAll()
+//
+//                    // Cho phép VNPay callback (return & ipn)
+//                    .requestMatchers("/vnpay/**").permitAll()
+//
+//                    // Cho phép đăng ký / login
+//                    .requestMatchers("/auth/**").permitAll()
+//
+//                    // Còn lại cần JWT
+//                    .anyRequest().authenticated()
+//            )
+//            .oauth2ResourceServer(oauth2 -> oauth2
+//                    .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfig))
+//            );
+//
+//    return http.build();
+//}
 
 }

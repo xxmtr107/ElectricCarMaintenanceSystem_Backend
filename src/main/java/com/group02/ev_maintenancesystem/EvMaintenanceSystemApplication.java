@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @SpringBootApplication
-//@EnableScheduling
+@EnableScheduling
 public class EvMaintenanceSystemApplication {
 
     public static void main(String[] args) {

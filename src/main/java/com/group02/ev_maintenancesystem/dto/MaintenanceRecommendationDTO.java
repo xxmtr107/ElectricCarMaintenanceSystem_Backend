@@ -4,6 +4,7 @@ package com.group02.ev_maintenancesystem.dto;
 import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -12,11 +13,13 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class MaintenanceRecommendationDTO {
 
-    // Chúng ta không cần toàn bộ ServicePackage, chỉ cần tên
-    private Long packageId;
-    private String packageName;
+//    private Long packageId;
+//    private String packageName;
+
+    private Integer milestoneKm;
 
     // Các thông tin mốc
     private int dueAtKm;
@@ -27,4 +30,5 @@ public class MaintenanceRecommendationDTO {
     // Không dùng Entity "List<ModelPackageItem>"
     // Dùng DTO "List<ModelPackageItemDTO>"
     private List<ModelPackageItemDTO> items;
+    private BigDecimal estimatedTotal;
 }

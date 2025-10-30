@@ -20,8 +20,7 @@ public class ModelPackageItemResponse {
     Long vehicleModelId;
     String vehicleModelName;
 
-    Long servicePackageId;
-    String servicePackageName;
+    Integer milestoneKm;
 
     Long serviceItemId;
     String serviceItemName;

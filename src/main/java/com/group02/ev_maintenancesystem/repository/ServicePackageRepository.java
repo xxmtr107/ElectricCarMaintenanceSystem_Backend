@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ServicePackageRepository extends JpaRepository<ServicePackage, Long> {
     boolean existsByName(String name);
+    Optional<ServicePackage> findByName(String name);
 }

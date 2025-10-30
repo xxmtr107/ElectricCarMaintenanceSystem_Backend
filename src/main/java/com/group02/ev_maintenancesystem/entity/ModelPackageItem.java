@@ -24,9 +24,8 @@ public class ModelPackageItem extends BaseEntity {
     @JoinColumn(name = "vehicle_model_id", nullable = false)
     VehicleModel vehicleModel;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "service_package_id")
-    ServicePackage servicePackage;
+    @Column(name = "milestone_km", nullable = false)
+    Integer milestoneKm;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "service_item_id")

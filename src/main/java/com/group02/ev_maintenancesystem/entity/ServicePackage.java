@@ -54,7 +54,4 @@ public class ServicePackage extends BaseEntity {
 //    )
 //    List<ServiceItem> serviceItemsForPackages = new ArrayList<>();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "servicePackage", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    List<ModelPackageItem> modelPackageItems = new ArrayList<>();
 }
