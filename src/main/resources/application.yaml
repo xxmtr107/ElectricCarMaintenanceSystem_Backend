@@ -28,7 +28,7 @@ vnpay:
   return-url: "http://localhost:8080/api/vnPay/return"
   ipn-url: "https://electriccarmaintenancesystem-production.up.railway.app/api/vnpay/ipn"
   tmn-code: "9NN5ES27"
-  secret-key: ${VNPAY_SECRET_KEY}"
+  secret-key: ${VNPAY_SECRET_KEY}
   api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
 
 springdoc:

@@ -26,6 +26,7 @@ public class VehicleController {
 
     //Tạo mới 1 xe
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or hasRole('CUSTOMER')")
     public ApiResponse<VehicleResponse> createVehicle(@Valid @RequestBody VehicleCreationRequest request){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Create vehicle succesfully")
@@ -35,6 +36,7 @@ public class VehicleController {
 
     //Lấy vehicles theo customerId
     @GetMapping("/customer/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or #customerId == authentication.principal.claims['userId']")
     public ApiResponse<List<VehicleResponse>> getVehicleCustomerId(@PathVariable Long customerId){
         return ApiResponse.<List<VehicleResponse>>builder()
                 .message("Get vehicles succesfully")
@@ -44,6 +46,7 @@ public class VehicleController {
 
     //Lấy vehicles theo vehicleId
     @GetMapping("/{vehicleId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or @vehicleServiceImpl.isVehicleOwner(authentication, #vehicleId)")
     public ApiResponse<VehicleResponse> getVehicleByVehicleId(@PathVariable Long vehicleId){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Get vehicles succesfully")
@@ -53,6 +56,7 @@ public class VehicleController {
 
     //Lấy tất cả vehicle
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<Page<VehicleResponse>> getAllVehicle(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
         return ApiResponse.<Page<VehicleResponse>>builder()
                 .message("Get all vehicles succesfully")
@@ -62,7 +66,7 @@ public class VehicleController {
 
     //Cập nhâp vehicles
     @PutMapping("/{vehicleId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or #customerId == authentication.principal.claims['userId']")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or @vehicleServiceImpl.isVehicleOwner(authentication, #vehicleId)")
     public ApiResponse<VehicleResponse> updateVehicle(@PathVariable Long vehicleId, @Valid @RequestBody VehicleUpdateRequest request){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Update vehicles successfully")
@@ -72,6 +76,7 @@ public class VehicleController {
 
     //Xóa vehicles
     @DeleteMapping("/{vehicleId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or @vehicleServiceImpl.isVehicleOwner(authentication, #vehicleId)")
     public ApiResponse<VehicleResponse> deleteVehicle(@PathVariable Long vehicleId){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Delete vehicles succesfully")

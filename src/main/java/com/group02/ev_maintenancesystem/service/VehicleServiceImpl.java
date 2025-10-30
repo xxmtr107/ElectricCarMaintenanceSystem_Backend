@@ -20,10 +20,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -163,4 +166,25 @@ public class VehicleServiceImpl implements VehicleService{
         return modelMapper.map(vehicle, VehicleResponse.class);
     }
 
+    public boolean isVehicleOwner(Authentication authentication, Long vehicleId) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return false;
+        }
+
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        Long customerId = jwt.getClaim("userId");
+        String rolesClaim = jwt.getClaim("scope");
+
+        // Chỉ kiểm tra nếu người dùng là CUSTOMER
+        if (customerId == null || rolesClaim == null || !rolesClaim.contains("ROLE_CUSTOMER")) {
+            return false;
+        }
+
+        // Kiểm tra xem có tồn tại xe với vehicleId và customerId này không
+        // (Sử dụng phương thức đã có sẵn trong VehicleRepository)
+        Optional<Vehicle> vehicle = vehicleRepository.findByIdAndCustomerUserId(vehicleId, customerId);
+
+        // Nếu vehicle.isPresent() == true, nghĩa là tìm thấy xe -> là chủ sở hữu
+        return vehicle.isPresent();
+    }
 }
