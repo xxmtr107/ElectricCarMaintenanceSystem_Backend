@@ -17,6 +17,7 @@ public class VehicleResponse {
     String licensePlate;
     String vin;
     Integer currentKm;
+    @JsonFormat(pattern = "yyyy-MM")
     LocalDate purchaseYear;
     Long modelId;
     Long customerId;

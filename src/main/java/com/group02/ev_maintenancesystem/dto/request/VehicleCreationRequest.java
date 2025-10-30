@@ -32,7 +32,9 @@ public class VehicleCreationRequest {
     private Integer currentKm;
 
     @NotNull(message = "NOT_BLANK")
-    LocalDate purchaseYear;
+    @JsonFormat(pattern = "yyyy-MM")
+    @Schema(example = "2025-11")
+    YearMonth purchaseYear;
 
     @NotNull(message = "NOT_BLANK")
     private Long modelId;

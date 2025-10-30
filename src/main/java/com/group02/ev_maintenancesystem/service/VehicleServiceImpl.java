@@ -67,7 +67,7 @@ public class VehicleServiceImpl implements VehicleService{
         vehicle.setLicensePlate(vehicleCreationRequest.getLicensePlate());
         vehicle.setVin(vehicleCreationRequest.getVin());
         vehicle.setCurrentKm(vehicleCreationRequest.getCurrentKm());
-        vehicle.setPurchaseYear(vehicleCreationRequest.getPurchaseYear());
+        vehicle.setPurchaseYear(vehicleCreationRequest.getPurchaseYear().atDay(1));
 
 
         //check xem modelId có tồn tại chưa
