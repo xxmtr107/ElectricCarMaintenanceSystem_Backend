@@ -92,8 +92,24 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(1000, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
     UNCATEGORIZED(1001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // ========================= SPARE PART & PART CATEGORIES ERROR (1100 - 1199) =========================
+    SPARE_PART_PRICE_MUST_BE_POSITIVE(1101, "Spare part price must be positive", HttpStatus.BAD_REQUEST),
+    SPARE_PART_STOCK_CANNOT_BE_NEGATIVE(1102, "Spare part stock cant be negative", HttpStatus.BAD_REQUEST),
+    SPARE_PART_MIN_STOCK_CANNOT_BE_NEGATIVE(1103, "Spare part minimum stock level cant be negative", HttpStatus.BAD_REQUEST),
+    SPARE_PART_NOT_FOUND(1104, "Spare part not found", HttpStatus.NOT_FOUND),
+    SPARE_PART_NUMBER_DUPLICATE(1105, "Spare part number already exists", HttpStatus.BAD_REQUEST),
+    PART_CATEGORIES_NOT_FOUND(1106, "Part category not found", HttpStatus.NOT_FOUND),
+    SPARE_PART_NAME_DUPLICATE(1107, "Spare part name already exists", HttpStatus.BAD_REQUEST),
+    STOCK_QUANTITY_INVALID(1108, "Stock quantity must be greater than or equal to zero", HttpStatus.BAD_REQUEST),
 
-    MAINTENANCE_RECORD_NOT_FOUND(1100, "Maintenance record not found", HttpStatus.NOT_FOUND);
+    MAINTENANCE_RECORD_NOT_FOUND(1200, "Maintenance record not found", HttpStatus.NOT_FOUND),
+
+    // ========================= SERVICE CENTER ERRORS (1300 - 1399) =========================
+    SERVICE_CENTER_NOT_FOUND(1300, "Service center not found", HttpStatus.NOT_FOUND),
+    SERVICE_CENTER_NAME_DUPLICATE(1301, "Service center name already exists", HttpStatus.BAD_REQUEST),
+    SERVICE_CENTER_PHONE_DUPLICATE(1302, "Service center phone already exists", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_SERVICE_CENTER(1303, "Cannot delete service center, it is associated with users or other records", HttpStatus.BAD_REQUEST);
+
     private final int code;
     private final String message;
     private final HttpStatus httpStatus;

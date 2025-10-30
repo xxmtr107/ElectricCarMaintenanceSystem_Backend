@@ -48,8 +48,8 @@ public class SecurityConfig {
                                 "/auth/**",                // Login, Refresh, Logout, Introspect
                                 "/customers/register"  // Đăng ký customer
                         ).permitAll()
-                        // Allow GET all vehicle models for CUSTOMER and ADMIN
-                        .requestMatchers(HttpMethod.GET, "/vehicleModel").permitAll()
+                        // Allow GET all vehicle models and service centers
+                        .requestMatchers(HttpMethod.GET, "/vehicleModel", "/service-centers", "/service-centers/search", "/service-centers/{id}").permitAll()
 
                         // --- 2. Endpoint ADMIN (Quản lý hệ thống) ---
                         .requestMatchers(
@@ -58,7 +58,8 @@ public class SecurityConfig {
                                 "/vehicleModel/**",        // Quản lý Model xe
                                 "/servicePackage/**",      // Quản lý Gói
                                 "/serviceItem/**",         // Quản lý Hạng mục
-                                "/model-package-items/**"  // Quản lý Menu giá
+                                "/model-package-items/**", // Quản lý Menu giá
+                                "/service-centers/**"      // Quản lý Service Center (POST, PUT, DELETE)
                         ).hasRole("ADMIN") // Chỉ ADMIN
 
                         // --- 3. Endpoint STAFF & ADMIN (Nghiệp vụ) ---
