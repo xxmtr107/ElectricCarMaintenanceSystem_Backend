@@ -58,8 +58,6 @@ public class TechnicianServiceImpl implements TechnicianService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userMapper.updateUser(request, technician);
-        technician.setPassword(passwordEncoder.encode(request.getPassword()));
-
 
         return userMapper.toUserResponse(userRepository.save(technician));
     }
