@@ -31,6 +31,9 @@ public class SparePart extends  BaseEntity {
     @Column(name = "quantity_in_stock", nullable = false)
     Integer quantityInStock; // Số lượng trong kho
 
+    @Column(name = "minimum_stock_level", nullable = false, columnDefinition = "int default 10") // Mức tồn kho tối thiểu, không null, giá trị mặc định là 10
+    Integer minimumStockLevel;
+
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)

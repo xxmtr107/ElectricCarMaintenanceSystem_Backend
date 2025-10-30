@@ -346,7 +346,7 @@ UPDATE model_package_items SET price = 345000 WHERE vehicle_model_id = 7 AND mil
 -- SERVICE CENTER (Giữ nguyên)
 -- =================================================================
 
-    INSERT INTO service_centers (name, address, district, city, phone)
+INSERT INTO service_centers (name, address, district, city, phone)
 VALUES
     ('Showroom Vin3S TT Hóc Môn', '166 Lý Thường Kiệt, Khu phố 3 Thị trấn Hóc Môn', 'Huyện Hóc Môn', 'TP Hồ Chí Minh', '0762718718'),
     ('Showroom Vin3S 39A Hà Huy Giáp', '39A Hà Huy Giáp', 'Quận 12', 'TP Hồ Chí Minh', '0702721721'),
@@ -368,3 +368,190 @@ VALUES
     ('NPP ủy quyền 3S VinFast Skytt', '214 Nguyễn Oanh Phường 17', 'Quận Gò Vấp', 'TP Hồ Chí Minh', '02873032689'),
     ('VinFast Lê Văn Việt', 'Tầng 1, TTTM Vincom Plaza Lê Văn Việt, 50 Lê Văn Việt Phường Hiệp Phú', 'Quận 9', 'TP Hồ Chí Minh', '0981335517'),
     ('VinFast Thảo Điền', 'Tầng L1, TTTM Vincom Mega Mall Thảo Điền, 159 Xa lộ Hà Nội Phường Thảo Điền', 'Quận 2', 'TP Hồ Chí Minh', '0981335514');
+
+
+-- =================================================================
+-- PART-CATEGORIES
+-- =================================================================
+INSERT  INTO part_categories
+(id, name, code, description, create_at, created_by, update_at, updated_by)
+VALUES
+    (1, N'Bộ lọc', 'FILTER', N'Các loại lọc gió, lọc điều hòa', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (2, N'Chất lỏng & Hóa chất', 'LIQUID', N'Dầu phanh, nước làm mát...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (3, N'Pin & Điện tử', 'ELECTRONIC', N'Pin chìa khóa, Pin T-Box, Cảm biến...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (4, N'Gạt mưa & Rửa kính', 'WIPER', N'Lưỡi gạt mưa, bơm nước rửa kính...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (5, N'Ắc quy', 'BATTERY', N'Ắc quy 12V', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (6, N'Hệ thống Phanh', 'BRAKE', N'Má phanh, đĩa phanh...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (7, N'Hệ thống Treo & Lái', 'SUSPENSION', N'Giảm xóc, rô-tuyn, khớp cầu...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (8, N'Hệ thống Truyền động', 'DRIVETRAIN', N'Trục láp, khớp...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (9, N'Hệ thống Làm mát & Điều hòa', 'COOLING', N'Ống dẫn, van, cảm biến...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (10, N'Hệ thống Điện Cao áp', 'HIGH_VOLTAGE', N'Cáp sạc, cầu chì...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+    (11, N'Lốp & Vành', 'WHEEL', N'Lốp xe, van cảm biến áp suất...', NOW(), 'SYSTEM', NOW(), 'SYSTEM');
+
+
+-- =================================================================
+-- SPARE-PARTS
+-- =================================================================
+INSERT INTO spare_parts
+(part_number, name, unit_price, quantity_in_stock, minimum_stock_level, category_id, create_at, created_by, update_at, updated_by)
+VALUES
+-- === PHỤ TÙNG CHO VF 3 ===
+('FLT-VF3', N'Lọc gió điều hòa VF 3', 490000.00, 50, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF3', N'Dầu phanh DOT 4 (VF 3)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-KEY-GEN', N'Pin chìa khóa CR2032 (Chung)', 45000.00, 300, 50, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Chung
+('BAT-TBOX-VF3', N'Pin bộ T-Box VF 3', 650000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF3', N'Ắc quy 12V AGM 60Ah (VF 3)', 4300000.00, 15, 5, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF3', N'Má phanh trước VF 3', 990000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Vẫn giữ F/R để phân biệt
+('BRK-PAD-R-VF3', N'Má phanh sau VF 3', 920000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF3', N'Đĩa phanh trước VF 3', 1580000.00, 10, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF3', N'Giảm xóc trước VF 3', 1950000.00, 10, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF3', N'Rô-tuyn trụ dưới VF 3', 780000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF3', N'Rô-tuyn lái ngoài VF 3', 720000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF3', N'Khớp trục láp VF 3', 2450000.00, 5, 2, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF3', N'Ống nước làm mát chính VF 3', 520000.00, 10, 3, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF3', N'Van tiết lưu điều hòa VF 3', 990000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF3', N'Cáp sạc VF 3', 6200000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF3', N'Cầu chì tổng HV VF 3', 1450000.00, 5, 2, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF3', N'Lốp xe VF 3 (175/75R16)', 1850000.00, 30, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF3', N'Van cảm biến áp suất lốp VF 3', 850000.00, 40, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF3', N'Bơm nước rửa kính VF 3', 520000.00, 10, 3, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF3', N'Bộ lưỡi gạt mưa VF 3', 480000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+
+-- === PHỤ TÙNG CHO VF 5 ===
+('FLT-VF5', N'Lọc gió điều hòa VF 5', 490000.00, 50, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF5', N'Dầu phanh DOT 4 (VF 5)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF5', N'Nước làm mát EV Loại 1 (VF 5)', 650000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+-- BAT-KEY-GEN dùng chung
+('BAT-TBOX-VF5', N'Pin bộ T-Box VF 5', 680000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF5', N'Ắc quy 12V AGM 60Ah (VF 5)', 4300000.00, 15, 5, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF5', N'Má phanh trước VF 5', 1020000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF5', N'Má phanh sau VF 5', 960000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF5', N'Đĩa phanh trước VF 5', 1620000.00, 10, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF5', N'Giảm xóc trước VF 5', 2020000.00, 10, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF5', N'Rô-tuyn trụ dưới VF 5', 820000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF5', N'Rô-tuyn lái ngoài VF 5', 760000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF5', N'Khớp trục láp VF 5', 2580000.00, 5, 2, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF5', N'Ống nước làm mát chính VF 5', 550000.00, 10, 3, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF5', N'Van tiết lưu điều hòa VF 5', 1020000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF5', N'Cáp sạc VF 5', 6400000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF5', N'Cầu chì tổng HV VF 5', 1520000.00, 5, 2, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF5', N'Lốp xe VF 5', 2050000.00, 30, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF5', N'Van cảm biến áp suất lốp VF 5', 860000.00, 40, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF5', N'Bơm nước rửa kính VF 5', 540000.00, 10, 3, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+
+-- === PHỤ TÙNG CHO VF 6 ===
+('FLT-VF6', N'Lọc gió điều hòa VF 6', 520000.00, 40, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF6', N'Dầu phanh DOT 4 (VF 6)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF6', N'Nước làm mát EV Loại 1 (VF 6)', 650000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF6', N'Pin bộ T-Box VF 6', 680000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF6', N'Bộ Lưỡi gạt mưa VF 6', 720000.00, 30, 10, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF6', N'Ắc quy 12V AGM 70Ah (VF 6)', 4700000.00, 10, 3, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF6', N'Má phanh trước VF 6', 1150000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF6', N'Má phanh sau VF 6', 1080000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF6', N'Đĩa phanh trước VF 6', 1850000.00, 5, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF6', N'Giảm xóc trước VF 6', 2200000.00, 5, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF6', N'Rô-tuyn trụ dưới VF 6', 850000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF6', N'Rô-tuyn lái ngoài VF 6', 790000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF6', N'Khớp trục láp VF 6', 2700000.00, 3, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF6', N'Ống nước làm mát chính VF 6', 570000.00, 8, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF6', N'Van tiết lưu điều hòa VF 6', 1050000.00, 3, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF6', N'Cáp sạc VF 6', 6500000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF6', N'Cầu chì tổng HV VF 6', 1550000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF6', N'Lốp xe VF 6', 2450000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF6', N'Van cảm biến áp suất lốp VF 6', 860000.00, 30, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF6', N'Bơm nước rửa kính VF 6', 540000.00, 8, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+
+-- === PHỤ TÙNG CHO VF 7 ===
+('FLT-VF7', N'Lọc gió điều hòa VF 7', 520000.00, 40, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF7', N'Dầu phanh DOT 4 (VF 7)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF7', N'Nước làm mát EV Loại 1 (VF 7)', 650000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF7', N'Pin bộ T-Box VF 7', 680000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF7', N'Bộ Lưỡi gạt mưa VF 7', 730000.00, 30, 10, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF7', N'Ắc quy 12V AGM 70Ah (VF 7)', 4700000.00, 10, 3, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF7', N'Má phanh trước VF 7', 1160000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF7', N'Má phanh sau VF 7', 1090000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF7', N'Đĩa phanh trước VF 7', 1860000.00, 5, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF7', N'Giảm xóc trước VF 7', 2250000.00, 5, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF7', N'Rô-tuyn trụ dưới VF 7', 860000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF7', N'Rô-tuyn lái ngoài VF 7', 800000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF7', N'Khớp trục láp VF 7', 2750000.00, 3, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF7', N'Ống nước làm mát chính VF 7', 580000.00, 8, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF7', N'Van tiết lưu điều hòa VF 7', 1060000.00, 3, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF7', N'Cáp sạc VF 7', 6600000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF7', N'Cầu chì tổng HV VF 7', 1560000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF7', N'Lốp xe VF 7', 2750000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF7', N'Van cảm biến áp suất lốp VF 7', 860000.00, 30, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF7', N'Bơm nước rửa kính VF 7', 540000.00, 8, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+
+-- === PHỤ TÙNG CHO VFe34 ===
+('FLT-VFE34', N'Lọc gió điều hòa VFe34', 520000.00, 30, 5, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VFE34', N'Dầu phanh DOT 4 (VFe34)', 380000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VFE34', N'Nước làm mát EV Loại 2 (VFe34)', 680000.00, 15, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VFE34', N'Pin bộ T-Box VFe34', 700000.00, 10, 2, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VFE34', N'Ắc quy 12V AGM 70Ah (VFe34)', 4700000.00, 8, 2, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VFE34', N'Má phanh trước VFe34', 1380000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VFE34', N'Má phanh sau VFe34', 1280000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VFE34', N'Đĩa phanh trước VFe34', 2150000.00, 5, 1, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VFE34', N'Giảm xóc trước VFe34', 2500000.00, 3, 1, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VFE34', N'Rô-tuyn trụ dưới VFe34', 900000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VFE34', N'Rô-tuyn lái ngoài VFe34', 850000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VFE34', N'Khớp trục láp VFe34', 3000000.00, 2, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VFE34', N'Ống nước làm mát chính VFe34', 600000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VFE34', N'Van tiết lưu điều hòa VFe34', 1100000.00, 2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VFE34', N'Cáp sạc VFe34', 6800000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VFE34', N'Cầu chì tổng HV VFe34', 1600000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VFE34', N'Lốp xe VFe34', 2950000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VFE34', N'Van cảm biến áp suất lốp VFe34', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VFE34', N'Bơm nước rửa kính VFe34', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+
+-- === PHỤ TÙNG CHO VF 8 ===
+('FLT-VF8', N'Lọc gió điều hòa VF 8', 530000.00, 30, 5, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF8', N'Dầu phanh DOT 4 (VF 8)', 380000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF8', N'Nước làm mát EV Loại 2 (VF 8)', 690000.00, 15, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF8', N'Pin bộ T-Box VF 8', 710000.00, 10, 2, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF8', N'Ắc quy 12V AGM 70Ah (VF 8)', 4700000.00, 8, 2, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF8', N'Má phanh trước VF 8', 1390000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF8', N'Má phanh sau VF 8', 1290000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF8', N'Đĩa phanh trước VF 8', 2160000.00, 5, 1, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF8', N'Giảm xóc trước VF 8', 2550000.00, 3, 1, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF8', N'Rô-tuyn trụ dưới VF 8', 910000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF8', N'Rô-tuyn lái ngoài VF 8', 860000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF8', N'Khớp trục láp VF 8', 3050000.00, 2, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF8', N'Ống nước làm mát chính VF 8', 610000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF8', N'Van tiết lưu điều hòa VF 8', 1110000.00, 2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF8', N'Cáp sạc VF 8', 6900000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF8', N'Cầu chì tổng HV VF 8', 1610000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF8', N'Lốp xe VF 8', 3600000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF8', N'Van cảm biến áp suất lốp VF 8', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF8', N'Bơm nước rửa kính VF 8', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+
+-- === PHỤ TÙNG CHO VF 9 ===
+('FLT-VF9', N'Lọc gió điều hòa VF 9', 550000.00, 30, 5, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF9', N'Dầu phanh DOT 4 (VF 9)', 380000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF9', N'Nước làm mát EV Loại 2 (VF 9)', 700000.00, 15, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF9', N'Pin bộ T-Box VF 9', 720000.00, 10, 2, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF9', N'Ắc quy 12V AGM 70Ah (VF 9)', 4700000.00, 8, 2, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF9', N'Má phanh trước VF 9', 1400000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF9', N'Má phanh sau VF 9', 1300000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF9', N'Đĩa phanh trước VF 9', 2170000.00, 5, 1, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF9', N'Giảm xóc trước VF 9', 2600000.00, 3, 1, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF9', N'Rô-tuyn trụ dưới VF 9', 920000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF9', N'Rô-tuyn lái ngoài VF 9', 870000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF9', N'Khớp trục láp VF 9', 3100000.00, 2, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF9', N'Ống nước làm mát chính VF 9', 620000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF9', N'Van tiết lưu điều hòa VF 9', 1120000.00, 2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF9', N'Cáp sạc VF 9', 7000000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF9', N'Cầu chì tổng HV VF 9', 1620000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF9', N'Lốp xe VF 9', 4200000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF9', N'Van cảm biến áp suất lốp VF 9', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF9', N'Bơm nước rửa kính VF 9', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM');
+
+-- TẮT KIỂM TRA KHÓA NGOẠI (Để cho phép xóa)
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- LÀM RỖNG HAI BẢNG
+TRUNCATE TABLE spare_parts;
+TRUNCATE TABLE part_categories;
+
+-- BẬT LẠI KIỂM TRA KHÓA NGOẠI
+SET FOREIGN_KEY_CHECKS = 1;
