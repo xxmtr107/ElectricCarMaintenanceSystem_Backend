@@ -49,7 +49,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
         VehicleModel model = vehicle.getModel();
-        YearMonth purchaseDate = vehicle.getPurchaseYear();
+        LocalDate purchaseDate = vehicle.getPurchaseYear();
 
         if (model == null || purchaseDate == null) {
             log.error("Vehicle ID {} is missing VehicleModel or Purchase Year association.", vehicleId);
@@ -75,7 +75,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     // --- Hàm xử lý khi chưa có lịch sử ---
-    private List<MaintenanceRecommendationDTO> handleNoHistoryCase(Vehicle vehicle, Long modelId, int currentKm, YearMonth purchaseDate) {
+    private List<MaintenanceRecommendationDTO> handleNoHistoryCase(Vehicle vehicle, Long modelId, int currentKm, LocalDate purchaseDate) {
         log.debug("Handling recommendation for Vehicle ID {} with no history. Current KM: {}", vehicle.getId(), currentKm);
 
         // 1. Tìm tất cả các mốc chuẩn <= KM hiện tại
@@ -84,8 +84,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
                 .collect(Collectors.toList());
 
         // 2. Tính số tháng từ ngày mua
-        LocalDate purchaseLocalDate = purchaseDate.atDay(1);
-        Period periodSincePurchase = Period.between(purchaseLocalDate, LocalDate.now());
+        Period periodSincePurchase = Period.between(purchaseDate, LocalDate.now());
         long monthsSincePurchase = periodSincePurchase.toTotalMonths();
         boolean timeThresholdMet = monthsSincePurchase >= MONTHLY_THRESHOLD;
 
@@ -133,12 +132,12 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     }
 
     // --- Hàm xử lý khi đã có lịch sử ---
-    private List<MaintenanceRecommendationDTO> handleWithHistoryCase(Vehicle vehicle, Long modelId, int currentKm, List<MaintenanceRecord> history, YearMonth purchaseDate) {
+    private List<MaintenanceRecommendationDTO> handleWithHistoryCase(Vehicle vehicle, Long modelId, int currentKm, List<MaintenanceRecord> history, LocalDate purchaseDate) {
         log.debug("Handling recommendation for Vehicle ID {} with history. Current KM: {}", vehicle.getId(), currentKm);
 
         // 1. Xác định ngày/km tham chiếu từ lần bảo dưỡng cuối
         MaintenanceRecord lastRecord = history.get(0); // Lịch sử đã sort DESC
-        LocalDateTime referenceDateTime = lastRecord.getPerformedAt() != null ? lastRecord.getPerformedAt() : purchaseDate.atDay(1).atStartOfDay(); // Fallback to purchase date if needed
+        LocalDateTime referenceDateTime = lastRecord.getPerformedAt() != null ? lastRecord.getPerformedAt() : purchaseDate.atStartOfDay(); // Fallback to purchase date if needed
         int lastOdometer = lastRecord.getOdometer() != null ? lastRecord.getOdometer() : 0;
 
         // Xác định mốc chuẩn gần nhất <= odometer của lần bảo dưỡng cuối

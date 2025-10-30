@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,15 +13,15 @@ import java.time.YearMonth;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VehicleResponse {
-      Long id;
-      String licensePlate;
-      String vin;
-      Integer currentKm;
-      YearMonth purchaseYear;
-      Long modelId;
-      Long customerId;
-      LocalDateTime createdAt;
-      String createBy;
-      LocalDateTime updateAt;
-      String updateBy;
+    Long id;
+    String licensePlate;
+    String vin;
+    Integer currentKm;
+    LocalDate purchaseYear;
+    Long modelId;
+    Long customerId;
+    LocalDateTime createdAt;
+    String createBy;
+    LocalDateTime updateAt;
+    String updateBy;
 }
