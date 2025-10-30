@@ -74,7 +74,9 @@ public class SecurityConfig {
 
                         // --- 4. Endpoint TECHNICIAN (và cao hơn) ---
                         .requestMatchers(
-                                "/appointments/setStatus/**"
+                                "/appointments/setStatus/**",
+                                "/appointments/technician/**"
+
                         ).hasAnyRole("ADMIN", "STAFF", "TECHNICIAN")
 
                         // --- 5. Các endpoint còn lại ---

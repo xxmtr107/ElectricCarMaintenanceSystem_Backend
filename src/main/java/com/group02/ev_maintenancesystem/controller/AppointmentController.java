@@ -84,7 +84,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/technician/{technicianId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or (hasRole('TECHNICIAN') and #technicianId == authentication.principal.claims['userId'])")
     public ApiResponse<List<AppointmentResponse>> getAppointmentsByTechnicianId(@PathVariable Long technicianId) {
         return ApiResponse.<List<AppointmentResponse>>builder()
                 .message("Appointments fetched successfully")

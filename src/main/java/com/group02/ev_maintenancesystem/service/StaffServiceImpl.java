@@ -5,11 +5,13 @@ import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.UserResponse;
 import com.group02.ev_maintenancesystem.entity.Role;
+import com.group02.ev_maintenancesystem.entity.ServiceCenter;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.UserMapper;
 import com.group02.ev_maintenancesystem.repository.RoleRepository;
+import com.group02.ev_maintenancesystem.repository.ServiceCenterRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,7 +31,7 @@ public class StaffServiceImpl implements StaffService {
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
-
+    ServiceCenterRepository serviceCenterRepository;
     @Override
     public UserResponse registerStaff(UserRegistrationRequest request) {
         User staff = userMapper.toUser(request);
@@ -39,6 +41,11 @@ public class StaffServiceImpl implements StaffService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         staff.setRole(role);
+        if (request.getServiceCenterId() != null) {
+            ServiceCenter center = serviceCenterRepository.findById(request.getServiceCenterId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
+            staff.setServiceCenter(center);
+        }
         try {
             staff = userRepository.save(staff);
         } catch (DataIntegrityViolationException e) {
@@ -57,7 +64,11 @@ public class StaffServiceImpl implements StaffService {
     public UserResponse updateStaff(Long staffId, UserUpdateRequest request) {
         User staff = userRepository.findByIdAndRoleName(staffId, PredefinedRole.STAFF)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+        if (request.getServiceCenterId() != null) {
+            ServiceCenter center = serviceCenterRepository.findById(request.getServiceCenterId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
+            staff.setServiceCenter(center);
+        }
         userMapper.updateUser(request, staff);
 
 

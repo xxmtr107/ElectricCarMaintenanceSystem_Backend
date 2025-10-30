@@ -27,4 +27,6 @@ public class UserUpdateRequest {
 
     @NotNull
     Gender gender;
+
+    Long serviceCenterId;
 }

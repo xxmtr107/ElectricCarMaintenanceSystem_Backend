@@ -18,5 +18,7 @@ public interface UserMapper {
 
     // Mapping User sang UserResponse
     @Mapping(target = "role", source = "role.name") // Chuyển đổi role.name sang role trong UserResponse
+    @Mapping(target = "serviceCenterId", source = "serviceCenter.id")
+    @Mapping(target = "serviceCenterName", source = "serviceCenter.name")
     UserResponse toUserResponse(User user);
 }

@@ -135,9 +135,20 @@ public class VehicleServiceImpl implements VehicleService{
         //Tìm xem id của xe có tồn tại hay không
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        if(request.getCurrentKm() != null) {
+        List<Appointment> appointment = appointmentRepository.findByVehicleId(vehicleId);
+        //Nếu empty thì xóa
+        if(appointment.isEmpty()){
             vehicle.setCurrentKm(request.getCurrentKm());
         }
+
+        //CHỈ XÓA NHỮNG XE CÓ TRẠNG THÁI COMPLETED VÀ CANCELLED
+        boolean hasActiveAppointment = appointment.stream()
+                .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
+                        && app.getStatus() != AppointmentStatus.CANCELLED);
+        if(hasActiveAppointment){
+            throw new AppException(ErrorCode.CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
+        }
+
 
         vehicleRepository.save(vehicle);
         return modelMapper.map(vehicle, VehicleResponse.class);

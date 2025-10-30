@@ -20,6 +20,8 @@ public class UserResponse {
     String phone;
     Gender gender;
     String role;
+    Long serviceCenterId;
+    String serviceCenterName;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;
