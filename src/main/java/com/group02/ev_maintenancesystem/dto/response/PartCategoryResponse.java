@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,4 +16,9 @@ public class PartCategoryResponse {
     Long id;
     String code;
     String name;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 }

@@ -1,4 +1,5 @@
 package com.group02.ev_maintenancesystem.service;
+import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
@@ -50,8 +51,10 @@ public class VehicleServiceImpl implements VehicleService{
 
 
     @Override
-    public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest) {
+    public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest, Authentication authentication) {
         //check Vin đã tồn tại chưa
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        Long customerId = jwt.getClaim("userId");
 
         if (vehicleRepository.existsByVin(vehicleCreationRequest.getVin())) {
             throw new AppException(ErrorCode.VIN_ALREADY_EXISTS);
@@ -76,14 +79,10 @@ public class VehicleServiceImpl implements VehicleService{
                 orElseThrow(() -> new AppException(ErrorCode.MODEL_NOT_FOUND));
         vehicle.setModel(model);
 
-        //check xem ModelId có tồn tại hay không và modelId có phải là customer không
-        // nếu có gán vào
-        User user = userRepository.findById(vehicleCreationRequest.getCustomerId())
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
-        if(!user.isCustomer()){
-            throw new AppException(ErrorCode.USER_NOT_CUSTOMER);
-        }
-        vehicle.setCustomerUser(user);
+        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        vehicle.setCustomerUser(customer);
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
 
         VehicleResponse response = new VehicleResponse();

@@ -20,4 +20,6 @@ public class SparePartResponse {
     PartCategoryResponse category;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 }

@@ -54,7 +54,6 @@ public class SecurityConfig {
                         // --- 2. Endpoint ADMIN (Quản lý hệ thống) ---
                         .requestMatchers(
                                 "/staffs/**",              // Quản lý Staff
-                                "/technicians/**",         // Quản lý Technician
                                 "/vehicleModel/**",        // Quản lý Model xe
                                 "/servicePackage/**",      // Quản lý Gói
                                 "/serviceItem/**",         // Quản lý Hạng mục
@@ -69,7 +68,8 @@ public class SecurityConfig {
                                 "/appointments/date-range",
                                 "/appointments/{appointmentId}/assign/{technicianId}",
                                 "/maintenance-records/**",
-                                "/vehicles" // GET all vehicles
+                                "/vehicles", // GET all vehicles
+                                "/technicians/**"      // Quản lý Technician
                         ).hasAnyRole("ADMIN", "STAFF")
 
                         // --- 4. Endpoint TECHNICIAN (và cao hơn) ---

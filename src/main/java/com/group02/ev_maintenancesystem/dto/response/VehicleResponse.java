@@ -22,7 +22,7 @@ public class VehicleResponse {
     Long modelId;
     Long customerId;
     LocalDateTime createdAt;
-    String createBy;
-    LocalDateTime updateAt;
-    String updateBy;
+    LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 }

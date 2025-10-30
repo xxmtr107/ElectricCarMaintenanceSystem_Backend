@@ -30,7 +30,7 @@ public enum ErrorCode {
     LICENSE_PLATE_INVALID(207, "License plate format is invalid", HttpStatus.BAD_REQUEST),
     VEHICLE_NOT_BELONG_TO_CUSTOMER(208, "Vehicle does not belong to the customer", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT(209, "Cannot delete vehicle because it has active appointments (not completed or canceled).", HttpStatus.BAD_REQUEST),
-
+    PURCHASE_YEAR_INVALID(210, "Purchase year must be in past or present).", HttpStatus.BAD_REQUEST),
     // ========================= VEHICLE MODEL ERRORS (300 - 399) =========================
     MODEL_NAME_INVALID(300, "Name of model must follow format like VFe34 or VF8", HttpStatus.BAD_REQUEST),
     MODEL_YEAR_INVALID(301, "Vehicle model year must be between 2021 and 2025", HttpStatus.BAD_REQUEST),

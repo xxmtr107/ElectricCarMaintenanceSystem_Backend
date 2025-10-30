@@ -1,10 +1,12 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -61,4 +63,6 @@ public class AppointmentResponse {
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 }

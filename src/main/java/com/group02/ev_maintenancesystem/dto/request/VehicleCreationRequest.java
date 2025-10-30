@@ -34,12 +34,12 @@ public class VehicleCreationRequest {
     @NotNull(message = "NOT_BLANK")
     @JsonFormat(pattern = "yyyy-MM")
     @Schema(example = "2025-11")
+    @PastOrPresent(message = "PURCHASE_YEAR_INVALID")
     YearMonth purchaseYear;
 
     @NotNull(message = "NOT_BLANK")
     private Long modelId;
 
-    @NotNull(message = "NOT_BLANK")
     private Long customerId;
 
 

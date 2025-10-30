@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,11 +27,11 @@ public class VehicleController {
 
     //Tạo mới 1 xe
     @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or hasRole('CUSTOMER')")
-    public ApiResponse<VehicleResponse> createVehicle(@Valid @RequestBody VehicleCreationRequest request){
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ApiResponse<VehicleResponse> createVehicle(@Valid @RequestBody VehicleCreationRequest request, Authentication authentication) {
         return ApiResponse.<VehicleResponse>builder()
                 .message("Create vehicle succesfully")
-                .result(vehicleService.createVehicle(request))
+                .result(vehicleService.createVehicle(request,authentication))
                 .build();
     }
 
