@@ -44,6 +44,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     ModelPackageItemRepository modelPackageItemRepository;
     MaintenanceRecordService maintenanceRecordService;
     MaintenanceService maintenanceService; // Đã inject từ các bước trước
+    ServiceCenterRepository serviceCenterRepository;
+
 
     @Override
     @Transactional
@@ -62,6 +64,10 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(ErrorCode.VEHICLE_NOT_BELONG_TO_CUSTOMER);
         }
 
+        ServiceCenter serviceCenter = serviceCenterRepository.findById(request.getCenterId())
+                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
+
+
         // 2. Kiểm tra trùng lịch hẹn trong ngày (Giữ nguyên logic cũ)
         LocalDate appointmentDay = request.getAppointmentDate().toLocalDate();
         LocalDateTime startOfDay = appointmentDay.atStartOfDay();
@@ -74,52 +80,26 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(ErrorCode.APPOINTMENT_ALREADY_EXISTS);
         }
 
-        // ------------------------------------------------------------------
-        // 3. LẤY ĐỀ XUẤT BẢO DƯỠNG ĐẾN HẠN (SỬ DỤNG LOGIC MỚI)
-        // ------------------------------------------------------------------
+        // 3. LẤY ĐỀ XUẤT BẢO DƯỠNG ĐẾN HẠN (Giữ nguyên logic cũ)
         List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId());
 
         if (recommendations.isEmpty()) {
-            // Xử lý trường hợp không có đề xuất nào
-            // Tùy chọn 1: Ném lỗi
             throw new AppException(ErrorCode.UNCATEGORIZED); // Hoặc ErrorCode.NO_MAINTENANCE_DUE
-            // Tùy chọn 2: Tạo lịch hẹn kiểm tra chung (nếu có định nghĩa)
-            // Tùy chọn 3: Cho phép tạo lịch hẹn không có hạng mục (cần xem lại logic sau này)
-            /*
-            log.warn("No maintenance recommendation found for Vehicle ID {}. Creating appointment without specific items.", vehicle.getId());
-            Appointment appointment = new Appointment();
-            appointment.setCustomerUser(customer);
-            appointment.setVehicle(vehicle);
-            appointment.setAppointmentDate(request.getAppointmentDate());
-            appointment.setStatus(AppointmentStatus.PENDING);
-            appointment.setEstimatedCost(BigDecimal.ZERO); // Không có chi phí ước tính
-            appointment.setServicePackage(null); // Không có gói cụ thể
-            appointment.setServiceItems(Collections.emptyList()); // Danh sách hạng mục rỗng
-            // Gán Service Center nếu có
-            Appointment savedAppointment = appointmentRepository.save(appointment);
-            return appointmentMapper.toAppointmentResponse(savedAppointment);
-            */
         }
 
         // Lấy đề xuất đầu tiên (được coi là ưu tiên nhất)
         MaintenanceRecommendationDTO recommendation = recommendations.get(0);
         Integer recommendedMilestoneKm = recommendation.getMilestoneKm();
 
-        // ------------------------------------------------------------------
-        // 4. TÌM ServicePackage TƯƠNG ỨNG VỚI CỘT MỐC (Logic Mới)
-        // ------------------------------------------------------------------
-        // Giả định tên ServicePackage là "Bảo dưỡng mốc Xkm"
+        // 4. TÌM ServicePackage TƯƠNG ỨNG VỚI CỘT MỐC (Giữ nguyên logic cũ)
         String milestonePackageName = "Bảo dưỡng mốc " + recommendedMilestoneKm + "km";
         ServicePackage servicePackageForMilestone = servicePackageRepository.findByName(milestonePackageName)
                 .orElseGet(() -> {
-                    // Nếu không tìm thấy, có thể tạo mới hoặc dùng gói mặc định/null
                     log.warn("ServicePackage with name '{}' not found. Consider adding it to data.sql. Setting package to null for appointment.", milestonePackageName);
-                    return null; // Hoặc tìm/tạo một gói chung chung
+                    return null;
                 });
 
-        // ------------------------------------------------------------------
-        // 5. LẤY DANH SÁCH ServiceItem TỪ ĐỀ XUẤT (Logic Mới)
-        // ------------------------------------------------------------------
+        // 5. LẤY DANH SÁCH ServiceItem TỪ ĐỀ XUẤT (Giữ nguyên logic cũ)
         List<Long> recommendedServiceItemIds = recommendation.getItems().stream()
                 .map(itemDto -> itemDto.getServiceItem() != null ? itemDto.getServiceItem().getId() : null)
                 .filter(Objects::nonNull)
@@ -128,10 +108,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<ServiceItem> serviceItemsForAppointment;
         if (!recommendedServiceItemIds.isEmpty()) {
             serviceItemsForAppointment = serviceItemRepository.findAllById(recommendedServiceItemIds);
-            // Kiểm tra xem có lấy đủ số lượng item không
             if (serviceItemsForAppointment.size() != recommendedServiceItemIds.size()) {
                 log.warn("Mismatch between recommended service item IDs and found entities for milestone {}km.", recommendedMilestoneKm);
-                // Có thể ném lỗi hoặc tiếp tục với những gì tìm được
             }
         } else {
             log.warn("Recommendation for milestone {}km has no service items listed.", recommendedMilestoneKm);
@@ -139,9 +117,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
 
-        // ------------------------------------------------------------------
         // 6. TẠO APPOINTMENT ENTITY (Logic Mới)
-        // ------------------------------------------------------------------
         Appointment appointment = new Appointment();
         appointment.setCustomerUser(customer);
         appointment.setVehicle(vehicle);
@@ -150,63 +126,57 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setEstimatedCost(recommendation.getEstimatedTotal()); // Lấy tổng giá từ đề xuất
         appointment.setServicePackage(servicePackageForMilestone); // Gán gói/cấp độ mốc
         appointment.setServiceItems(serviceItemsForAppointment); // Gán danh sách hạng mục
-        // Gán Service Center mặc định hoặc dựa trên logic khác nếu cần
-        // appointment.setServiceCenter(...);
+        appointment.setServiceCenter(serviceCenter);
 
         // 7. Lưu Appointment và Map sang Response
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        // Mapper sẽ tự động xử lý việc lấy giá đúng cho từng item dựa trên Context
-        AppointmentResponse response = appointmentMapper.toAppointmentResponse(savedAppointment);
-        // Không cần gọi mapServiceItems thủ công nếu @AfterMapping đã được cấu hình đúng trong AppointmentMapper
+        // --- SỬA Ở ĐÂY ---
+        // Thay vì gọi mapper trực tiếp, gọi hàm helper đã chỉnh sửa
+        AppointmentResponse response = mapSingleAppointmentToResponse(savedAppointment);
+        // --- KẾT THÚC SỬA ---
 
         log.info("Successfully created appointment ID {} for vehicle ID {} at milestone {}km.", savedAppointment.getId(), vehicle.getId(), recommendedMilestoneKm);
         return response;
     }
 
     // --- CÁC PHƯƠNG THỨC KHÁC ---
-    // (Xem lại và đảm bảo chúng vẫn hoạt động đúng, đặc biệt là phần mapping response)
 
     @Override
     public List<AppointmentResponse> getAppointmentByCustomerId(Long customerId) {
-        // Kiểm tra customer tồn tại
         userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
-        // Map và đảm bảo giá item đúng
-        return mapAppointmentListToResponse(appointments);
+        return mapAppointmentListToResponse(appointments); // Đã gọi helper
     }
 
     @Override
     public List<AppointmentResponse> getAppointmentByVehicleId(Long vehicleId) {
-        // Kiểm tra vehicle tồn tại
         vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
         List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
-        return mapAppointmentListToResponse(appointments);
+        return mapAppointmentListToResponse(appointments); // Đã gọi helper
     }
 
     @Override
     public AppointmentResponse getAppointmentByAppointmentId(Long appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-        // Map và đảm bảo giá item đúng
-        return mapSingleAppointmentToResponse(appointment);
+        return mapSingleAppointmentToResponse(appointment); // Đã gọi helper
     }
 
     @Override
     public List<AppointmentResponse> getAppointmentByStatus(AppointmentStatus status) {
         List<Appointment> appointments = appointmentRepository.findByStatus(status);
-        return mapAppointmentListToResponse(appointments);
+        return mapAppointmentListToResponse(appointments); // Đã gọi helper
     }
 
     @Override
     public List<AppointmentResponse> getAppointmentByTechnicianId(Long technicianId) {
-        // Kiểm tra technician tồn tại
         userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<Appointment> appointments = appointmentRepository.findByTechnicianUserId(technicianId);
-        return mapAppointmentListToResponse(appointments);
+        return mapAppointmentListToResponse(appointments); // Đã gọi helper
     }
 
     @Override
@@ -217,26 +187,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // Kiểm tra xem technician có sẵn không (logic này phức tạp, tạm bỏ qua)
-        // boolean isAvailable = isTechnicianAvailable(technicianId, appointment.getAppointmentDate());
-        // if (!isAvailable) {
-        //     throw new AppException(ErrorCode.TECHNICIAN_NOT_AVAILABLE);
-        // }
-
         appointment.setTechnicianUser(technician);
-        // Chỉ đổi status thành CONFIRMED nếu đang là PENDING
         if (appointment.getStatus() == AppointmentStatus.PENDING) {
             appointment.setStatus(AppointmentStatus.CONFIRMED);
         }
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        return mapSingleAppointmentToResponse(savedAppointment);
+        return mapSingleAppointmentToResponse(savedAppointment); // Đã gọi helper
     }
 
     @Override
     public List<AppointmentResponse> getAll() {
         List<Appointment> appointments = appointmentRepository.findAll();
-        return mapAppointmentListToResponse(appointments);
+        return mapAppointmentListToResponse(appointments); // Đã gọi helper
     }
 
     @Override
@@ -245,7 +208,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(ErrorCode.INVALID_DATE_RANGE);
         }
         List<Appointment> appointments = appointmentRepository.findByAppointmentDateBetween(startDate, endDate);
-        return mapAppointmentListToResponse(appointments);
+        return mapAppointmentListToResponse(appointments); // Đã gọi helper
     }
 
     @Override
@@ -257,35 +220,28 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
-        // Logic bổ sung: không cho chuyển từ COMPLETED/CANCELLED sang trạng thái khác? (Tùy yêu cầu)
         if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
-            if (appointment.getStatus() != newStatus) { // Cho phép set lại chính status đó
+            if (appointment.getStatus() != newStatus) {
                 log.warn("Attempted to change status of already {} appointment ID {}", appointment.getStatus(), id);
-                // throw new AppException(ErrorCode.STATUS_INVALID); // Hoặc chỉ log và không làm gì
-                return mapSingleAppointmentToResponse(appointment); // Trả về trạng thái hiện tại
+                return mapSingleAppointmentToResponse(appointment);
             }
         }
-        // Logic bổ sung: Cần assign technician trước khi COMPLETED?
         if (newStatus == AppointmentStatus.COMPLETED && appointment.getTechnicianUser() == null) {
-            throw new AppException(ErrorCode.TECHNICIAN_NOT_ASSIGNED); // Cần tạo ErrorCode này
+            throw new AppException(ErrorCode.TECHNICIAN_NOT_ASSIGNED);
         }
-
 
         appointment.setStatus(newStatus);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        // Tạo Maintenance Record nếu trạng thái là COMPLETED
         if (newStatus == AppointmentStatus.COMPLETED) {
             maintenanceRecordService.createMaintenanceRecord(savedAppointment);
         }
 
-        return mapSingleAppointmentToResponse(savedAppointment);
+        return mapSingleAppointmentToResponse(savedAppointment); // Đã gọi helper
     }
 
     @Override
     public AppointmentResponse updateAppointment(Long id, AppointmentUpdateRequest appointment) {
-        // Phương thức này có thể cần được định nghĩa lại hoặc bỏ đi
-        // vì logic update chủ yếu là assignTechnician và setStatusAppointment
         throw new UnsupportedOperationException("Use assignTechnician or setStatusAppointment instead.");
     }
 
@@ -297,12 +253,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Jwt jwt = (Jwt) authentication.getPrincipal();
         Long currentUserId = jwt.getClaim("userId");
-        String rolesClaim = jwt.getClaim("scope"); // Lấy chuỗi scope
-        // Chuyển scope thành Set để dễ kiểm tra
+        String rolesClaim = jwt.getClaim("scope");
         Set<String> roles = rolesClaim != null ? Set.of(rolesClaim.split(" ")) : Collections.emptySet();
 
-
-        // Validate quyền hủy
         boolean isAdminOrStaff = roles.contains("ROLE_ADMIN") || roles.contains("ROLE_STAFF");
         boolean isOwnerCustomer = roles.contains("ROLE_CUSTOMER") && appointment.getCustomerUser().getId().equals(currentUserId);
         boolean isAssignedTechnician = roles.contains("ROLE_TECHNICIAN") && appointment.getTechnicianUser() != null && appointment.getTechnicianUser().getId().equals(currentUserId);
@@ -311,21 +264,18 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        // Validate trạng thái có thể hủy
         if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new AppException(ErrorCode.CANNOT_CANCEL_COMPLETED_APPOINTMENT);
         }
         if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
-            // Có thể trả về luôn thông tin hiện tại hoặc ném lỗi tùy logic
-            // throw new AppException(ErrorCode.APPOINTMENT_ALREADY_CANCELLED);
             log.info("Appointment ID {} is already cancelled.", appointmentId);
-            return mapSingleAppointmentToResponse(appointment);
+            return mapSingleAppointmentToResponse(appointment); // Đã gọi helper
         }
 
         appointment.setStatus(AppointmentStatus.CANCELLED);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        return mapSingleAppointmentToResponse(savedAppointment);
+        return mapSingleAppointmentToResponse(savedAppointment); // Đã gọi helper
     }
 
     // --- HÀM HỖ TRỢ MAPPING ---
@@ -334,22 +284,62 @@ public class AppointmentServiceImpl implements AppointmentService {
             return Collections.emptyList();
         }
         return appointments.stream()
-                .map(this::mapSingleAppointmentToResponse)
+                .map(this::mapSingleAppointmentToResponse) // Sử dụng helper mới
                 .collect(Collectors.toList());
     }
 
+    // --- START: CHỈNH SỬA HÀM NÀY ---
     private AppointmentResponse mapSingleAppointmentToResponse(Appointment appointment) {
         if (appointment == null) {
             return null;
         }
-        // Gọi mapper chính
-        AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
-        // Đảm bảo logic @AfterMapping trong mapper được thực thi để tính giá item
-        // Nếu mapper không dùng @Context, bạn có thể cần gọi hàm mapServiceItems thủ công ở đây
-        // appointmentMapper.mapServiceItems(appointment, response, modelPackageItemRepository); // Bỏ comment nếu cần
-        return response;
-    }
 
-    // Phương thức isTechnicianAvailable cần logic phức tạp hơn (kiểm tra lịch làm việc, các appointment khác...)
-    // public boolean isTechnicianAvailable(long technicianId, LocalDateTime scheduleDate) { ... }
+        // Bước 1: Gọi mapper để map các trường cơ bản (sẽ tạo ra list serviceItems với price = null)
+        AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
+
+        // Bước 2: Kiểm tra và lấy thông tin cần thiết để tra giá
+        if (response.getServiceItems() == null || appointment.getVehicle() == null || appointment.getVehicle().getModel() == null) {
+            // Nếu không có service item hoặc thông tin xe, trả về response đã map
+            return response;
+        }
+
+        VehicleModel model = appointment.getVehicle().getModel();
+        ServicePackage servicePackage = appointment.getServicePackage();
+        Integer milestoneKm = null;
+
+        // Bước 3: Lấy mốc KM từ tên của ServicePackage
+        if (servicePackage != null && servicePackage.getName() != null) {
+            try {
+                String name = servicePackage.getName();
+                String kmString = name.replaceAll("[^0-9]", ""); // Lấy phần số
+                if (!kmString.isEmpty()) {
+                    milestoneKm = Integer.parseInt(kmString);
+                }
+            } catch (Exception e) {
+                log.warn("Could not parse milestoneKm from package name: {}", servicePackage.getName());
+            }
+        }
+
+        if (milestoneKm == null) {
+            log.warn("milestoneKm is null, cannot determine item prices for appointment ID {}", appointment.getId());
+            // Giữ nguyên list item với giá null
+            return response;
+        }
+
+        // Bước 4: Duyệt qua danh sách DTO và cập nhật giá
+        for (AppointmentResponse.ServiceItemDTO itemDTO : response.getServiceItems()) {
+
+            // Tìm giá của item này ứng với model xe và mốc KM
+            Optional<ModelPackageItem> mpiOpt = modelPackageItemRepository
+                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(model.getId(), milestoneKm, itemDTO.getId());
+
+            // Nếu tìm thấy, gán giá. Nếu không, gán giá 0 (hoặc giữ null tùy ý)
+            BigDecimal price = mpiOpt.map(ModelPackageItem::getPrice).orElse(BigDecimal.ZERO);
+            itemDTO.setPrice(price); // Cập nhật trực tiếp DTO
+        }
+
+        return response; // Trả về response đã được cập nhật giá
+    }
+    // --- END: CHỈNH SỬA HÀM NÀY ---
+
 }

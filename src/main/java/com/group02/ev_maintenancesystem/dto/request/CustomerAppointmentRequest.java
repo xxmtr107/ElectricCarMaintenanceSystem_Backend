@@ -29,8 +29,7 @@ public class CustomerAppointmentRequest {
     @NotNull(message = "VEHICLE_NOT_FOUND")
     Long vehicleId;
 
-    Long servicePackageId; // Optional - Có thể null
-
-    List<Long> serviceItemIds; // Optional - Có thể null hoặc empty
+    @NotNull(message = "SERVICE_CENTER_NOT_FOUND") // Yêu cầu khách hàng phải chọn trung tâm
+    Long centerId;
 
 }
