@@ -29,7 +29,8 @@ public class Vehicle extends BaseEntity{
     Integer currentKm = 0;
 
     @Column(name = "purchase_year")
-    LocalDate purchaseYear;;
+    LocalDate purchaseYear;
+
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)

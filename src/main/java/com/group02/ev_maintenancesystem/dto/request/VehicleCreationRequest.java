@@ -1,5 +1,7 @@
 package com.group02.ev_maintenancesystem.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +31,8 @@ public class VehicleCreationRequest {
     private Integer currentKm;
 
     @NotNull(message = "NOT_BLANK")
+    @JsonFormat(pattern = "yyyy-MM")
+    @Schema(example = "2025-11")
     LocalDate purchaseYear;
 
     @NotNull(message = "NOT_BLANK")

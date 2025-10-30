@@ -14,8 +14,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequest {
-    String password;
-
     @NotBlank(message = "NOT_BLANK")
     String fullName;
 
