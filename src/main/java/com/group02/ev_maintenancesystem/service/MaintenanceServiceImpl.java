@@ -267,7 +267,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         ServiceItem serviceItem = entity.getServiceItem();
         ServiceItemDTO itemInfoDTO = null;
         if (serviceItem != null) {
-            itemInfoDTO = new ServiceItemDTO(serviceItem.getId(), serviceItem.getName(), serviceItem.getDescription());
+            itemInfoDTO = ServiceItemDTO.builder()
+                    .id(serviceItem.getId())
+                    .name(serviceItem.getName())
+                    .description(serviceItem.getDescription())
+                    .price(entity.getPrice()) // Get price from the ModelPackageItem entity
+                    .actionType(entity.getActionType()) // Get type from the ModelPackageItem entity
+                    .build();
         } else {
             log.warn("ModelPackageItem ID {} is missing ServiceItem association.", entity.getId());
             return null; // Trả về null nếu thiếu thông tin quan trọng

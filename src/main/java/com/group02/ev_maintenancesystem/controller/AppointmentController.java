@@ -126,7 +126,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/setStatus/{appointmentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'TECHNICIAN')")
     public ApiResponse<AppointmentResponse> update(
             @PathVariable Long appointmentId,
             @RequestBody AppointmentStatus newStatus) {

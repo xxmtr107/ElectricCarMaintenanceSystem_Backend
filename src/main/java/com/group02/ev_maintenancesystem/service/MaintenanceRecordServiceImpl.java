@@ -1,12 +1,15 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
+import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
 import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
 import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.MaintenanceRecordMapper;
@@ -19,8 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +44,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     SparePartRepository sparePartRepository;
     SparePartService sparePartService;
     PartUsageMapper partUsageMapper;
-
+    ModelPackageItemRepository modelPackageItemRepository;
     @Override
     @Transactional
     public void createMaintenanceRecord(Appointment appointment) {
@@ -175,4 +181,62 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         return partUsageMapper.toPartUsageResponse(savedPartUsage);
     }
 
+    private MaintenanceRecordResponse mapRecordToResponse(MaintenanceRecord record) {
+        if (record == null) {
+            return null;
+        }
+
+        // Step 1: Basic mapping (will have null serviceItems)
+        MaintenanceRecordResponse response = maintenanceRecordMapper.toMaintenanceRecordResponse(record);
+
+        // Step 2: Get data needed for price/type lookup
+        Appointment appointment = record.getAppointment();
+        if (appointment == null || appointment.getVehicle() == null || appointment.getVehicle().getModel() == null || appointment.getServiceItems() == null) {
+            return response; // Not enough info
+        }
+
+        VehicleModel model = appointment.getVehicle().getModel();
+        ServicePackage servicePackage = appointment.getServicePackage();
+        List<ServiceItem> serviceItems = appointment.getServiceItems();
+        Integer milestoneKm = null;
+
+        // Step 3: Get milestoneKm from package name
+        if (servicePackage != null && servicePackage.getName() != null) {
+            try {
+                String name = servicePackage.getName();
+                String kmString = name.replaceAll("[^0-9]", ""); // Lấy phần số
+                if (!kmString.isEmpty()) {
+                    milestoneKm = Integer.parseInt(kmString);
+                }
+            } catch (Exception e) {
+                log.warn("Could not parse milestoneKm from package name: {}", servicePackage.getName());
+            }
+        }
+
+        if (milestoneKm == null) {
+            log.warn("milestoneKm is null, cannot determine item prices for record ID {}", record.getId());
+            return response;
+        }
+
+        // Step 4: Build the DTO list
+        List<ServiceItemDTO> itemDTOs = new ArrayList<>();
+        for (ServiceItem item : serviceItems) {
+            Optional<ModelPackageItem> mpiOpt = modelPackageItemRepository
+                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(model.getId(), milestoneKm, item.getId());
+
+            BigDecimal price = mpiOpt.map(ModelPackageItem::getPrice).orElse(BigDecimal.ZERO);
+            MaintenanceActionType actionType = mpiOpt.map(ModelPackageItem::getActionType).orElse(null);
+
+            itemDTOs.add(ServiceItemDTO.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .price(price)
+                    .actionType(actionType)
+                    .build());
+        }
+
+        response.setServiceItems(itemDTOs);
+        return response;
+    }
 }

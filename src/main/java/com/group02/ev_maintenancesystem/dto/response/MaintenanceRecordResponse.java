@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -35,7 +36,7 @@ public class MaintenanceRecordResponse {
     String vehicleModel;
 
     String notes;
-    List<ServiceItem> serviceItems;
+    List<ServiceItemDTO> serviceItems;
 
     List<PartUsageResponse> partUsages;
 

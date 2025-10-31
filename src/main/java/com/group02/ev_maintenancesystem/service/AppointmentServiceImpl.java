@@ -3,11 +3,13 @@ package com.group02.ev_maintenancesystem.service;
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendationDTO;
 import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO; // Thêm import
+import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.dto.request.AppointmentUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.CustomerAppointmentRequest;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.AppointmentMapper;
@@ -327,7 +329,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // Bước 4: Duyệt qua danh sách DTO và cập nhật giá
-        for (AppointmentResponse.ServiceItemDTO itemDTO : response.getServiceItems()) {
+        for (ServiceItemDTO itemDTO : response.getServiceItems()) {
 
             // Tìm giá của item này ứng với model xe và mốc KM
             Optional<ModelPackageItem> mpiOpt = modelPackageItemRepository
@@ -335,7 +337,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             // Nếu tìm thấy, gán giá. Nếu không, gán giá 0 (hoặc giữ null tùy ý)
             BigDecimal price = mpiOpt.map(ModelPackageItem::getPrice).orElse(BigDecimal.ZERO);
+            MaintenanceActionType actionType = mpiOpt.map(ModelPackageItem::getActionType).orElse(null); // <-- ADD THIS LINE
+
             itemDTO.setPrice(price); // Cập nhật trực tiếp DTO
+            itemDTO.setActionType(actionType); // <-- ADD THIS LINE
         }
 
         return response; // Trả về response đã được cập nhật giá

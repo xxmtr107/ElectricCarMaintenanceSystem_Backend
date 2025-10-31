@@ -78,7 +78,6 @@ public class MaintenanceRecordController {
     }
 
     @PostMapping("/{recordId}/parts")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'TECHNICIAN')")
     public ApiResponse<PartUsageResponse> addPartToRecord(
             @PathVariable Long recordId,
             @Valid @RequestBody PartUsageRequest request) {
