@@ -56,7 +56,7 @@ public class Appointment extends BaseEntity {
     )
     List<ServiceItem> serviceItems = new ArrayList<>();
 
-    @OneToOne(mappedBy = "appointment",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "appointment", fetch = FetchType.EAGER)
     MaintenanceRecord maintenanceRecord;
 
     @ManyToOne(fetch = FetchType.EAGER)

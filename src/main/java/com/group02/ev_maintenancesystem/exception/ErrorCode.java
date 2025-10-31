@@ -102,7 +102,9 @@ public enum ErrorCode {
     PART_CATEGORIES_NOT_FOUND(1106, "Part category not found", HttpStatus.NOT_FOUND),
     SPARE_PART_NAME_DUPLICATE(1107, "Spare part name already exists", HttpStatus.BAD_REQUEST),
     STOCK_QUANTITY_INVALID(1108, "Stock quantity must be greater than or equal to zero", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK(1109, "Insufficient stock", HttpStatus.BAD_REQUEST),
 
+    // ========================= MAINTENANCE RECORD ERRORS (1200 - 1299) =========================
     MAINTENANCE_RECORD_NOT_FOUND(1200, "Maintenance record not found", HttpStatus.NOT_FOUND),
 
     // ========================= SERVICE CENTER ERRORS (1300 - 1399) =========================

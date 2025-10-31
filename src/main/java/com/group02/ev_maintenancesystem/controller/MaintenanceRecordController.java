@@ -1,12 +1,16 @@
 package com.group02.ev_maintenancesystem.controller;
 
+import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
+import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.service.MaintenanceRecordService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -73,5 +77,15 @@ public class MaintenanceRecordController {
                 build();
     }
 
+    @PostMapping("/{recordId}/parts")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'TECHNICIAN')")
+    public ApiResponse<PartUsageResponse> addPartToRecord(
+            @PathVariable Long recordId,
+            @Valid @RequestBody PartUsageRequest request) {
+        return ApiResponse.<PartUsageResponse>builder()
+                .message("Part added to maintenance record successfully")
+                .result(maintenanceRecordService.addPartToRecord(recordId, request))
+                .build();
+    }
 
 }

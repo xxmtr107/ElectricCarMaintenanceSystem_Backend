@@ -72,9 +72,6 @@ public class ServiceCenterServiceImpl implements ServiceCenterService {
         if (serviceCenter.getInvoices() != null && !serviceCenter.getInvoices().isEmpty()) {
             throw new AppException(ErrorCode.CANNOT_DELETE_SERVICE_CENTER);
         }
-        if (serviceCenter.getMaintenanceRecords() != null && !serviceCenter.getMaintenanceRecords().isEmpty()) {
-            throw new AppException(ErrorCode.CANNOT_DELETE_SERVICE_CENTER);
-        }
 
         serviceCenterRepository.delete(serviceCenter);
     }

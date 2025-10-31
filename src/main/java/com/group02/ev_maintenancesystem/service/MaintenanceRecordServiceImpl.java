@@ -1,12 +1,16 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
+import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
+import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
+import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.MaintenanceRecordMapper;
+import com.group02.ev_maintenancesystem.mapper.PartUsageMapper;
 import com.group02.ev_maintenancesystem.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +34,10 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     AppointmentRepository appointmentRepository;
     MaintenanceRecordMapper maintenanceRecordMapper;
     VehicleRepository vehicleRepository;
-    ServicePackageRepository servicePackageRepository;
-    ServiceItemRepository serviceItemRepository;
-    ModelPackageItemRepository modelPackageItemRepository;
+    PartUsageRepository partUsageRepository;
+    SparePartRepository sparePartRepository;
+    SparePartService sparePartService;
+    PartUsageMapper partUsageMapper;
 
     @Override
     @Transactional
@@ -59,11 +64,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
         maintenanceRecord.setOdometer(appointment.getVehicle().getCurrentKm());
         maintenanceRecord.setAppointment(appointment);
-        maintenanceRecord.setServicePackage(appointment.getServicePackage());
-        maintenanceRecord.setTechnicianUser(appointment.getTechnicianUser());
-        maintenanceRecord.setVehicle(appointment.getVehicle());
         maintenanceRecord.setPerformedAt(appointment.getAppointmentDate());
-        maintenanceRecord.setServicePackage(appointment.getServicePackage());
 //        List<ModelPackageItem> modelItems = modelPackageItemRepository
 //                .findByVehicleModelIdAndServicePackageId(appointment.getVehicle().getModel().getId(), appointment.getServicePackage().getId());
 //        List<ServiceItem> packageItems = modelItems.stream()
@@ -105,7 +106,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     public List<MaintenanceRecordResponse> findMaintenanceRecordsByVehicleId(long vehicleId) {
         vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        List<MaintenanceRecord> VehicleList = maintenanceRecordRepository.findByVehicle_Id(vehicleId);
+        List<MaintenanceRecord> VehicleList = maintenanceRecordRepository.findByAppointment_Vehicle_Id(vehicleId);
 
         return VehicleList.stream().
                 map(maintenanceRecordMapper::toMaintenanceRecordResponse).
@@ -134,6 +135,44 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                 map(maintenanceRecordMapper::toMaintenanceRecordResponse).
                 toList();
     }
+    @Override
+    @Transactional
+    public PartUsageResponse addPartToRecord(Long recordId, PartUsageRequest request) {
+        // 1. Tìm MaintenanceRecord
+        MaintenanceRecord record = maintenanceRecordRepository.findById(recordId)
+                .orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
 
+        // 2. Tìm SparePart
+        SparePart sparePart = sparePartRepository.findById(request.getSparePartId())
+                .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
+
+        // 3. Kiểm tra số lượng tồn kho
+        int quantityNeeded = request.getQuantityUsed();
+        if (sparePart.getQuantityInStock() < quantityNeeded) {
+            throw new AppException(ErrorCode.INSUFFICIENT_STOCK);
+        }
+
+        // 4. Trừ kho (Tái sử dụng logic từ SparePartService)
+        StockUpdateRequest stockRequest = StockUpdateRequest.builder()
+                .changeQuantity(-quantityNeeded) // Trừ kho
+                .reason("Used in maintenance record " + recordId)
+                .build();
+        sparePartService.updateStock(sparePart.getId(), stockRequest);
+
+        // 5. Tạo và lưu PartUsage
+        PartUsage partUsage = PartUsage.builder()
+                .maintenanceRecord(record)
+                .sparePart(sparePart)
+                .quantityUsed(quantityNeeded)
+                .build();
+
+        // Giá sẽ được tự động tính bằng @PrePersist
+
+        partUsage.caculateTotalPrice();
+        PartUsage savedPartUsage = partUsageRepository.save(partUsage);
+
+        // 6. Map và trả về response
+        return partUsageMapper.toPartUsageResponse(savedPartUsage);
+    }
 
 }

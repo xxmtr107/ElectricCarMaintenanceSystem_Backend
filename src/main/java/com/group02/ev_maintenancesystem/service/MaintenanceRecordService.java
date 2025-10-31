@@ -1,6 +1,8 @@
 package com.group02.ev_maintenancesystem.service;
 
+import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
+import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
 
@@ -22,6 +24,7 @@ public interface MaintenanceRecordService {
 
     List<MaintenanceRecordResponse> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end);
 
+    public PartUsageResponse addPartToRecord(Long recordId, PartUsageRequest request);
 
 
 }

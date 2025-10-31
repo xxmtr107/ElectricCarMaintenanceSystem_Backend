@@ -37,6 +37,8 @@ public class MaintenanceRecordResponse {
     String notes;
     List<ServiceItem> serviceItems;
 
+    List<PartUsageResponse> partUsages;
+
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

@@ -1,6 +1,5 @@
 package com.group02.ev_maintenancesystem.mapper;
 
-
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
 import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
 import org.mapstruct.*;
@@ -16,18 +15,19 @@ public interface MaintenanceRecordMapper {
     @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "updatedAt", source = "updatedAt")
 
+    @Mapping(target = "technicianId", source = "appointment.technicianUser.id")
+    @Mapping(target = "technicianName", source = "appointment.technicianUser.fullName")
 
-    @Mapping(target = "technicianId", source = "technicianUser.id")
-    @Mapping(target = "technicianName", source = "technicianUser.fullName")
+    @Mapping(target = "vehicleId", source = "appointment.vehicle.id")
+    @Mapping(target = "vehicleLicensePlate", source = "appointment.vehicle.licensePlate")
+    @Mapping(target = "vehicleModel", source = "appointment.vehicle.model.name")
 
-    @Mapping(target = "vehicleId", source = "vehicle.id")
-    @Mapping(target = "vehicleLicensePlate", source = "vehicle.licensePlate")
-    @Mapping(target = "vehicleModel", source = "vehicle.model.name")
+    @Mapping(target = "servicePackageId", source = "appointment.servicePackage.id")
+    @Mapping(target = "servicePackageName", source = "appointment.servicePackage.name")
 
-    @Mapping(target = "servicePackageId", source = "servicePackage.id")
-    @Mapping(target = "servicePackageName", source = "servicePackage.name")
+    @Mapping(target = "serviceItems", source = "appointment.serviceItems")
 
-    @Mapping(target = "serviceItems", source = "serviceItems")
+    @Mapping(target = "partUsages", source = "partUsages")
 
     MaintenanceRecordResponse toMaintenanceRecordResponse(MaintenanceRecord maintenanceRecord);
 }

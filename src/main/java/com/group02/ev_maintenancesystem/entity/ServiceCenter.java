@@ -40,7 +40,4 @@ public class ServiceCenter extends BaseEntity {
 
     @OneToMany(mappedBy = "serviceCenter")
     List<Invoice> invoices;
-
-    @OneToMany(mappedBy = "serviceCenter")
-    List<MaintenanceRecord> maintenanceRecords;
 }

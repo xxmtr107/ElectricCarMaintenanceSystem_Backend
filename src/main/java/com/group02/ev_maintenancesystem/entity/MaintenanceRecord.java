@@ -33,35 +33,10 @@ public class MaintenanceRecord extends  BaseEntity {
     @JoinColumn(name = "appointment_id")
     Appointment appointment;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "technician_id")
-    User technicianUser;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "vehicle_id")
-    Vehicle vehicle;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "service_package_id")
-    ServicePackage servicePackage;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "record_service_items",
-            joinColumns = @JoinColumn(name = "record_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_item_id")
-    )
-    List<ServiceItem> serviceItems = new ArrayList<>();
-
-
     @OneToOne(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Invoice invoice;
 
     @OneToMany(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<PartUsage> partUsages = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "center_id")
-    ServiceCenter serviceCenter;
 
 }

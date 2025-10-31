@@ -1,5 +1,7 @@
 package com.group02.ev_maintenancesystem.repository;
 
+import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
+import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
 import com.sun.tools.javac.Main;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,9 +18,10 @@ public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRe
 
 
     List<MaintenanceRecord> findByAppointment_CustomerUser_Id(long customerId);
-    List<MaintenanceRecord> findByVehicle_Id(long vehicleId);
+    List<MaintenanceRecord> findByAppointment_Vehicle_Id(long vehicleId);
     List<MaintenanceRecord> findByAppointment_TechnicianUser_Id(long technicianId);
     List<MaintenanceRecord> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end);
     MaintenanceRecord findByAppointment_Id(long appointmentId);
-    List<MaintenanceRecord> findByVehicle_IdOrderByPerformedAtDesc(Long vehicleId);
+    List<MaintenanceRecord> findByAppointment_Vehicle_IdOrderByPerformedAtDesc(Long vehicleId);
 }
+
