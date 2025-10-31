@@ -45,8 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", // Swagger
-                                "/auth/**",                // Login, Refresh, Logout, Introspect
-                                "/customers/register"  // Đăng ký customer
+                                "/auth/**"              // Login, Refresh, Logout, Introspect
                         ).permitAll()
                         // Allow GET all vehicle models and service centers
                         .requestMatchers(HttpMethod.GET, "/vehicleModel", "/service-centers", "/service-centers/search", "/service-centers/{id}").permitAll()

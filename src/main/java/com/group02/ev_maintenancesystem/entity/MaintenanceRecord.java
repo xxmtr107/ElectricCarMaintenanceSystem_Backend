@@ -36,7 +36,7 @@ public class MaintenanceRecord extends  BaseEntity {
     @OneToOne(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Invoice invoice;
 
-    @OneToMany(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "maintenanceRecord")
     List<PartUsage> partUsages = new ArrayList<>();
 
 }

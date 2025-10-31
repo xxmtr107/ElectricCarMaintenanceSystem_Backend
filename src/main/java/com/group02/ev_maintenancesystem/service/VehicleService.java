@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 
 public interface VehicleService {
-    VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest, Authentication authentication);
+    VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest);
     List<VehicleResponse> getVehiclesByUserId(Long userId);
     VehicleResponse getVehiclesByVehicleId(Long vehicleId);
     Page<VehicleResponse> getAllVehicle(int size, int page);

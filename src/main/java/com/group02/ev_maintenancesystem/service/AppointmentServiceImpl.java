@@ -94,6 +94,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Integer recommendedMilestoneKm = recommendation.getMilestoneKm();
 
         // 4. TÌM ServicePackage TƯƠNG ỨNG VỚI CỘT MỐC (Giữ nguyên logic cũ)
+        // SỬA LỖI: Đổi tên tìm kiếm từ Tiếng Anh sang Tiếng Việt
         String milestonePackageName = "Maintenance " + recommendedMilestoneKm + "km milestone";
         ServicePackage servicePackageForMilestone = servicePackageRepository.findByName(milestonePackageName)
                 .orElseGet(() -> {

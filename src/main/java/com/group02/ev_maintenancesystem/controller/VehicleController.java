@@ -27,11 +27,11 @@ public class VehicleController {
 
     //Tạo mới 1 xe
     @PostMapping("/create")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ApiResponse<VehicleResponse> createVehicle(@Valid @RequestBody VehicleCreationRequest request, Authentication authentication) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<VehicleResponse> createVehicle(@Valid @RequestBody VehicleCreationRequest request) {
         return ApiResponse.<VehicleResponse>builder()
                 .message("Create vehicle succesfully")
-                .result(vehicleService.createVehicle(request,authentication))
+                .result(vehicleService.createVehicle(request))
                 .build();
     }
 
