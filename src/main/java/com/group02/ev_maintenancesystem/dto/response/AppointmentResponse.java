@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
@@ -33,7 +34,6 @@ public class AppointmentResponse {
 
     Long technicianId;
     String technicianName;
-    String technicianSpecialization;
 
     Long vehicleId;
     String vehicleLicensePlate;
@@ -48,8 +48,8 @@ public class AppointmentResponse {
     String addressCenter;
     String districtCenter;
 
-
-    List<ServiceItemDTO> serviceItems;
+    Integer milestoneKm;
+    List<ModelPackageItemDTO> serviceItems;
 
 
     LocalDateTime createdAt;

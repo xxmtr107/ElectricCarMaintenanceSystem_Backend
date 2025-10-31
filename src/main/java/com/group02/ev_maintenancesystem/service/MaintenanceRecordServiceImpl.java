@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.constant.PredefinedRole;
+import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
 import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
@@ -85,15 +86,15 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     public MaintenanceRecordResponse getByMaintenanceRecordId(long MaintenanceRecordId) {
         MaintenanceRecord maintenanceRecord = maintenanceRecordRepository.findById(MaintenanceRecordId).
                 orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
-        return maintenanceRecordMapper.toMaintenanceRecordResponse(maintenanceRecord);
+        return this.mapRecordToResponse(maintenanceRecord); // <-- *** USE HELPER ***
     }
 
     @Override
     public List<MaintenanceRecordResponse> getAll() {
         List<MaintenanceRecord> MaintenanceRecordList = maintenanceRecordRepository.findAll();
         return MaintenanceRecordList.stream().
-                map(maintenanceRecordMapper::toMaintenanceRecordResponse).
-                toList();
+                map(this::mapRecordToResponse). // <-- *** USE HELPER ***
+                        toList();
     }
 
     @Override
@@ -104,7 +105,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         List<MaintenanceRecord> records = maintenanceRecordRepository.findByAppointment_CustomerUser_Id(customerId);
 
         return records.stream()
-                .map(maintenanceRecordMapper::toMaintenanceRecordResponse)
+                .map(this::mapRecordToResponse) // <-- *** USE HELPER ***
                 .toList();
     }
 
@@ -115,8 +116,8 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         List<MaintenanceRecord> VehicleList = maintenanceRecordRepository.findByAppointment_Vehicle_Id(vehicleId);
 
         return VehicleList.stream().
-                map(maintenanceRecordMapper::toMaintenanceRecordResponse).
-                toList();
+                map(this::mapRecordToResponse). // <-- *** USE HELPER ***
+                        toList();
     }
 
     @Override
@@ -126,8 +127,8 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<MaintenanceRecord> TechnicianList = maintenanceRecordRepository.findByAppointment_TechnicianUser_Id(technicianId);
         return TechnicianList.stream().
-                map(maintenanceRecordMapper::toMaintenanceRecordResponse).
-                toList();
+                map(this::mapRecordToResponse). // <-- *** USE HELPER ***
+                        toList();
     }
 
     @Override
@@ -138,8 +139,8 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
 
         List<MaintenanceRecord> MaintenanceRecordList = maintenanceRecordRepository.findByAppointment_AppointmentDateBetween(start, end);
         return MaintenanceRecordList.stream().
-                map(maintenanceRecordMapper::toMaintenanceRecordResponse).
-                toList();
+                map(this::mapRecordToResponse). // <-- *** USE HELPER ***
+                        toList();
     }
     @Override
     @Transactional
@@ -186,40 +187,26 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             return null;
         }
 
-        // Step 1: Basic mapping (will have null serviceItems)
+        // Bước 1: Map cơ bản (serviceItems bị ignore)
         MaintenanceRecordResponse response = maintenanceRecordMapper.toMaintenanceRecordResponse(record);
 
-        // Step 2: Get data needed for price/type lookup
+        // Bước 2: Lấy thông tin
         Appointment appointment = record.getAppointment();
         if (appointment == null || appointment.getVehicle() == null || appointment.getVehicle().getModel() == null || appointment.getServiceItems() == null) {
-            return response; // Not enough info
+            return response;
         }
 
         VehicleModel model = appointment.getVehicle().getModel();
-        ServicePackage servicePackage = appointment.getServicePackage();
         List<ServiceItem> serviceItems = appointment.getServiceItems();
-        Integer milestoneKm = null;
-
-        // Step 3: Get milestoneKm from package name
-        if (servicePackage != null && servicePackage.getName() != null) {
-            try {
-                String name = servicePackage.getName();
-                String kmString = name.replaceAll("[^0-9]", ""); // Lấy phần số
-                if (!kmString.isEmpty()) {
-                    milestoneKm = Integer.parseInt(kmString);
-                }
-            } catch (Exception e) {
-                log.warn("Could not parse milestoneKm from package name: {}", servicePackage.getName());
-            }
-        }
+        Integer milestoneKm = appointment.getMilestoneKm(); // <-- *** USE THE SAVED MILESTONE ***
 
         if (milestoneKm == null) {
             log.warn("milestoneKm is null, cannot determine item prices for record ID {}", record.getId());
             return response;
         }
 
-        // Step 4: Build the DTO list
-        List<ServiceItemDTO> itemDTOs = new ArrayList<>();
+        // *** BƯỚC 4: LOGIC ĐÚNG THEO YÊU CẦU CỦA BẠN ***
+        List<ModelPackageItemDTO> itemDTOs = new ArrayList<>();
         for (ServiceItem item : serviceItems) {
             Optional<ModelPackageItem> mpiOpt = modelPackageItemRepository
                     .findByVehicleModelIdAndMilestoneKmAndServiceItemId(model.getId(), milestoneKm, item.getId());
@@ -227,16 +214,27 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             BigDecimal price = mpiOpt.map(ModelPackageItem::getPrice).orElse(BigDecimal.ZERO);
             MaintenanceActionType actionType = mpiOpt.map(ModelPackageItem::getActionType).orElse(null);
 
-            itemDTOs.add(ServiceItemDTO.builder()
+            // 1. Tạo DTO lồng bên trong
+            ServiceItemDTO nestedItemDTO = ServiceItemDTO.builder()
                     .id(item.getId())
                     .name(item.getName())
                     .description(item.getDescription())
-                    .price(price)
-                    .actionType(actionType)
-                    .build());
+                    // KHÔNG set price/actionType ở đây
+                    .build();
+
+            // 2. Tạo DTO bên ngoài
+            ModelPackageItemDTO outerItemDTO = new ModelPackageItemDTO(
+                    nestedItemDTO,
+                    price,
+                    actionType
+            );
+
+            itemDTOs.add(outerItemDTO);
         }
 
-        response.setServiceItems(itemDTOs);
+        response.setServiceItems(itemDTOs); // Set danh sách DTO đã build
+        // *** KẾT THÚC THAY ĐỔI ***
+
         return response;
     }
 }

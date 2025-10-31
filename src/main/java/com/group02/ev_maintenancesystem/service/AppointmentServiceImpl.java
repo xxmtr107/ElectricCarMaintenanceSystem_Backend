@@ -129,6 +129,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setServicePackage(servicePackageForMilestone); // Gán gói/cấp độ mốc
         appointment.setServiceItems(serviceItemsForAppointment); // Gán danh sách hạng mục
         appointment.setServiceCenter(serviceCenter);
+        appointment.setMilestoneKm(recommendedMilestoneKm); // <-- *** ADD THIS LINE ***
 
         // 7. Lưu Appointment và Map sang Response
         Appointment savedAppointment = appointmentRepository.save(appointment);
@@ -296,54 +297,58 @@ public class AppointmentServiceImpl implements AppointmentService {
             return null;
         }
 
-        // Bước 1: Gọi mapper để map các trường cơ bản (sẽ tạo ra list serviceItems với price = null)
+        // Bước 1: Gọi mapper để map các trường cơ bản
         AppointmentResponse response = appointmentMapper.toAppointmentResponse(appointment);
 
         // Bước 2: Kiểm tra và lấy thông tin cần thiết để tra giá
-        if (response.getServiceItems() == null || appointment.getVehicle() == null || appointment.getVehicle().getModel() == null) {
+        if (appointment.getVehicle() == null || appointment.getVehicle().getModel() == null || appointment.getServiceItems() == null) {
             // Nếu không có service item hoặc thông tin xe, trả về response đã map
             return response;
         }
 
         VehicleModel model = appointment.getVehicle().getModel();
-        ServicePackage servicePackage = appointment.getServicePackage();
-        Integer milestoneKm = null;
+        Integer milestoneKm = appointment.getMilestoneKm(); // <-- *** USE THE SAVED MILESTONE ***
 
-        // Bước 3: Lấy mốc KM từ tên của ServicePackage
-        if (servicePackage != null && servicePackage.getName() != null) {
-            try {
-                String name = servicePackage.getName();
-                String kmString = name.replaceAll("[^0-9]", ""); // Lấy phần số
-                if (!kmString.isEmpty()) {
-                    milestoneKm = Integer.parseInt(kmString);
-                }
-            } catch (Exception e) {
-                log.warn("Could not parse milestoneKm from package name: {}", servicePackage.getName());
-            }
-        }
 
         if (milestoneKm == null) {
             log.warn("milestoneKm is null, cannot determine item prices for appointment ID {}", appointment.getId());
-            // Giữ nguyên list item với giá null
             return response;
         }
 
-        // Bước 4: Duyệt qua danh sách DTO và cập nhật giá
-        for (ServiceItemDTO itemDTO : response.getServiceItems()) {
+        // *** BƯỚC 4: LOGIC ĐÚNG THEO YÊU CẦU CỦA BẠN ***
+        List<ModelPackageItemDTO> modelPackageItemDTOs = new ArrayList<>();
+        List<ServiceItem> serviceItems = appointment.getServiceItems(); // Lấy list entity
 
-            // Tìm giá của item này ứng với model xe và mốc KM
+        for (ServiceItem item : serviceItems) {
+
+            // Tìm giá và actionType từ ModelPackageItem
             Optional<ModelPackageItem> mpiOpt = modelPackageItemRepository
-                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(model.getId(), milestoneKm, itemDTO.getId());
+                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(model.getId(), milestoneKm, item.getId());
 
-            // Nếu tìm thấy, gán giá. Nếu không, gán giá 0 (hoặc giữ null tùy ý)
             BigDecimal price = mpiOpt.map(ModelPackageItem::getPrice).orElse(BigDecimal.ZERO);
-            MaintenanceActionType actionType = mpiOpt.map(ModelPackageItem::getActionType).orElse(null); // <-- ADD THIS LINE
+            MaintenanceActionType actionType = mpiOpt.map(ModelPackageItem::getActionType).orElse(null);
 
-            itemDTO.setPrice(price); // Cập nhật trực tiếp DTO
-            itemDTO.setActionType(actionType); // <-- ADD THIS LINE
+            // 1. Tạo DTO lồng bên trong (ServiceItemDTO) - chỉ chứa info cơ bản
+            ServiceItemDTO nestedItemDTO = ServiceItemDTO.builder()
+                    .id(item.getId())
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .build();
+
+            // 2. Tạo DTO bên ngoài (ModelPackageItemDTO) - chứa DTO lồng, price, và actionType
+            ModelPackageItemDTO outerItemDTO = new ModelPackageItemDTO(
+                    nestedItemDTO,
+                    price,
+                    actionType
+            );
+
+            modelPackageItemDTOs.add(outerItemDTO); // Thêm DTO bên ngoài vào danh sách
         }
 
-        return response; // Trả về response đã được cập nhật giá
+        response.setServiceItems(modelPackageItemDTOs); // Set danh sách DTO đã build
+        // *** KẾT THÚC THAY ĐỔI ***
+
+        return response;
     }
     // --- END: CHỈNH SỬA HÀM NÀY ---
 

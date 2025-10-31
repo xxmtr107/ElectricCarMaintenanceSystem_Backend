@@ -25,6 +25,8 @@ public class Appointment extends BaseEntity {
     @Column(nullable = false, name = "appointment_date")
     LocalDateTime appointmentDate;
 
+    Integer milestoneKm;
+
     @Enumerated(EnumType.STRING)
     AppointmentStatus status;
 
