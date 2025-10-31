@@ -94,7 +94,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Integer recommendedMilestoneKm = recommendation.getMilestoneKm();
 
         // 4. TÌM ServicePackage TƯƠNG ỨNG VỚI CỘT MỐC (Giữ nguyên logic cũ)
-        String milestonePackageName = "Bảo dưỡng mốc " + recommendedMilestoneKm + "km";
+        String milestonePackageName = "Maintenance " + recommendedMilestoneKm + "km milestone";
         ServicePackage servicePackageForMilestone = servicePackageRepository.findByName(milestonePackageName)
                 .orElseGet(() -> {
                     log.warn("ServicePackage with name '{}' not found. Consider adding it to data.sql. Setting package to null for appointment.", milestonePackageName);
@@ -291,7 +291,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .collect(Collectors.toList());
     }
 
-    // --- START: CHỈNH SỬA HÀM NÀY ---
     private AppointmentResponse mapSingleAppointmentToResponse(Appointment appointment) {
         if (appointment == null) {
             return null;
@@ -302,7 +301,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Bước 2: Kiểm tra và lấy thông tin cần thiết để tra giá
         if (appointment.getVehicle() == null || appointment.getVehicle().getModel() == null || appointment.getServiceItems() == null) {
-            // Nếu không có service item hoặc thông tin xe, trả về response đã map
             return response;
         }
 
@@ -310,8 +308,39 @@ public class AppointmentServiceImpl implements AppointmentService {
         Integer milestoneKm = appointment.getMilestoneKm(); // <-- *** USE THE SAVED MILESTONE ***
 
 
+        // SỬA LỖI: Xử lý dữ liệu cũ không có milestoneKm
         if (milestoneKm == null) {
-            log.warn("milestoneKm is null, cannot determine item prices for appointment ID {}", appointment.getId());
+            log.warn("milestoneKm is null for appointment ID {}. Attempting to infer from estimatedCost.", appointment.getId());
+
+            // Lấy tất cả các mốc KM có thể có của model này
+            List<Integer> possibleMilestones = modelPackageItemRepository
+                    .findByVehicleModelId(model.getId()).stream()
+                    .map(ModelPackageItem::getMilestoneKm)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            for (Integer ms : possibleMilestones) {
+                // Tính tổng giá của mốc KM đang xét
+                BigDecimal total = modelPackageItemRepository
+                        .findByVehicleModelIdAndMilestoneKm(model.getId(), ms).stream()
+                        .map(ModelPackageItem::getPrice)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                // So sánh với estimatedCost (dùng compareTo cho BigDecimal)
+                if (appointment.getEstimatedCost() != null && total.compareTo(appointment.getEstimatedCost()) == 0) {
+                    milestoneKm = ms; // Đã tìm thấy mốc KM
+                    response.setMilestoneKm(ms); // Cập nhật luôn vào response
+                    log.info("Inferred milestone {}km for appointment ID {}", ms, appointment.getId());
+                    break;
+                }
+            }
+        }
+        // Kết thúc sửa lỗi
+
+
+        if (milestoneKm == null) {
+            log.warn("Could not determine milestoneKm for appointment ID {}, cannot determine item prices.", appointment.getId());
             return response;
         }
 
@@ -328,14 +357,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             BigDecimal price = mpiOpt.map(ModelPackageItem::getPrice).orElse(BigDecimal.ZERO);
             MaintenanceActionType actionType = mpiOpt.map(ModelPackageItem::getActionType).orElse(null);
 
-            // 1. Tạo DTO lồng bên trong (ServiceItemDTO) - chỉ chứa info cơ bản
+            // 1. Tạo DTO lồng bên trong (ServiceItemDTO)
             ServiceItemDTO nestedItemDTO = ServiceItemDTO.builder()
                     .id(item.getId())
                     .name(item.getName())
                     .description(item.getDescription())
                     .build();
 
-            // 2. Tạo DTO bên ngoài (ModelPackageItemDTO) - chứa DTO lồng, price, và actionType
+            // 2. Tạo DTO bên ngoài (ModelPackageItemDTO)
             ModelPackageItemDTO outerItemDTO = new ModelPackageItemDTO(
                     nestedItemDTO,
                     price,
@@ -350,6 +379,5 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return response;
     }
-    // --- END: CHỈNH SỬA HÀM NÀY ---
 
 }

@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -187,7 +188,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             return null;
         }
 
-        // Bước 1: Map cơ bản (serviceItems bị ignore)
+        // Bước 1: Map cơ bản
         MaintenanceRecordResponse response = maintenanceRecordMapper.toMaintenanceRecordResponse(record);
 
         // Bước 2: Lấy thông tin
@@ -200,8 +201,34 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         List<ServiceItem> serviceItems = appointment.getServiceItems();
         Integer milestoneKm = appointment.getMilestoneKm(); // <-- *** USE THE SAVED MILESTONE ***
 
+        // SỬA LỖI: Xử lý dữ liệu cũ không có milestoneKm (Giống hệt AppointmentServiceImpl)
         if (milestoneKm == null) {
-            log.warn("milestoneKm is null, cannot determine item prices for record ID {}", record.getId());
+            log.warn("milestoneKm is null for record ID {} (Appointment ID {}). Attempting to infer from estimatedCost.", record.getId(), appointment.getId());
+
+            List<Integer> possibleMilestones = modelPackageItemRepository
+                    .findByVehicleModelId(model.getId()).stream()
+                    .map(ModelPackageItem::getMilestoneKm)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            for (Integer ms : possibleMilestones) {
+                BigDecimal total = modelPackageItemRepository
+                        .findByVehicleModelIdAndMilestoneKm(model.getId(), ms).stream()
+                        .map(ModelPackageItem::getPrice)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                if (appointment.getEstimatedCost() != null && total.compareTo(appointment.getEstimatedCost()) == 0) {
+                    milestoneKm = ms;
+                    log.info("Inferred milestone {}km for record ID {}", ms, record.getId());
+                    break;
+                }
+            }
+        }
+        // Kết thúc sửa lỗi
+
+        if (milestoneKm == null) {
+            log.warn("Could not determine milestoneKm for record ID {}, cannot determine item prices.", record.getId());
             return response;
         }
 
@@ -219,7 +246,6 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                     .id(item.getId())
                     .name(item.getName())
                     .description(item.getDescription())
-                    // KHÔNG set price/actionType ở đây
                     .build();
 
             // 2. Tạo DTO bên ngoài

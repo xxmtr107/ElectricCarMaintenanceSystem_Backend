@@ -29,7 +29,7 @@ public class PartUsage extends BaseEntity {
     BigDecimal totalPrice; //Tổng giá tiền = SparePart.unitPrice * quantityUsed
 
     //Relationships
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "spare_part_id", nullable = false)
     SparePart sparePart;
 
