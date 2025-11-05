@@ -35,9 +35,8 @@ INSERT IGNORE INTO users (username, email, password, phone, full_name, gender, r
 SET NAMES utf8mb4;
 
 -- =================================================================
--- NEW STEP 1: DEFINE "PACKAGES" CORRESPONDING TO MILESTONES (SERVICE_PACKAGES)
+-- 1. SERVICE_PACKAGES (Các mốc bảo dưỡng)
 -- =================================================================
--- Ensure insert only if not exists
 INSERT IGNORE INTO service_packages (name, description) VALUES
                                                             (N'Maintenance 12000km milestone', N'Periodic maintenance package at 12,000km or 1 year'),
                                                             (N'Maintenance 24000km milestone', N'Periodic maintenance package at 24,000km or 2 years'),
@@ -51,9 +50,8 @@ INSERT IGNORE INTO service_packages (name, description) VALUES
                                                             (N'Maintenance 120000km milestone', N'Periodic maintenance package at 120,000km or 10 years');
 
 -- =================================================================
--- NEW STEP 2: DEFINE INDIVIDUAL "SERVICE ITEMS" (SERVICE_ITEMS)
+-- 2. SERVICE_ITEMS (Các hạng mục dịch vụ)
 -- =================================================================
--- Ensure insert only if not exists and keep IDs stable
 INSERT IGNORE INTO service_items (id, name, description) VALUES
                                                              (1, N'Cabin air filter', N'Replace or clean cabin air filter'),
                                                              (2, N'Brake fluid', N'Check or replace brake fluid'),
@@ -78,9 +76,8 @@ INSERT IGNORE INTO service_items (id, name, description) VALUES
                                                              (21, N'Check for rust / corrosion undercarriage', N'Overall undercarriage inspection');
 
 -- =================================================================
--- NEW STEP 3: DEFINE VEHICLE MODELS (VEHICLE_MODELS) - No longer cycle/package
+-- 3. VEHICLE_MODELS (Các mẫu xe)
 -- =================================================================
--- Ensure insert only if not exists
 INSERT IGNORE INTO vehicle_models (id, name, model_year) VALUES
                                                              (1, N'VFe34', N'2021'),
                                                              (2, N'VF 3', N'2024'),
@@ -91,36 +88,51 @@ INSERT IGNORE INTO vehicle_models (id, name, model_year) VALUES
                                                              (7, N'VF 9', N'2022');
 
 -- =================================================================
--- NEW STEP 4: DEFINE SERVICE "MENU" BY MILESTONE (MODEL_PACKAGE_ITEMS)
+-- 4. MODEL_PACKAGE_ITEMS (Bảng giá dịch vụ theo mốc)
+-- LƯU Ý: GIÁ ĐÃ ĐƯỢC CẬP NHẬT
+-- GIÁ CHECK = Tiền công kiểm tra
+-- GIÁ REPLACE = Tiền công thay + Tiền vật tư (nếu có)
 -- =================================================================
--- Delete all old data in this table before adding new
-# DELETE FROM model_package_items;
 
--- (All INSERT statements for model_package_items are kept as they are, as they contain numeric IDs and ENUMs)
--- ... (INSERTs for VFe34, VF 3, VF 5, VF 6, VF 7, VF 8, VF 9) ...
 -- ---------------------------------
 -- --- MODEL: VFe34 (model_id=1) ---
 -- ---------------------------------
--- Mốc 12000km
+-- Mốc 12000km (CHECK là chủ yếu)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (1, 12000, 1, 150000, 'REPLACE'), (1, 12000, 2, 50000, 'CHECK'), (1, 12000, 3, 50000, 'CHECK'), (1, 12000, 4, 30000, 'CHECK'), (1, 12000, 5, 30000, 'CHECK'),
-                                                                                                          (1, 12000, 6, 40000, 'CHECK'), (1, 12000, 7, 50000, 'CHECK'), (1, 12000, 8, 50000, 'CHECK'), (1, 12000, 9, 40000, 'CHECK'), (1, 12000, 10, 50000, 'CHECK'),
-                                                                                                          (1, 12000, 11, 50000, 'CHECK'), (1, 12000, 12, 40000, 'CHECK'), (1, 12000, 13, 40000, 'CHECK'), (1, 12000, 14, 50000, 'CHECK'), (1, 12000, 15, 40000, 'CHECK'),
-                                                                                                          (1, 12000, 16, 50000, 'CHECK'), (1, 12000, 17, 50000, 'CHECK'), (1, 12000, 18, 30000, 'CHECK'), (1, 12000, 19, 40000, 'CHECK'), (1, 12000, 20, 30000, 'CHECK');
+                                                                                                          (1, 12000, 1, 670000, 'REPLACE'), -- (Công 150k + Lọc 520k)
+                                                                                                          (1, 12000, 2, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 3, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 4, 30000, 'CHECK'),
+                                                                                                          (1, 12000, 5, 30000, 'CHECK'),
+                                                                                                          (1, 12000, 6, 40000, 'CHECK'),
+                                                                                                          (1, 12000, 7, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 8, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 9, 40000, 'CHECK'),
+                                                                                                          (1, 12000, 10, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 11, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 12, 40000, 'CHECK'),
+                                                                                                          (1, 12000, 13, 40000, 'CHECK'),
+                                                                                                          (1, 12000, 14, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 15, 40000, 'CHECK'),
+                                                                                                          (1, 12000, 16, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 17, 50000, 'CHECK'),
+                                                                                                          (1, 12000, 18, 30000, 'CHECK'),
+                                                                                                          (1, 12000, 19, 40000, 'CHECK'),
+                                                                                                          (1, 12000, 20, 30000, 'CHECK');
 -- Mốc 24000km (Như 12k + Thay dầu phanh)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 24000, service_item_id, price, CASE WHEN service_item_id = 2 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 250000 WHERE vehicle_model_id = 1 AND milestone_km = 24000 AND service_item_id = 2;
+UPDATE model_package_items SET price = 630000 WHERE vehicle_model_id = 1 AND milestone_km = 24000 AND service_item_id = 2; -- (Công 250k + Dầu phanh 380k)
 -- Mốc 36000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
 -- Mốc 48000km (Như 24k + Thay Pin chìa khóa)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 48000, service_item_id, price, CASE WHEN service_item_id = 4 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 100000 WHERE vehicle_model_id = 1 AND milestone_km = 48000 AND service_item_id = 4;
+UPDATE model_package_items SET price = 145000 WHERE vehicle_model_id = 1 AND milestone_km = 48000 AND service_item_id = 4; -- (Công 100k + Pin CR2032 45k)
 -- Mốc 60000km (Như 12k + Thay nước làm mát)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 60000, service_item_id, price, CASE WHEN service_item_id = 6 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 350000 WHERE vehicle_model_id = 1 AND milestone_km = 60000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1030000 WHERE vehicle_model_id = 1 AND milestone_km = 60000 AND service_item_id = 6; -- (Công 350k + Nước làm mát 680k)
 -- Mốc 72000km (Như 24k + Thay hệ thống ĐH)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 72000, service_item_id, price, CASE WHEN service_item_id = 3 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 300000 WHERE vehicle_model_id = 1 AND milestone_km = 72000 AND service_item_id = 3;
+UPDATE model_package_items SET price = 1400000 WHERE vehicle_model_id = 1 AND milestone_km = 72000 AND service_item_id = 3; -- (Công 300k + Van AC 1100k)
 -- Mốc 84000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
 -- Mốc 96000km (Như 48k)
@@ -129,20 +141,33 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
 -- Mốc 120000km (Như 60k + Thay Pin T-Box)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 120000, service_item_id, price, CASE WHEN service_item_id = 5 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 60000;
-UPDATE model_package_items SET price = 400000 WHERE vehicle_model_id = 1 AND milestone_km = 120000 AND service_item_id = 5;
+UPDATE model_package_items SET price = 1100000 WHERE vehicle_model_id = 1 AND milestone_km = 120000 AND service_item_id = 5; -- (Công 400k + Pin Tbox 700k)
 
 -- ---------------------------------
 -- --- MODEL: VF 3 (model_id=2) ---
 -- ---------------------------------
 -- Mốc 12000km
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (2, 12000, 1, 120000, 'REPLACE'), (2, 12000, 20, 20000, 'CHECK'), (2, 12000, 3, 40000, 'CHECK'), (2, 12000, 2, 40000, 'CHECK'), (2, 12000, 7, 40000, 'CHECK'),
-                                                                                                          (2, 12000, 8, 40000, 'CHECK'), (2, 12000, 9, 30000, 'CHECK'), (2, 12000, 10, 40000, 'CHECK'), (2, 12000, 11, 40000, 'CHECK'), (2, 12000, 12, 30000, 'CHECK'),
-                                                                                                          (2, 12000, 13, 30000, 'CHECK'), (2, 12000, 14, 40000, 'CHECK'), (2, 12000, 16, 50000, 'CHECK'), (2, 12000, 17, 40000, 'CHECK'), (2, 12000, 18, 20000, 'CHECK'),
-                                                                                                          (2, 12000, 19, 30000, 'CHECK'), (2, 12000, 21, 30000, 'CHECK');
+                                                                                                          (2, 12000, 1, 610000, 'REPLACE'), -- (Công 120k + Lọc 490k)
+                                                                                                          (2, 12000, 20, 20000, 'CHECK'),
+                                                                                                          (2, 12000, 3, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 2, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 7, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 8, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 9, 30000, 'CHECK'),
+                                                                                                          (2, 12000, 10, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 11, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 12, 30000, 'CHECK'),
+                                                                                                          (2, 12000, 13, 30000, 'CHECK'),
+                                                                                                          (2, 12000, 14, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 16, 50000, 'CHECK'),
+                                                                                                          (2, 12000, 17, 40000, 'CHECK'),
+                                                                                                          (2, 12000, 18, 20000, 'CHECK'),
+                                                                                                          (2, 12000, 19, 30000, 'CHECK'),
+                                                                                                          (2, 12000, 21, 30000, 'CHECK');
 -- Mốc 24000km (Như 12k + Thay dầu phanh)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 24000, service_item_id, price, CASE WHEN service_item_id = 2 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 200000 WHERE vehicle_model_id = 2 AND milestone_km = 24000 AND service_item_id = 2;
+UPDATE model_package_items SET price = 580000 WHERE vehicle_model_id = 2 AND milestone_km = 24000 AND service_item_id = 2; -- (Công 200k + Dầu 380k)
 -- Mốc 36000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
 -- Mốc 48000km (Như 24k)
@@ -159,7 +184,7 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
 -- Mốc 120000km (Như 24k + Thay hệ thống ĐH)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 120000, service_item_id, price, CASE WHEN service_item_id = 3 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 250000 WHERE vehicle_model_id = 2 AND milestone_km = 120000 AND service_item_id = 3;
+UPDATE model_package_items SET price = 1240000 WHERE vehicle_model_id = 2 AND milestone_km = 120000 AND service_item_id = 3; -- (Công 250k + Van AC 990k)
 
 
 -- ---------------------------------
@@ -167,22 +192,38 @@ UPDATE model_package_items SET price = 250000 WHERE vehicle_model_id = 2 AND mil
 -- ---------------------------------
 -- Mốc 12000km
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (3, 12000, 1, 140000, 'REPLACE'), (3, 12000, 20, 25000, 'CHECK'), (3, 12000, 3, 45000, 'CHECK'), (3, 12000, 5, 25000, 'CHECK'), (3, 12000, 6, 35000, 'CHECK'),
-                                                                                                          (3, 12000, 2, 45000, 'CHECK'), (3, 12000, 7, 45000, 'CHECK'), (3, 12000, 8, 45000, 'CHECK'), (3, 12000, 9, 35000, 'CHECK'), (3, 12000, 10, 45000, 'CHECK'),
-                                                                                                          (3, 12000, 11, 45000, 'CHECK'), (3, 12000, 12, 35000, 'CHECK'), (3, 12000, 13, 35000, 'CHECK'), (3, 12000, 14, 45000, 'CHECK'), (3, 12000, 15, 35000, 'CHECK'),
-                                                                                                          (3, 12000, 16, 50000, 'CHECK'), (3, 12000, 17, 45000, 'CHECK'), (3, 12000, 18, 25000, 'CHECK'), (3, 12000, 19, 35000, 'CHECK'), (3, 12000, 21, 35000, 'CHECK');
+                                                                                                          (3, 12000, 1, 630000, 'REPLACE'), -- (Công 140k + Lọc 490k)
+                                                                                                          (3, 12000, 20, 25000, 'CHECK'),
+                                                                                                          (3, 12000, 3, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 5, 25000, 'CHECK'),
+                                                                                                          (3, 12000, 6, 35000, 'CHECK'),
+                                                                                                          (3, 12000, 2, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 7, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 8, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 9, 35000, 'CHECK'),
+                                                                                                          (3, 12000, 10, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 11, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 12, 35000, 'CHECK'),
+                                                                                                          (3, 12000, 13, 35000, 'CHECK'),
+                                                                                                          (3, 12000, 14, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 15, 35000, 'CHECK'),
+                                                                                                          (3, 12000, 16, 50000, 'CHECK'),
+                                                                                                          (3, 12000, 17, 45000, 'CHECK'),
+                                                                                                          (3, 12000, 18, 25000, 'CHECK'),
+                                                                                                          (3, 12000, 19, 35000, 'CHECK'),
+                                                                                                          (3, 12000, 21, 35000, 'CHECK');
 -- Mốc 24000km (Như 12k + Thay dầu phanh)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 24000, service_item_id, price, CASE WHEN service_item_id = 2 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 220000 WHERE vehicle_model_id = 3 AND milestone_km = 24000 AND service_item_id = 2;
+UPDATE model_package_items SET price = 600000 WHERE vehicle_model_id = 3 AND milestone_km = 24000 AND service_item_id = 2; -- (Công 220k + Dầu 380k)
 -- Mốc 36000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
--- Mốc 48000km (Như 24k) - Ảnh VF5 không ghi thay nước làm mát ở 48k? Chỉ kiểm tra.
+-- Mốc 48000km (Như 24k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
 -- Mốc 60000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
 -- Mốc 72000km (Như 24k + Thay Pin T-Box)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 72000, service_item_id, price, CASE WHEN service_item_id = 5 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 400000 WHERE vehicle_model_id = 3 AND milestone_km = 72000 AND service_item_id = 5;
+UPDATE model_package_items SET price = 1080000 WHERE vehicle_model_id = 3 AND milestone_km = 72000 AND service_item_id = 5; -- (Công 400k + Pin 680k)
 -- Mốc 84000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
 -- Mốc 96000km (Như 24k)
@@ -191,7 +232,7 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
 -- Mốc 120000km (Như 24k + Thay nước làm mát)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 120000, service_item_id, price, CASE WHEN service_item_id = 6 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 380000 WHERE vehicle_model_id = 3 AND milestone_km = 120000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1030000 WHERE vehicle_model_id = 3 AND milestone_km = 120000 AND service_item_id = 6; -- (Công 380k + Nước 650k)
 
 
 -- ---------------------------------
@@ -199,13 +240,29 @@ UPDATE model_package_items SET price = 380000 WHERE vehicle_model_id = 3 AND mil
 -- ---------------------------------
 -- Mốc 12000km
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (4, 12000, 1, 154000, 'REPLACE'), (4, 12000, 20, 27500, 'CHECK'), (4, 12000, 3, 49500, 'CHECK'), (4, 12000, 5, 27500, 'CHECK'), (4, 12000, 6, 38500, 'CHECK'),
-                                                                                                          (4, 12000, 2, 49500, 'CHECK'), (4, 12000, 7, 49500, 'CHECK'), (4, 12000, 8, 49500, 'CHECK'), (4, 12000, 9, 38500, 'CHECK'), (4, 12000, 10, 49500, 'CHECK'),
-                                                                                                          (4, 12000, 11, 49500, 'CHECK'), (4, 12000, 12, 38500, 'CHECK'), (4, 12000, 13, 38500, 'CHECK'), (4, 12000, 14, 49500, 'CHECK'), (4, 12000, 15, 38500, 'CHECK'),
-                                                                                                          (4, 12000, 16, 55000, 'CHECK'), (4, 12000, 17, 49500, 'CHECK'), (4, 12000, 18, 27500, 'CHECK'), (4, 12000, 19, 38500, 'CHECK'), (4, 12000, 21, 38500, 'CHECK');
+                                                                                                          (4, 12000, 1, 674000, 'REPLACE'), -- (Công 154k + Lọc 520k)
+                                                                                                          (4, 12000, 20, 27500, 'CHECK'),
+                                                                                                          (4, 12000, 3, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 5, 27500, 'CHECK'),
+                                                                                                          (4, 12000, 6, 38500, 'CHECK'),
+                                                                                                          (4, 12000, 2, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 7, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 8, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 9, 38500, 'CHECK'),
+                                                                                                          (4, 12000, 10, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 11, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 12, 38500, 'CHECK'),
+                                                                                                          (4, 12000, 13, 38500, 'CHECK'),
+                                                                                                          (4, 12000, 14, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 15, 38500, 'CHECK'),
+                                                                                                          (4, 12000, 16, 55000, 'CHECK'),
+                                                                                                          (4, 12000, 17, 49500, 'CHECK'),
+                                                                                                          (4, 12000, 18, 27500, 'CHECK'),
+                                                                                                          (4, 12000, 19, 38500, 'CHECK'),
+                                                                                                          (4, 12000, 21, 38500, 'CHECK');
 -- Mốc 24000km (Như 12k + Thay dầu phanh)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 24000, service_item_id, price, CASE WHEN service_item_id = 2 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 242000 WHERE vehicle_model_id = 4 AND milestone_km = 24000 AND service_item_id = 2;
+UPDATE model_package_items SET price = 622000 WHERE vehicle_model_id = 4 AND milestone_km = 24000 AND service_item_id = 2; -- (Công 242k + Dầu 380k)
 -- Mốc 36000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
 -- Mốc 48000km (Như 24k)
@@ -214,7 +271,7 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
 -- Mốc 72000km (Như 24k + Thay Pin T-Box)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 72000, service_item_id, price, CASE WHEN service_item_id = 5 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 440000 WHERE vehicle_model_id = 4 AND milestone_km = 72000 AND service_item_id = 5;
+UPDATE model_package_items SET price = 1120000 WHERE vehicle_model_id = 4 AND milestone_km = 72000 AND service_item_id = 5; -- (Công 440k + Pin 680k)
 -- Mốc 84000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
 -- Mốc 96000km (Như 24k)
@@ -223,16 +280,16 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
 -- Mốc 120000km (Như 24k + Thay nước làm mát)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 120000, service_item_id, price, CASE WHEN service_item_id = 6 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 418000 WHERE vehicle_model_id = 4 AND milestone_km = 120000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1068000 WHERE vehicle_model_id = 4 AND milestone_km = 120000 AND service_item_id = 6; -- (Công 418k + Nước 650k)
 
 -- ---------------------------------
 -- --- MODEL: VF 7 (model_id=5) ---
 -- ---------------------------------
--- Mốc 12000km
+-- Mốc 12000km (Giá như VF6)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 12000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
 -- Mốc 24000km (Như 12k + Thay dầu phanh)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 24000, service_item_id, price, CASE WHEN service_item_id = 2 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 242000 WHERE vehicle_model_id = 5 AND milestone_km = 24000 AND service_item_id = 2;
+UPDATE model_package_items SET price = 622000 WHERE vehicle_model_id = 5 AND milestone_km = 24000 AND service_item_id = 2; -- (Công 242k + Dầu 380k)
 -- Mốc 36000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
 -- Mốc 48000km (Như 24k)
@@ -241,7 +298,7 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
 -- Mốc 72000km (Như 24k + Thay Pin T-Box)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 72000, service_item_id, price, CASE WHEN service_item_id = 5 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 440000 WHERE vehicle_model_id = 5 AND milestone_km = 72000 AND service_item_id = 5;
+UPDATE model_package_items SET price = 1120000 WHERE vehicle_model_id = 5 AND milestone_km = 72000 AND service_item_id = 5; -- (Công 440k + Pin 680k)
 -- Mốc 84000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
 -- Mốc 96000km (Như 24k)
@@ -250,18 +307,18 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
 -- Mốc 120000km (Như 24k + Thay nước làm mát + Thay hệ thống ĐH)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 120000, service_item_id, price, CASE WHEN service_item_id = 6 THEN 'REPLACE' WHEN service_item_id = 3 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 418000 WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 6;
-UPDATE model_package_items SET price = 330000 WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 3;
-
+UPDATE model_package_items SET price = 1068000 WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 6; -- (Công 418k + Nước 650k)
+UPDATE model_package_items SET price = 1390000 WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 3; -- (Công 330k + Van 1060k)
 
 -- ---------------------------------
 -- --- MODEL: VF 8 (model_id=6) ---
 -- ---------------------------------
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 12000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000 AND service_item_id != 4; -- VF8 không có pin chìa khóa
+-- Mốc 12000km (Như VFe34 12k, không có pin chìa khóa)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 12000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000 AND service_item_id != 4;
+UPDATE model_package_items SET price = 680000 WHERE vehicle_model_id = 6 AND milestone_km = 12000 AND service_item_id = 1; -- (Công 150k + Lọc 530k)
 -- Mốc 24000km (Như 12k + Thay dầu phanh)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 24000, service_item_id, price, CASE WHEN service_item_id = 2 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 250000 WHERE vehicle_model_id = 6 AND milestone_km = 24000 AND service_item_id = 2;
+UPDATE model_package_items SET price = 630000 WHERE vehicle_model_id = 6 AND milestone_km = 24000 AND service_item_id = 2; -- (Công 250k + Dầu 380k)
 -- Mốc 36000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
 -- Mốc 48000km (Như 24k)
@@ -270,7 +327,7 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
 -- Mốc 72000km (Như 24k + Thay Pin T-Box)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 72000, service_item_id, price, CASE WHEN service_item_id = 5 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 400000 WHERE vehicle_model_id = 6 AND milestone_km = 72000 AND service_item_id = 5;
+UPDATE model_package_items SET price = 1110000 WHERE vehicle_model_id = 6 AND milestone_km = 72000 AND service_item_id = 5; -- (Công 400k + Pin 710k)
 -- Mốc 84000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
 -- Mốc 96000km (Như 24k)
@@ -279,17 +336,18 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
 -- Mốc 120000km (Như 24k + Thay nước làm mát)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 120000, service_item_id, price, CASE WHEN service_item_id = 6 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 350000 WHERE vehicle_model_id = 6 AND milestone_km = 120000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1040000 WHERE vehicle_model_id = 6 AND milestone_km = 120000 AND service_item_id = 6; -- (Công 350k + Nước 690k)
 
 
 -- ---------------------------------
 -- --- MODEL: VF 9 (model_id=7) ---
 -- ---------------------------------
--- Mốc 12000km
+-- Mốc 12000km (Giá * 1.15)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 12000, service_item_id, price * 1.15, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 782500 WHERE vehicle_model_id = 7 AND milestone_km = 12000 AND service_item_id = 1; -- (150k*1.15 + 550k)
 -- Mốc 24000km (Như 12k + Thay dầu phanh)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 24000, service_item_id, price, CASE WHEN service_item_id = 2 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 287500 WHERE vehicle_model_id = 7 AND milestone_km = 24000 AND service_item_id = 2; -- 250k * 1.15
+UPDATE model_package_items SET price = 667500 WHERE vehicle_model_id = 7 AND milestone_km = 24000 AND service_item_id = 2; -- (250k*1.15 + 380k)
 -- Mốc 36000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
 -- Mốc 48000km (Như 24k)
@@ -298,7 +356,7 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
 -- Mốc 72000km (Như 24k + Thay Pin T-Box)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 72000, service_item_id, price, CASE WHEN service_item_id = 5 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 460000 WHERE vehicle_model_id = 7 AND milestone_km = 72000 AND service_item_id = 5; -- 400k * 1.15
+UPDATE model_package_items SET price = 1180000 WHERE vehicle_model_id = 7 AND milestone_km = 72000 AND service_item_id = 5; -- (400k*1.15 + 720k)
 -- Mốc 84000km (Như 12k)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
 -- Mốc 96000km (Như 24k)
@@ -307,13 +365,12 @@ INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
 -- Mốc 120000km (Như 24k + Thay nước làm mát + Thay hệ thống ĐH)
 INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 120000, service_item_id, price, CASE WHEN service_item_id = 6 THEN 'REPLACE' WHEN service_item_id = 3 THEN 'REPLACE' ELSE action_type END FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 402500 WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 6; -- 350k * 1.15
-UPDATE model_package_items SET price = 345000 WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 3; -- Estimate
+UPDATE model_package_items SET price = 1102500 WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 6; -- (350k*1.15 + 700k)
+UPDATE model_package_items SET price = 1514500 WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 3; -- (345k + 1120k)
 
 -- =================================================================
 -- SERVICE CENTER (Keep as is)
 -- =================================================================
-
 INSERT INTO service_centers (name, address, district, city, phone)
 VALUES
     ('Vin3S Showroom Hoc Mon Center', '166 Ly Thuong Kiet, Quarter 3, Hoc Mon Town', 'Hoc Mon District', 'Ho Chi Minh City', '0762718718'),
@@ -336,10 +393,11 @@ VALUES
     ('Authorized 3S Distributor VinFast Skytt', '214 Nguyen Oanh Street, Ward 17', 'Go Vap District', 'Ho Chi Minh City', '02873032689'),
     ('VinFast Le Van Viet', '1st Floor, Vincom Plaza Le Van Viet, 50 Le Van Viet Street, Hiep Phu Ward', 'District 9', 'Ho Chi Minh City', '0981335517'),
     ('VinFast Thao Dien', 'L1 Floor, Vincom Mega Mall Thao Dien, 159 Xa Lo Ha Noi, Thao Dien Ward', 'District 2', 'Ho Chi Minh City', '0981335514');
+
 -- =================================================================
--- PART-CATEGORIES
+-- 5. PART-CATEGORIES (Dùng cho quản lý kho)
 -- =================================================================
-INSERT  INTO part_categories
+INSERT IGNORE INTO part_categories
 (id, name, code, description, create_at, created_by, update_at, updated_by)
 VALUES
     (1, N'Filters', 'FILTER', N'Air filters, cabin filters', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
@@ -356,9 +414,10 @@ VALUES
 
 
 -- =================================================================
--- SPARE-PARTS
+-- 6. SPARE-PARTS (Dùng cho quản lý kho)
+-- (Giữ nguyên giá vật tư)
 -- =================================================================
-INSERT INTO spare_parts
+INSERT IGNORE INTO spare_parts
 (part_number, name, unit_price, quantity_in_stock, minimum_stock_level, category_id, create_at, created_by, update_at, updated_by)
 VALUES
 -- === SPARE PARTS FOR VF 3 ===
@@ -367,7 +426,7 @@ VALUES
 ('BAT-KEY-GEN', N'Key battery CR2032 (Common)', 45000.00, 300, 50, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Common
 ('BAT-TBOX-VF3', N'T-Box battery VF 3', 650000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('BAT-12V-VF3', N'12V battery AGM 60Ah (VF 3)', 4300000.00, 15, 5, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VF3', N'Front brake pads VF 3', 990000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Still keep F/R to distinguish
+('BRK-PAD-F-VF3', N'Front brake pads VF 3', 990000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('BRK-PAD-R-VF3', N'Rear brake pads VF 3', 920000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('BRK-DISC-F-VF3', N'Front brake disc VF 3', 1580000.00, 10, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('SUS-SHOCK-F-VF3', N'Front shock absorber VF 3', 1950000.00, 10, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
@@ -387,7 +446,6 @@ VALUES
 ('FLT-VF5', N'Cabin air filter VF 5', 490000.00, 50, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('FLD-BRK-VF5', N'Brake fluid DOT 4 (VF 5)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('FLD-COOL-VF5', N'EV Coolant Type 1 (VF 5)', 650000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
--- BAT-KEY-GEN is common
 ('BAT-TBOX-VF5', N'T-Box battery VF 5', 680000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('BAT-12V-VF5', N'12V battery AGM 60Ah (VF 5)', 4300000.00, 15, 5, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('BRK-PAD-F-VF5', N'Front brake pads VF 5', 1020000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
@@ -512,12 +570,5 @@ VALUES
 ('WHL-TPMS-VF9', N'TPMS valve sensor VF 9', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('WPR-PUMP-VF9', N'Washer fluid pump VF 9', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM');
 
--- DISABLE FOREIGN KEY CHECKS (To allow deletion)
-SET FOREIGN_KEY_CHECKS = 0;
-
--- TRUNCATE TWO TABLES
-TRUNCATE TABLE spare_parts;
-TRUNCATE TABLE part_categories;
-
--- ENABLE FOREIGN KEY CHECKS
-SET FOREIGN_KEY_CHECKS = 1;
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- SET FOREIGN_KEY_CHECKS = 1;

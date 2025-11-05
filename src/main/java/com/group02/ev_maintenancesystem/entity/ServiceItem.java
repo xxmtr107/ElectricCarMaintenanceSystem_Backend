@@ -30,10 +30,6 @@ public class ServiceItem extends BaseEntity {
     String description;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "serviceItems", fetch = FetchType.LAZY)
-    List<Appointment> appointments = new ArrayList<>();
-
-    @JsonIgnore
     @OneToMany(mappedBy = "serviceItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<ModelPackageItem> modelPackageItems = new ArrayList<>();
 

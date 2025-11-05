@@ -46,7 +46,7 @@ public interface AppointmentMapper {
     @Mapping(target = "districtCenter",source = "serviceCenter.district")
 
     @Mapping(target = "milestoneKm", source = "milestoneKm")
-    @Mapping(target = "serviceItems", source = "serviceItems")
+    @Mapping(target = "serviceItems", ignore = true)
     AppointmentResponse toAppointmentResponse(Appointment appointment);
 
 

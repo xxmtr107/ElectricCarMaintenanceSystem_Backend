@@ -23,5 +23,9 @@ public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRe
     List<MaintenanceRecord> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end);
     MaintenanceRecord findByAppointment_Id(long appointmentId);
     List<MaintenanceRecord> findByAppointment_Vehicle_IdOrderByPerformedAtDesc(Long vehicleId);
+
+    List<MaintenanceRecord> findByAppointment_AppointmentDateBetweenAndAppointment_ServiceCenter_Id(LocalDateTime start, LocalDateTime end, Long centerId);
+
+    List<MaintenanceRecord> findByAppointment_ServiceCenter_Id(Long centerId);
 }
 

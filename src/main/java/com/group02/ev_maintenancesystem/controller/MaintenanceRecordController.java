@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -28,14 +29,16 @@ public class MaintenanceRecordController {
     MaintenanceRecordService maintenanceRecordService;
 
     @GetMapping
-    public ApiResponse<List<MaintenanceRecordResponse>> getAllMaintenanceRecords() {
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'TECHNICIAN')") // Yêu cầu 2
+    public ApiResponse<List<MaintenanceRecordResponse>> getAllMaintenanceRecords(Authentication authentication) {
         return ApiResponse.<List<MaintenanceRecordResponse>>builder().
                 message("All maintenance record fetched successfully").
-                result(maintenanceRecordService.getAll()).
+                result(maintenanceRecordService.getAll(authentication)).
                 build();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MaintenanceRecordResponse>getByMaintenanceRecordId(@PathVariable long id){
         return ApiResponse.<MaintenanceRecordResponse>builder().
                 message("Maintenance record fetched successfully").
@@ -44,6 +47,7 @@ public class MaintenanceRecordController {
     }
 
     @GetMapping("/vehicle/{vehicleId}")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<List<MaintenanceRecordResponse>>getByVehicleId(@PathVariable long vehicleId){
         return ApiResponse.<List<MaintenanceRecordResponse>>builder().
                 message("All maintenance record fetched successfully").
@@ -52,6 +56,7 @@ public class MaintenanceRecordController {
     }
 
     @GetMapping("/customer/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or #customerId == authentication.principal.claims['userId']")
     public ApiResponse<List<MaintenanceRecordResponse>>getByCustomerId(@PathVariable long customerId){
         return ApiResponse.<List<MaintenanceRecordResponse>>builder().
                 message("All maintenance records fetched successfully").
@@ -60,6 +65,7 @@ public class MaintenanceRecordController {
     }
 
     @GetMapping("technician/{technicianId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or (hasRole('TECHNICIAN') and #technicianId == authentication.principal.claims['userId'])") // Yêu cầu 1
     public ApiResponse<List<MaintenanceRecordResponse>>getByTechnicianId(@PathVariable long technicianId){
         return ApiResponse.<List<MaintenanceRecordResponse>>builder().
                 message("All maintenance records fetched successfully").
@@ -68,23 +74,29 @@ public class MaintenanceRecordController {
     }
 
     @GetMapping("/date-range")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'TECHNICIAN')") // Yêu cầu 2
     public ApiResponse<List<MaintenanceRecordResponse>>
     getByDateRange(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime startDate,
-                   @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate){
+                   @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime endDate,
+                   Authentication authentication){
         return ApiResponse.<List<MaintenanceRecordResponse>>builder().
                 message("All maintenance records fetched successfully with date range").
-                result(maintenanceRecordService.findByAppointment_AppointmentDateBetween(startDate, endDate)).
+                result(maintenanceRecordService.findByAppointment_AppointmentDateBetween(startDate, endDate, authentication)).
                 build();
     }
 
+    /**
+     * Endpoint cho Technician thêm phụ tùng PHÁT SINH (ngoài gói)
+     */
     @PostMapping("/{recordId}/parts")
+    @PreAuthorize("hasRole('TECHNICIAN')") // Yêu cầu 1
     public ApiResponse<PartUsageResponse> addPartToRecord(
             @PathVariable Long recordId,
-            @Valid @RequestBody PartUsageRequest request) {
+            @Valid @RequestBody PartUsageRequest request,
+            Authentication authentication) {
         return ApiResponse.<PartUsageResponse>builder()
                 .message("Part added to maintenance record successfully")
-                .result(maintenanceRecordService.addPartToRecord(recordId, request))
+                .result(maintenanceRecordService.addPartToRecord(recordId, request, authentication))
                 .build();
     }
-
 }

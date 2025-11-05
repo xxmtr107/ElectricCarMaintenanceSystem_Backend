@@ -25,7 +25,7 @@ public interface MaintenanceRecordMapper {
     @Mapping(target = "servicePackageId", source = "appointment.servicePackage.id")
     @Mapping(target = "servicePackageName", source = "appointment.servicePackage.name")
 
-    @Mapping(target = "serviceItems", source = "appointment.serviceItems")
+    @Mapping(target = "serviceItems", ignore = true)
 
     @Mapping(target = "partUsages", source = "partUsages")
 
