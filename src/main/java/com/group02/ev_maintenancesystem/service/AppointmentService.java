@@ -37,8 +37,8 @@ public interface AppointmentService {
 
     AppointmentResponse setStatusAppointment(Long id, AppointmentStatus newStatus, Authentication authentication);
 
-    AppointmentResponse approveServiceItem(Long appointmentId, ServiceItemApproveRequest request, Authentication authentication);
+    AppointmentResponse approveServiceItem(Long appointmentId, List<ServiceItemApproveRequest> requests, Authentication authentication);
 
-    AppointmentResponse upgradeServiceItem(Long appointmentId, ServiceItemUpgradeRequest request, Authentication authentication);
+    AppointmentResponse upgradeServiceItem(Long appointmentId, List<ServiceItemUpgradeRequest> requests, Authentication authentication);
 
 }

@@ -345,11 +345,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     // --- SỬA LỖI BUG (Yêu cầu 4) ---
     @Override
     @Transactional
-    public AppointmentResponse upgradeServiceItem(Long appointmentId, ServiceItemUpgradeRequest request, Authentication authentication) {
+    public AppointmentResponse upgradeServiceItem(Long appointmentId, List<ServiceItemUpgradeRequest> requests, Authentication authentication) {
         User technician = getAuthenticatedUser(authentication);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
+        // 1. Kiểm tra quyền và trạng thái (chỉ cần 1 lần)
         if (!technician.isTechnician() || appointment.getTechnicianUser() == null || !appointment.getTechnicianUser().getId().equals(technician.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
@@ -357,55 +358,70 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(ErrorCode.STATUS_INVALID);
         }
 
-        // ĐÂY LÀ CHỖ BỊ LỖI (FIXED):
-        AppointmentServiceItemDetail detail = appointmentServiceItemDetailRepository.findByAppointmentIdAndServiceItemId(appointmentId, request.getServiceItemId())
-                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_IN_APPOINTMENT));
-
-        if (detail.getActionType() == request.getNewActionType()) {
-            detail.setTechnicianNotes(request.getNotes());
-            appointmentServiceItemDetailRepository.save(detail);
+        if (requests == null || requests.isEmpty()) {
+            log.warn("upgradeServiceItem called with no requests for appointment {}", appointmentId);
             return mapSingleAppointmentToResponse(appointment);
         }
-        if (detail.getActionType() != MaintenanceActionType.CHECK || request.getNewActionType() != MaintenanceActionType.REPLACE) {
-            throw new AppException(ErrorCode.STATUS_INVALID);
-        }
 
-        // --- SỬA LOGIC TÌM GIÁ (FIXED) ---
-        // Gọi hàm `findAllByVehicleModelId` (đã thêm vào repo) thay vì hàm `findByVehicleModelId` không tồn tại
-        Optional<ModelPackageItem> replacePriceOpt = modelPackageItemRepository
+        // Lấy danh sách giá nâng cấp (REPLACE) một lần
+        List<ModelPackageItem> replacePriceDefinitions = modelPackageItemRepository
                 .findAllByVehicleModelId(appointment.getVehicle().getModel().getId())
                 .stream()
-                .filter(item -> item.getServiceItem().getId().equals(request.getServiceItemId()))
                 .filter(item -> item.getActionType() == MaintenanceActionType.REPLACE)
-                .min(Comparator.comparing(ModelPackageItem::getMilestoneKm)); // Ưu tiên giá ở mốc thấp nhất
+                .toList();
 
-        if (replacePriceOpt.isEmpty()) {
-            log.error("No 'REPLACE' price definition found for item {} for model {} in ANY milestone",
-                    request.getServiceItemId(), appointment.getVehicle().getModel().getId());
-            throw new AppException(ErrorCode.SERVICE_ITEM_PRICE_NOT_FOUND
-                    );
+        // 2. Bắt đầu vòng lặp
+        for (ServiceItemUpgradeRequest request : requests) {
+
+            // Tìm chi tiết hạng mục trong lịch hẹn
+            AppointmentServiceItemDetail detail = appointmentServiceItemDetailRepository.findByAppointmentIdAndServiceItemId(appointmentId, request.getServiceItemId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_IN_APPOINTMENT));
+
+            if (detail.getActionType() == request.getNewActionType()) {
+                // Nếu đã là REPLACE, chỉ cập nhật ghi chú
+                detail.setTechnicianNotes(request.getNotes());
+                appointmentServiceItemDetailRepository.save(detail); // (Lưu tạm ghi chú)
+                continue; // Chuyển sang request tiếp theo
+            }
+            if (detail.getActionType() != MaintenanceActionType.CHECK || request.getNewActionType() != MaintenanceActionType.REPLACE) {
+                // Chỉ cho phép nâng cấp từ CHECK -> REPLACE
+                throw new AppException(ErrorCode.ONLY_UPGRADE_CHECK_TO_REPLACE_ALLOWED);
+            }
+
+            // Tìm giá REPLACE cho hạng mục này
+            Optional<ModelPackageItem> replacePriceOpt = replacePriceDefinitions.stream()
+                    .filter(item -> item.getServiceItem().getId().equals(request.getServiceItemId()))
+                    .min(Comparator.comparing(ModelPackageItem::getMilestoneKm)); // Ưu tiên giá ở mốc thấp nhất
+
+            if (replacePriceOpt.isEmpty()) {
+                log.error("No 'REPLACE' price definition found for item {} for model {} in ANY milestone",
+                        request.getServiceItemId(), appointment.getVehicle().getModel().getId());
+                throw new AppException(ErrorCode.SERVICE_ITEM_PRICE_NOT_FOUND);
+            }
+
+            BigDecimal newPrice = replacePriceOpt.get().getPrice();
+
+            // Cập nhật chi tiết hạng mục
+            detail.setActionType(request.getNewActionType());
+            detail.setPrice(newPrice);
+            detail.setCustomerApproved(false); // Chuyển sang chờ duyệt
+            detail.setTechnicianNotes(request.getNotes());
+            // (Không save ở đây, để save 1 lần ở cuối)
         }
-        // --- KẾT THÚC SỬA ---
 
-        BigDecimal newPrice = replacePriceOpt.get().getPrice();
+        // 3. Cập nhật lịch hẹn (sau khi vòng lặp kết thúc)
+        appointment.setStatus(AppointmentStatus.WAITING_FOR_APPROVAL); // Đặt trạng thái chờ duyệt
+        appointment.recalculateEstimatedCost(); // Tính lại tổng tiền dựa trên các mục đã duyệt
 
-        detail.setActionType(request.getNewActionType());
-        detail.setPrice(newPrice);
-        detail.setCustomerApproved(false);
-        detail.setTechnicianNotes(request.getNotes());
-
-        appointment.setStatus(AppointmentStatus.WAITING_FOR_APPROVAL);
-        appointment.recalculateEstimatedCost();
-
-        Appointment savedAppointment = appointmentRepository.save(appointment);
-        log.info("Technician {} upgraded item {} for appointment {}", technician.getUsername(), request.getServiceItemId(), appointmentId);
+        Appointment savedAppointment = appointmentRepository.save(appointment); // Lưu 1 lần
+        log.info("Technician {} upgraded {} item(s) for appointment {}", technician.getUsername(), requests.size(), appointmentId);
 
         return mapSingleAppointmentToResponse(savedAppointment);
     }
 
     @Override
     @Transactional
-    public AppointmentResponse approveServiceItem(Long appointmentId, ServiceItemApproveRequest request, Authentication authentication) {
+    public AppointmentResponse approveServiceItem(Long appointmentId, List<ServiceItemApproveRequest> requests, Authentication authentication) {
         User staff = getAuthenticatedUser(authentication);
         if (!staff.isAdmin() && !staff.isStaff()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
@@ -414,46 +430,64 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
         checkAppointmentAccess(staff, appointment);
-        AppointmentServiceItemDetail detail = appointmentServiceItemDetailRepository.findById(request.getAppointmentServiceDetailId())
-                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_IN_APPOINTMENT));
 
-        if (!detail.getAppointment().getId().equals(appointmentId)) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-        if (detail.getCustomerApproved().equals(request.getApproved())) {
+        if (requests == null || requests.isEmpty()) {
+            log.warn("approveServiceItem called with no requests for appointment {}", appointmentId);
             return mapSingleAppointmentToResponse(appointment);
         }
 
-        if (request.getApproved()) {
-            detail.setCustomerApproved(true);
-        } else {
-            // TỪ CHỐI (Quay về CHECK)
-            log.warn("Staff reverting item {} for appointment {} back to CHECK", detail.getServiceItem().getId(), appointmentId);
-            ModelPackageItem originalItem = modelPackageItemRepository
-                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
-                            appointment.getVehicle().getModel().getId(),
-                            appointment.getMilestoneKm(),
-                            detail.getServiceItem().getId()
-                    )
-                    .filter(item -> item.getActionType() == MaintenanceActionType.CHECK)
-                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_CANNOT_BE_REVERTED));
+        // 1. Bắt đầu vòng lặp
+        for (ServiceItemApproveRequest request : requests) {
 
-            detail.setActionType(originalItem.getActionType());
-            detail.setPrice(originalItem.getPrice());
-            detail.setCustomerApproved(true);
+            AppointmentServiceItemDetail detail = appointmentServiceItemDetailRepository.findById(request.getAppointmentServiceDetailId())
+                    .orElseThrow(() -> new AppException(ErrorCode.DETAIL_NOT_FOUND)); // (Sử dụng ErrorCode mới)
+
+            if (!detail.getAppointment().getId().equals(appointmentId)) {
+                log.error("Staff {} tried to approve detail {} which does not belong to appointment {}", staff.getUsername(), detail.getId(), appointmentId);
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+            if (detail.getCustomerApproved().equals(request.getApproved())) {
+                continue; // Bỏ qua nếu trạng thái đã giống
+            }
+
+            if (request.getApproved()) {
+                // Khách hàng ĐỒNG Ý nâng cấp
+                detail.setCustomerApproved(true);
+            } else {
+                // Khách hàng TỪ CHỐI (Quay về CHECK)
+                log.warn("Staff reverting item {} for appointment {} back to CHECK", detail.getServiceItem().getId(), appointmentId);
+
+                // Tìm lại giá CHECK gốc
+                ModelPackageItem originalItem = modelPackageItemRepository
+                        .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
+                                appointment.getVehicle().getModel().getId(),
+                                appointment.getMilestoneKm(),
+                                detail.getServiceItem().getId()
+                        )
+                        .filter(item -> item.getActionType() == MaintenanceActionType.CHECK)
+                        .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_CANNOT_BE_REVERTED));
+
+                detail.setActionType(originalItem.getActionType());
+                detail.setPrice(originalItem.getPrice());
+                detail.setCustomerApproved(true); // Đã duyệt (với tư cách là CHECK)
+            }
+            // (Không save ở đây, để save 1 lần ở cuối)
         }
 
-        appointment.recalculateEstimatedCost();
+        // 2. Cập nhật lịch hẹn (sau khi vòng lặp kết thúc)
+        appointment.recalculateEstimatedCost(); // Tính lại tổng tiền
 
+        // Kiểm tra xem tất cả các hạng mục (sau khi cập nhật) đã được duyệt chưa
         boolean allApproved = appointment.getServiceDetails().stream()
                 .allMatch(AppointmentServiceItemDetail::getCustomerApproved);
 
         if (allApproved && appointment.getStatus() == AppointmentStatus.WAITING_FOR_APPROVAL) {
+            // Nếu tất cả đã được xử lý (duyệt hoặc từ chối), trả về CONFIRMED
             appointment.setStatus(AppointmentStatus.CONFIRMED);
         }
 
-        Appointment savedAppointment = appointmentRepository.save(appointment);
-        log.info("Staff {} set approval={} for item detail {}", staff.getUsername(), request.getApproved(), request.getAppointmentServiceDetailId());
+        Appointment savedAppointment = appointmentRepository.save(appointment); // Lưu 1 lần
+        log.info("Staff {} set approval for {} item(s) for appointment {}", staff.getUsername(), requests.size(), appointmentId);
 
         return mapSingleAppointmentToResponse(savedAppointment);
     }
