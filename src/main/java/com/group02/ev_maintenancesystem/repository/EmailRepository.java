@@ -8,5 +8,7 @@ import java.util.Optional;
 
 public interface EmailRepository extends JpaRepository<EmailRecord, Long> {
     Optional<EmailRecord> findByEmailAndTypeAndSentTimeAfter(String email, EmailType type, LocalDateTime sentTime);
-    int countByEmailAndType(String email, EmailType type);
+
+    int countByEmailAndTypeAndCurrentKm(String email, EmailType type, Integer currentKm);
+    int countByEmailAndTypeAndAppointmentID(String email, EmailType type, Long id);
 }

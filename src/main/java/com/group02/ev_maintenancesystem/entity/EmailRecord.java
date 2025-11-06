@@ -30,4 +30,10 @@ public class EmailRecord {
 
     @Column(name = "sentTime")
     private LocalDateTime sentTime;
+
+    @Column(name = "current_km")
+    Integer currentKm;
+
+    @Column(name="appointment_id")
+    private Long appointmentID;
 }

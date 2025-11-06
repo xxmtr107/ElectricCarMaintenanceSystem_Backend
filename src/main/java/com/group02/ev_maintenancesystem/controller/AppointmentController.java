@@ -36,7 +36,6 @@ public class AppointmentController {
 
     AppointmentService appointmentService;
 
-
     @PostMapping("/customer")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ApiResponse<AppointmentResponse> createAppointment(@RequestBody @Valid CustomerAppointmentRequest appointment, Authentication authentication) {
