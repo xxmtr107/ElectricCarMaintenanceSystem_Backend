@@ -503,6 +503,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         return mapSingleAppointmentToResponse(savedAppointment);
     }
 
+    private List<AppointmentResponse> mapAppointmentListToResponse(List<Appointment> appointments) {
+        if (appointments == null || appointments.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return appointments.stream()
+                .map(this::mapSingleAppointmentToResponse)
+                .collect(Collectors.toList());
+    }
+
     private AppointmentResponse mapSingleAppointmentToResponse(Appointment appointment) {
         if (appointment == null) {
             return null;
