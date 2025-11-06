@@ -75,20 +75,28 @@ public class AppointmentServiceImpl implements AppointmentService {
         ServiceCenter serviceCenter = serviceCenterRepository.findById(request.getCenterId())
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
 
-        LocalDate appointmentDay = request.getAppointmentDate().toLocalDate();
-        LocalDateTime startOfDay = appointmentDay.atStartOfDay();
-        LocalDateTime endOfDay = appointmentDay.atTime(LocalTime.MAX);
-        List<Appointment> existingAppointments = appointmentRepository
-                .findByVehicleIdAndAppointmentDateBetween(request.getVehicleId(), startOfDay, endOfDay);
-        boolean hasActiveAppointment = existingAppointments.stream()
-                .anyMatch(app -> app.getStatus() != AppointmentStatus.CANCELLED && app.getStatus() != AppointmentStatus.COMPLETED);
-        if (hasActiveAppointment) {
+        // --- LOGIC MỚI (ĐÃ THAY THẾ): Kiểm tra xe có lịch hẹn đang "active" hay không ---
+        // Lấy TẤT CẢ các lịch hẹn của xe này, không phân biệt ngày
+        List<Appointment> allAppointmentsForVehicle = appointmentRepository.findByVehicleId(request.getVehicleId());
+
+        // Kiểm tra xem có BẤT KỲ lịch hẹn nào đang "active" (không phải CANCELLED hoặc COMPLETED)
+        boolean vehicleHasActiveAppointment = allAppointmentsForVehicle.stream()
+                .anyMatch(app -> app.getStatus() != AppointmentStatus.CANCELLED
+                        && app.getStatus() != AppointmentStatus.COMPLETED);
+
+        if (vehicleHasActiveAppointment) {
+            // Nếu xe đang có 1 lịch PENDING, CONFIRMED, hoặc WAITING_FOR_APPROVAL, không cho đặt lịch mới.
+            log.warn("Customer {} tried to book for vehicle {} which already has an active appointment.", customerId, request.getVehicleId());
+            // (Bạn có thể tạo ErrorCode "VEHICLE_HAS_ACTIVE_APPOINTMENT" nếu muốn rõ nghĩa hơn)
             throw new AppException(ErrorCode.APPOINTMENT_ALREADY_EXISTS);
         }
+        // --- KẾT THÚC LOGIC MỚI ---
 
         List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId());
         if (recommendations.isEmpty()) {
-            throw new AppException(ErrorCode.UNCATEGORIZED);
+            // Cải tiến: Ném ra lỗi cụ thể thay vì UNCATEGORIZED
+            log.warn("No maintenance recommendations found for vehicle {}. Cannot create appointment.", vehicle.getId());
+            throw new AppException(ErrorCode.NO_MAINTENANCE_DUE); //
         }
         MaintenanceRecommendationDTO recommendation = recommendations.get(0);
         Integer recommendedMilestoneKm = recommendation.getMilestoneKm();

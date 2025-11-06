@@ -295,398 +295,354 @@ VALUES
 ('WHL-TIRE-VF9', N'Tire VF 9', 4200000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('WHL-TPMS-VF9', N'TPMS valve sensor VF 9', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('WPR-PUMP-VF9', N'Washer fluid pump VF 9', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VF9', N'Wiper blade set VF 9', 780000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'); -- Thêm (ước tính)
+('WPR-BLD-VF9', N'Wiper blade set VF 9', 780000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
+
+-- [THÊM MỚI]
+-- === SPARE PARTS CHO HẠNG MỤC BỊ THIẾU (Ống phanh, Gỉ sét) - THEO TỪNG MODEL ===
+('BRK-HOSE-VF3', N'Bộ ống dầu phanh VF 3', 500000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF3', N'Hóa chất phủ gầm VF 3 (Lon)', 300000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF5', N'Bộ ống dầu phanh VF 5', 550000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF5', N'Hóa chất phủ gầm VF 5 (Lon)', 300000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF6', N'Bộ ống dầu phanh VF 6', 570000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF6', N'Hóa chất phủ gầm VF 6 (Lon)', 350000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF7', N'Bộ ống dầu phanh VF 7', 580000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF7', N'Hóa chất phủ gầm VF 7 (Lon)', 350000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VFE34', N'Bộ ống dầu phanh VFe34', 600000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VFE34', N'Hóa chất phủ gầm VFe34 (Lon)', 400000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF8', N'Bộ ống dầu phanh VF 8', 610000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF8', N'Hóa chất phủ gầm VF 8 (Lon)', 400000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF9', N'Bộ ống dầu phanh VF 9', 620000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF9', N'Hóa chất phủ gầm VF 9 (Lon)', 400000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM');
+-- [BẮT ĐẦU PHẦN THAY THẾ TOÀN BỘ PHẦN 9]
+
 
 -- =================================================================
--- 9. MODEL_PACKAGE_ITEMS (Dữ liệu CHUẨN)
--- 9.x.A: Dữ liệu theo lịch trình chuẩn (Dùng khi Đặt lịch)
--- 9.x.B: Dữ liệu giá nâng cấp REPLACE (Dùng khi Tech Upgrade, đặt ở mốc 1km)
+-- 9. MODEL_PACKAGE_ITEMS (Dữ liệu CHUẨN - ĐÃ SỬA LỖI TRỪ KHO VÀ FIX NULLS VÀ QUANTITY)
 -- =================================================================
 
 -- ---------------------------------
 -- --- MODEL: VFe34 (model_id=1) ---
--- --- 20 Hạng mục (Items: 1-20) ---
+-- --- IDs Phụ tùng (từ Phần 8): FLT=81, BRK=82, COOL=83, TBOX=84, KEY=3, AC=94, LỐP=97, MÁ PHANH=86, GẠT MƯA=100
+-- --- IDs Mới: ỐNG PHANH=149, GỈ SÉT=150
 -- ---------------------------------
 
--- 9.1.A: Dữ liệu VFe34 theo lịch trình (từ ảnh image_bf8e3c.jpg)
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (1, 12000, 1, 670000, 'REPLACE'), (1, 12000, 2, 50000, 'CHECK'), (1, 12000, 3, 50000, 'CHECK'), (1, 12000, 4, 30000, 'CHECK'), (1, 12000, 5, 30000, 'CHECK'), (1, 12000, 6, 40000, 'CHECK'), (1, 12000, 7, 50000, 'CHECK'), (1, 12000, 8, 50000, 'CHECK'), (1, 12000, 9, 40000, 'CHECK'), (1, 12000, 10, 50000, 'CHECK'), (1, 12000, 11, 50000, 'CHECK'), (1, 12000, 12, 40000, 'CHECK'), (1, 12000, 13, 40000, 'CHECK'), (1, 12000, 14, 50000, 'CHECK'), (1, 12000, 15, 40000, 'CHECK'), (1, 12000, 16, 50000, 'CHECK'), (1, 12000, 17, 50000, 'CHECK'), (1, 12000, 18, 30000, 'CHECK'), (1, 12000, 19, 40000, 'CHECK'), (1, 12000, 20, 30000, 'CHECK');
--- Mốc 24000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (1, 24000, 1, 670000, 'REPLACE'), (1, 24000, 2, 630000, 'REPLACE'), (1, 24000, 3, 50000, 'CHECK'), (1, 24000, 4, 30000, 'CHECK'), (1, 24000, 5, 30000, 'CHECK'), (1, 24000, 6, 40000, 'CHECK'), (1, 24000, 7, 50000, 'CHECK'), (1, 24000, 8, 50000, 'CHECK'), (1, 24000, 9, 40000, 'CHECK'), (1, 24000, 10, 50000, 'CHECK'), (1, 24000, 11, 50000, 'CHECK'), (1, 24000, 12, 40000, 'CHECK'), (1, 24000, 13, 40000, 'CHECK'), (1, 24000, 14, 50000, 'CHECK'), (1, 24000, 15, 40000, 'CHECK'), (1, 24000, 16, 50000, 'CHECK'), (1, 24000, 17, 50000, 'CHECK'), (1, 24000, 18, 30000, 'CHECK'), (1, 24000, 19, 40000, 'CHECK'), (1, 24000, 20, 30000, 'CHECK');
--- Mốc 36000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
--- Mốc 48000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 145000, action_type = 'REPLACE' WHERE vehicle_model_id = 1 AND milestone_km = 48000 AND service_item_id = 4;
--- Mốc 60000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 1030000, action_type = 'REPLACE' WHERE vehicle_model_id = 1 AND milestone_km = 60000 AND service_item_id = 6;
--- Mốc 72000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 72000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1400000, action_type = 'REPLACE' WHERE vehicle_model_id = 1 AND milestone_km = 72000 AND service_item_id = 3;
--- Mốc 84000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
--- Mốc 96000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 96000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 48000;
--- Mốc 108000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
--- Mốc 120000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 1, 120000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 60000; -- Dựa trên mốc 60k (có thay nước làm mát)
-UPDATE model_package_items SET price = 630000, action_type = 'REPLACE' WHERE vehicle_model_id = 1 AND milestone_km = 120000 AND service_item_id = 2; -- Thêm thay dầu phanh
-UPDATE model_package_items SET price = 1100000, action_type = 'REPLACE' WHERE vehicle_model_id = 1 AND milestone_km = 120000 AND service_item_id = 5; -- Thêm thay pin T-Box
+-- 9.1.A: Dữ liệu VFe34 theo lịch trình
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (1, 12000, 1, 670000, 'REPLACE', 81, 1), (1, 12000, 2, 50000, 'CHECK', null, 0), (1, 12000, 3, 50000, 'CHECK', null, 0), (1, 12000, 4, 30000, 'CHECK', null, 0), (1, 12000, 5, 30000, 'CHECK', null, 0), (1, 12000, 6, 40000, 'CHECK', null, 0), (1, 12000, 7, 50000, 'CHECK', null, 0), (1, 12000, 8, 50000, 'CHECK', null, 0), (1, 12000, 9, 40000, 'CHECK', null, 0), (1, 12000, 10, 50000, 'CHECK', null, 0), (1, 12000, 11, 50000, 'CHECK', null, 0), (1, 12000, 12, 40000, 'CHECK', null, 0), (1, 12000, 13, 40000, 'CHECK', null, 0), (1, 12000, 14, 50000, 'CHECK', null, 0), (1, 12000, 15, 40000, 'CHECK', null, 0), (1, 12000, 16, 50000, 'CHECK', null, 0), (1, 12000, 17, 50000, 'CHECK', null, 0), (1, 12000, 18, 30000, 'CHECK', null, 0), (1, 12000, 19, 40000, 'CHECK', null, 0), (1, 12000, 20, 30000, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (1, 24000, 1, 670000, 'REPLACE', 81, 1), (1, 24000, 2, 630000, 'REPLACE', 82, 1), (1, 24000, 3, 50000, 'CHECK', null, 0), (1, 24000, 4, 30000, 'CHECK', null, 0), (1, 24000, 5, 30000, 'CHECK', null, 0), (1, 24000, 6, 40000, 'CHECK', null, 0), (1, 24000, 7, 50000, 'CHECK', null, 0), (1, 24000, 8, 50000, 'CHECK', null, 0), (1, 24000, 9, 40000, 'CHECK', null, 0), (1, 24000, 10, 50000, 'CHECK', null, 0), (1, 24000, 11, 50000, 'CHECK', null, 0), (1, 24000, 12, 40000, 'CHECK', null, 0), (1, 24000, 13, 40000, 'CHECK', null, 0), (1, 24000, 14, 50000, 'CHECK', null, 0), (1, 24000, 15, 40000, 'CHECK', null, 0), (1, 24000, 16, 50000, 'CHECK', null, 0), (1, 24000, 17, 50000, 'CHECK', null, 0), (1, 24000, 18, 30000, 'CHECK', null, 0), (1, 24000, 19, 40000, 'CHECK', null, 0), (1, 24000, 20, 30000, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 36000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 48000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 145000, action_type = 'REPLACE', included_spare_part_id = 3, included_quantity = 1 WHERE vehicle_model_id = 1 AND milestone_km = 48000 AND service_item_id = 4;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 60000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 1030000, action_type = 'REPLACE', included_spare_part_id = 83, included_quantity = 1 WHERE vehicle_model_id = 1 AND milestone_km = 60000 AND service_item_id = 6;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 72000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1400000, action_type = 'REPLACE', included_spare_part_id = 94, included_quantity = 1 WHERE vehicle_model_id = 1 AND milestone_km = 72000 AND service_item_id = 3;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 84000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 96000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 48000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 108000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 1, 120000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 1 AND milestone_km = 60000;
+UPDATE model_package_items SET price = 630000, action_type = 'REPLACE', included_spare_part_id = 82, included_quantity = 1 WHERE vehicle_model_id = 1 AND milestone_km = 120000 AND service_item_id = 2;
+UPDATE model_package_items SET price = 1100000, action_type = 'REPLACE', included_spare_part_id = 84, included_quantity = 1 WHERE vehicle_model_id = 1 AND milestone_km = 120000 AND service_item_id = 5;
 
--- 9.1.B: Dữ liệu VFe34 "Nâng cấp" (Đặt tại Mốc 1km)
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (1, 1, 2, 630000, 'REPLACE'),    -- (Giá Dầu phanh từ mốc 24k)
-                                                                                                          (1, 1, 3, 1400000, 'REPLACE'),   -- (Giá HĐH từ mốc 72k)
-                                                                                                          (1, 1, 4, 145000, 'REPLACE'),    -- (Giá Pin chìa khóa từ mốc 48k)
-                                                                                                          (1, 1, 5, 1100000, 'REPLACE'),   -- (Giá Pin T-Box từ mốc 120k)
-                                                                                                          (1, 1, 6, 1030000, 'REPLACE'),   -- (Giá Nước làm mát từ mốc 60k)
-                                                                                                          (1, 1, 7, 3150000, 'REPLACE'),   -- (Giá Lốp WHL-TIRE-VFE34 2950k + Công 200k)
-                                                                                                          (1, 1, 8, 1580000, 'REPLACE'),   -- (Giá Má phanh BRK-PAD-F-VFE34 1380k + Công 200k)
-                                                                                                          (1, 1, 9, 800000, 'REPLACE'),    -- (Giá Ống phanh - Ước tính 600k + Công 200k)
-                                                                                                          (1, 1, 10, 3500000, 'REPLACE'),  -- (Giá Bộ dẫn động DRV-AXLE-VFE34 3000k + Công 500k)
-                                                                                                          (1, 1, 11, 2900000, 'REPLACE'),  -- (Giá Hệ thống treo SUS-SHOCK-F-VFE34 2500k + Công 400k)
-                                                                                                          (1, 1, 12, 3500000, 'REPLACE'),  -- (Giá Trục truyền động DRV-AXLE-VFE34 3000k + Công 500k)
-                                                                                                          (1, 1, 13, 1150000, 'REPLACE'),  -- (Giá Khớp cầu SUS-BALLJ-VFE34 900k + Công 250k)
-                                                                                                          (1, 1, 14, 1150000, 'REPLACE'),  -- (Giá Thước lái SUS-TIEROD-VFE34 850k + Công 300k)
-                                                                                                          (1, 1, 15, 800000, 'REPLACE'),   -- (Giá Ống làm mát COOL-HOSE-VFE34 600k + Công 200k)
-                                                                                                          (1, 1, 16, 2100000, 'REPLACE'),  -- (Giá Pin HV-FUSE-VFE34 1600k + Công 500k)
-                                                                                                          (1, 1, 17, 7800000, 'REPLACE'),  -- (Giá Dây cáp HV-CABLE-VFE34 6800k + Công 1000k)
-                                                                                                          (1, 1, 18, 7800000, 'REPLACE'),  -- (Giá Cổng sạc - Dùng giá Dây cáp)
-                                                                                                          (1, 1, 19, 4900000, 'REPLACE'),  -- (Giá Ắc quy BAT-12V-VFE34 4700k + Công 200k)
-                                                                                                          (1, 1, 20, 700000, 'REPLACE');   -- (Giá Gạt mưa WPR-BLD-VFE34 550k + Công 150k)
+-- 9.1.B: Dữ liệu VFe34 "Nâng cấp" (Mốc 1km)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (1, 1, 2, 630000, 'REPLACE', 82, 1),
+                                                                                                                                                     (1, 1, 3, 1400000, 'REPLACE', 94, 1),
+                                                                                                                                                     (1, 1, 4, 145000, 'REPLACE', 3, 1),
+                                                                                                                                                     (1, 1, 5, 1100000, 'REPLACE', 84, 1),
+                                                                                                                                                     (1, 1, 6, 1030000, 'REPLACE', 83, 1),
+                                                                                                                                                     (1, 1, 7, 12000000, 'REPLACE', 97, 4), -- (FIXED) Lốp (ID 97) * 4
+                                                                                                                                                     (1, 1, 8, 2860000, 'REPLACE', 86, 1), -- (FIXED) Má phanh (ID 86 - F) + (ID 87 - R) -> Dùng 1 set F
+                                                                                                                                                     (1, 1, 9, 800000, 'REPLACE', 149, 1), -- (FIXED) Ống phanh -> ID 149
+                                                                                                                                                     (1, 1, 10, 3500000, 'REPLACE', 92, 1),
+                                                                                                                                                     (1, 1, 11, 2900000, 'REPLACE', 89, 1),
+                                                                                                                                                     (1, 1, 12, 3500000, 'REPLACE', 92, 1),
+                                                                                                                                                     (1, 1, 13, 1150000, 'REPLACE', 90, 1),
+                                                                                                                                                     (1, 1, 14, 1150000, 'REPLACE', 91, 1),
+                                                                                                                                                     (1, 1, 15, 800000, 'REPLACE', 93, 1),
+                                                                                                                                                     (1, 1, 16, 2100000, 'REPLACE', 96, 1),
+                                                                                                                                                     (1, 1, 17, 7800000, 'REPLACE', 95, 1),
+                                                                                                                                                     (1, 1, 18, 7800000, 'REPLACE', 95, 1),
+                                                                                                                                                     (1, 1, 19, 4900000, 'REPLACE', 85, 1),
+                                                                                                                                                     (1, 1, 20, 700000, 'REPLACE', 100, 1);
 
 
 -- ---------------------------------
 -- --- MODEL: VF 3 (model_id=2) ---
--- --- 17 Hạng mục (Items: 1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21) ---
+-- --- IDs Phụ tùng (từ Phần 8): FLT=1, BRK=2, GẠT MƯA=20, AC=14, LỐP=17, MÁ PHANH F=6
+-- --- IDs Mới: ỐNG PHANH=141, GỈ SÉT=142
 -- ---------------------------------
 
--- 9.2.A: Dữ liệu VF 3 theo lịch trình (từ ảnh image_bf8e44.jpg)
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (2, 12000, 1, 610000, 'REPLACE'), (2, 12000, 20, 30000, 'CHECK'), (2, 12000, 3, 40000, 'CHECK'), (2, 12000, 2, 40000, 'CHECK'), (2, 12000, 7, 40000, 'CHECK'), (2, 12000, 8, 40000, 'CHECK'), (2, 12000, 9, 30000, 'CHECK'), (2, 12000, 10, 40000, 'CHECK'), (2, 12000, 11, 40000, 'CHECK'), (2, 12000, 12, 30000, 'CHECK'), (2, 12000, 13, 30000, 'CHECK'), (2, 12000, 14, 40000, 'CHECK'), (2, 12000, 16, 50000, 'CHECK'), (2, 12000, 17, 40000, 'CHECK'), (2, 12000, 18, 20000, 'CHECK'), (2, 12000, 19, 30000, 'CHECK'), (2, 12000, 21, 30000, 'CHECK');
--- Mốc 24000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 24000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 580000, action_type = 'REPLACE' WHERE vehicle_model_id = 2 AND milestone_km = 24000 AND service_item_id = 2;
--- Mốc 36000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
--- Mốc 48000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 580000, action_type = 'REPLACE' WHERE vehicle_model_id = 2 AND milestone_km = 48000 AND service_item_id = 20;
--- Mốc 60000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
--- Mốc 72000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 72000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 24000;
--- Mốc 84000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
--- Mốc 96000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 96000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 48000;
--- Mốc 108000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 1240000, action_type = 'REPLACE' WHERE vehicle_model_id = 2 AND milestone_km = 108000 AND service_item_id = 3;
--- Mốc 120000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 2, 120000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 24000;
+-- 9.2.A: Dữ liệu VF 3 theo lịch trình
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (2, 12000, 1, 610000, 'REPLACE', 1, 1), (2, 12000, 20, 30000, 'CHECK', null, 0), (2, 12000, 3, 40000, 'CHECK', null, 0), (2, 12000, 2, 40000, 'CHECK', null, 0), (2, 12000, 7, 40000, 'CHECK', null, 0), (2, 12000, 8, 40000, 'CHECK', null, 0), (2, 12000, 9, 30000, 'CHECK', null, 0), (2, 12000, 10, 40000, 'CHECK', null, 0), (2, 12000, 11, 40000, 'CHECK', null, 0), (2, 12000, 12, 30000, 'CHECK', null, 0), (2, 12000, 13, 30000, 'CHECK', null, 0), (2, 12000, 14, 40000, 'CHECK', null, 0), (2, 12000, 16, 50000, 'CHECK', null, 0), (2, 12000, 17, 40000, 'CHECK', null, 0), (2, 12000, 18, 20000, 'CHECK', null, 0), (2, 12000, 19, 30000, 'CHECK', null, 0), (2, 12000, 21, 30000, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 24000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 580000, action_type = 'REPLACE', included_spare_part_id = 2, included_quantity = 1 WHERE vehicle_model_id = 2 AND milestone_km = 24000 AND service_item_id = 2;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 36000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 48000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 580000, action_type = 'REPLACE', included_spare_part_id = 20, included_quantity = 1 WHERE vehicle_model_id = 2 AND milestone_km = 48000 AND service_item_id = 20;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 60000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 72000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 24000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 84000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 96000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 48000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 108000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 1240000, action_type = 'REPLACE', included_spare_part_id = 14, included_quantity = 1 WHERE vehicle_model_id = 2 AND milestone_km = 108000 AND service_item_id = 3;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 2, 120000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 2 AND milestone_km = 24000;
 
--- 9.2.B: Dữ liệu VF 3 "Nâng cấp" (Đặt tại Mốc 1km)
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (2, 1, 20, 580000, 'REPLACE'), -- (Giá Gạt mưa WPR-BLD-VF3 480k + Công 100k)
-                                                                                                          (2, 1, 3, 1240000, 'REPLACE'), -- (Giá HĐH AC-VALVE-VF3 990k + Công 250k)
-                                                                                                          (2, 1, 2, 580000, 'REPLACE'), -- (Giá Dầu phanh FLD-BRK-VF3 380k + Công 200k)
-                                                                                                          (2, 1, 7, 2050000, 'REPLACE'), -- (Giá Lốp WHL-TIRE-VF3 1850k + Công 200k)
-                                                                                                          (2, 1, 8, 1190000, 'REPLACE'), -- (Giá Má phanh BRK-PAD-F-VF3 990k + Công 200k)
-                                                                                                          (2, 1, 9, 720000, 'REPLACE'), -- (Giá Ống phanh - Ước tính 520k + Công 200k)
-                                                                                                          (2, 1, 10, 2950000, 'REPLACE'), -- (Giá Bộ dẫn động DRV-AXLE-VF3 2450k + Công 500k)
-                                                                                                          (2, 1, 11, 2350000, 'REPLACE'), -- (Giá HT treo SUS-SHOCK-F-VF3 1950k + Công 400k)
-                                                                                                          (2, 1, 12, 2950000, 'REPLACE'), -- (Giá Trục C/S DRV-AXLE-VF3 2450k + Công 500k)
-                                                                                                          (2, 1, 13, 980000, 'REPLACE'), -- (Giá Khớp cầu SUS-BALLJ-VF3 780k + Công 200k)
-                                                                                                          (2, 1, 14, 1020000, 'REPLACE'), -- (Giá Thước lái SUS-TIEROD-VF3 720k + Công 300k)
-                                                                                                          (2, 1, 16, 1950000, 'REPLACE'), -- (Giá Pin HV-FUSE-VF3 1450k + Công 500k)
-                                                                                                          (2, 1, 17, 7200000, 'REPLACE'), -- (Giá Dây cáp HV-CABLE-VF3 6200k + Công 1000k)
-                                                                                                          (2, 1, 18, 7200000, 'REPLACE'), -- (Giá Cổng sạc - Dùng giá Dây cáp)
-                                                                                                          (2, 1, 19, 4500000, 'REPLACE'), -- (Giá Ắc quy BAT-12V-VF3 4300k + Công 200k)
-                                                                                                          (2, 1, 21, 500000, 'REPLACE'), -- (Giá Gỉ sét gầm - Ước tính 500k)
-                                                                                                          (2, 1, 22, 1050000, 'REPLACE'); -- (Giá Vành WHL-TPMS-VF3 850k + Công 200k)
+-- 9.2.B: Dữ liệu VF 3 "Nâng cấp" (Mốc 1km)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (2, 1, 20, 580000, 'REPLACE', 20, 1),
+                                                                                                                                                     (2, 1, 3, 1240000, 'REPLACE', 14, 1),
+                                                                                                                                                     (2, 1, 2, 580000, 'REPLACE', 2, 1),
+                                                                                                                                                     (2, 1, 7, 7600000, 'REPLACE', 17, 4), -- (FIXED) Lốp (ID 17) * 4
+                                                                                                                                                     (2, 1, 8, 2110000, 'REPLACE', 6, 1), -- (FIXED) Má phanh (ID 6 - F) + (ID 7 - R) -> Dùng 1 set F
+                                                                                                                                                     (2, 1, 9, 720000, 'REPLACE', 141, 1), -- (FIXED) Ống phanh -> ID 141
+                                                                                                                                                     (2, 1, 10, 2950000, 'REPLACE', 12, 1),
+                                                                                                                                                     (2, 1, 11, 2350000, 'REPLACE', 9, 1),
+                                                                                                                                                     (2, 1, 12, 2950000, 'REPLACE', 12, 1),
+                                                                                                                                                     (2, 1, 13, 980000, 'REPLACE', 10, 1),
+                                                                                                                                                     (2, 1, 14, 1020000, 'REPLACE', 11, 1),
+                                                                                                                                                     (2, 1, 16, 1950000, 'REPLACE', 16, 1),
+                                                                                                                                                     (2, 1, 17, 7200000, 'REPLACE', 15, 1),
+                                                                                                                                                     (2, 1, 18, 7200000, 'REPLACE', 15, 1),
+                                                                                                                                                     (2, 1, 19, 4500000, 'REPLACE', 5, 1),
+                                                                                                                                                     (2, 1, 21, 500000, 'REPLACE', 142, 1), -- (FIXED) Gỉ sét gầm -> ID 142
+                                                                                                                                                     (2, 1, 22, 1050000, 'REPLACE', 18, 1);
 
 
 -- ---------------------------------
 -- --- MODEL: VF 5 (model_id=3) ---
--- --- 21 Hạng mục (Items: 1, 2, 3, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27) ---
+-- --- IDs Phụ tùng (từ Phần 8): FLT=21, BRK=22, TBOX=24, COOL=23, GẠT MƯA=40, AC=34, LỐP=37, MÁ PHANH F=26
+-- --- IDs Mới: ỐNG PHANH=143, GỈ SÉT=144
 -- ---------------------------------
 
--- 9.3.A: Dữ liệu VF 5 theo lịch trình (từ ảnh image_bf8e62.png)
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (3, 12000, 1, 630000, 'REPLACE'), (3, 12000, 20, 25000, 'CHECK'), (3, 12000, 3, 45000, 'CHECK'), (3, 12000, 5, 25000, 'CHECK'), (3, 12000, 6, 35000, 'CHECK'), (3, 12000, 2, 45000, 'CHECK'), (3, 12000, 7, 45000, 'CHECK'), (3, 12000, 22, 45000, 'CHECK'), (3, 12000, 8, 45000, 'CHECK'), (3, 12000, 9, 35000, 'CHECK'), (3, 12000, 10, 45000, 'CHECK'), (3, 12000, 23, 45000, 'CHECK'), (3, 12000, 24, 35000, 'CHECK'), (3, 12000, 25, 35000, 'CHECK'), (3, 12000, 26, 45000, 'CHECK'), (3, 12000, 27, 35000, 'CHECK'), (3, 12000, 16, 50000, 'CHECK'), (3, 12000, 17, 45000, 'CHECK'), (3, 12000, 18, 25000, 'CHECK'), (3, 12000, 19, 35000, 'CHECK'), (3, 12000, 21, 35000, 'CHECK');
--- Mốc 24000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 24000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 600000, action_type = 'REPLACE' WHERE vehicle_model_id = 3 AND milestone_km = 24000 AND service_item_id = 2;
--- Mốc 36000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
--- Mốc 48000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
--- Mốc 60000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
--- Mốc 72000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 72000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1080000, action_type = 'REPLACE' WHERE vehicle_model_id = 3 AND milestone_km = 72000 AND service_item_id = 5;
--- Mốc 84000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
--- Mốc 96000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 96000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
--- Mốc 108000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
--- Mốc 120000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 3, 120000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1030000, action_type = 'REPLACE' WHERE vehicle_model_id = 3 AND milestone_km = 120000 AND service_item_id = 6;
-UPDATE model_package_items SET price = 1270000, action_type = 'REPLACE' WHERE vehicle_model_id = 3 AND milestone_km = 120000 AND service_item_id = 3;
+-- 9.3.A: Dữ liệu VF 5 theo lịch trình
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (3, 12000, 1, 630000, 'REPLACE', 21, 1), (3, 12000, 20, 25000, 'CHECK', null, 0), (3, 12000, 3, 45000, 'CHECK', null, 0), (3, 12000, 5, 25000, 'CHECK', null, 0), (3, 12000, 6, 35000, 'CHECK', null, 0), (3, 12000, 2, 45000, 'CHECK', null, 0), (3, 12000, 7, 45000, 'CHECK', null, 0), (3, 12000, 22, 45000, 'CHECK', null, 0), (3, 12000, 8, 45000, 'CHECK', null, 0), (3, 12000, 9, 35000, 'CHECK', null, 0), (3, 12000, 10, 45000, 'CHECK', null, 0), (3, 12000, 23, 45000, 'CHECK', null, 0), (3, 12000, 24, 35000, 'CHECK', null, 0), (3, 12000, 25, 35000, 'CHECK', null, 0), (3, 12000, 26, 45000, 'CHECK', null, 0), (3, 12000, 27, 35000, 'CHECK', null, 0), (3, 12000, 16, 50000, 'CHECK', null, 0), (3, 12000, 17, 45000, 'CHECK', null, 0), (3, 12000, 18, 25000, 'CHECK', null, 0), (3, 12000, 19, 35000, 'CHECK', null, 0), (3, 12000, 21, 35000, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 24000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 600000, action_type = 'REPLACE', included_spare_part_id = 22, included_quantity = 1 WHERE vehicle_model_id = 3 AND milestone_km = 24000 AND service_item_id = 2;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 36000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 48000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 60000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 72000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1080000, action_type = 'REPLACE', included_spare_part_id = 24, included_quantity = 1 WHERE vehicle_model_id = 3 AND milestone_km = 72000 AND service_item_id = 5;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 84000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 96000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 108000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 3, 120000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 3 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1030000, action_type = 'REPLACE', included_spare_part_id = 23, included_quantity = 1 WHERE vehicle_model_id = 3 AND milestone_km = 120000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1270000, action_type = 'REPLACE', included_spare_part_id = 34, included_quantity = 1 WHERE vehicle_model_id = 3 AND milestone_km = 120000 AND service_item_id = 3;
 
--- 9.3.B: Dữ liệu VF 5 "Nâng cấp" (Đặt tại Mốc 1km)
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (3, 1, 20, 650000, 'REPLACE'), -- (Giá Gạt mưa WPR-BLD-VF5 500k + Công 150k)
-                                                                                                          (3, 1, 3, 1270000, 'REPLACE'), -- (Giá HĐH AC-VALVE-VF5 1020k + Công 250k)
-                                                                                                          (3, 1, 5, 1080000, 'REPLACE'), -- (Giá Pin T-Box BAT-TBOX-VF5 680k + Công 400k)
-                                                                                                          (3, 1, 6, 1030000, 'REPLACE'), -- (Giá Nước làm mát FLD-COOL-VF5 650k + Công 380k)
-                                                                                                          (3, 1, 2, 600000, 'REPLACE'), -- (Giá Dầu phanh FLD-BRK-VF5 380k + Công 220k)
-                                                                                                          (3, 1, 7, 2250000, 'REPLACE'), -- (Giá Lốp WHL-TIRE-VF5 2050k + Công 200k)
-                                                                                                          (3, 1, 22, 1060000, 'REPLACE'), -- (Giá Vành WHL-TPMS-VF5 860k + Công 200k)
-                                                                                                          (3, 1, 8, 1220000, 'REPLACE'), -- (Giá Má phanh BRK-PAD-F-VF5 1020k + Công 200k)
-                                                                                                          (3, 1, 9, 750000, 'REPLACE'), -- (Giá Ống phanh - Ước tính 550k + Công 200k)
-                                                                                                          (3, 1, 10, 3080000, 'REPLACE'), -- (Giá Bộ dẫn động DRV-AXLE-VF5 2580k + Công 500k)
-                                                                                                          (3, 1, 23, 2420000, 'REPLACE'), -- (Giá Cầu xe/HT treo SUS-SHOCK-F-VF5 2020k + Công 400k)
-                                                                                                          (3, 1, 24, 3080000, 'REPLACE'), -- (Giá Trục C/S DRV-AXLE-VF5 2580k + Công 500k)
-                                                                                                          (3, 1, 25, 1020000, 'REPLACE'), -- (Giá Khớp cầu SUS-BALLJ-VF5 820k + Công 200k)
-                                                                                                          (3, 1, 26, 1060000, 'REPLACE'), -- (Giá Cơ cấu lái SUS-TIEROD-VF5 760k + Công 300k)
-                                                                                                          (3, 1, 27, 750000, 'REPLACE'), -- (Giá Ống làm mát COOL-HOSE-VF5 550k + Công 200k)
-                                                                                                          (3, 1, 16, 2020000, 'REPLACE'), -- (Giá Pin HV-FUSE-VF5 1520k + Công 500k)
-                                                                                                          (3, 1, 17, 7400000, 'REPLACE'), -- (Giá Dây cáp HV-CABLE-VF5 6400k + Công 1000k)
-                                                                                                          (3, 1, 18, 7400000, 'REPLACE'), -- (Giá Cổng sạc - Dùng giá Dây cáp)
-                                                                                                          (3, 1, 19, 4500000, 'REPLACE'), -- (Giá Ắc quy BAT-12V-VF5 4300k + Công 200k)
-                                                                                                          (3, 1, 21, 500000, 'REPLACE'); -- (Giá Gỉ sét gầm - Ước tính 500k)
+-- 9.3.B: Dữ liệu VF 5 "Nâng cấp" (Mốc 1km)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (3, 1, 20, 650000, 'REPLACE', 40, 1),
+                                                                                                                                                     (3, 1, 3, 1270000, 'REPLACE', 34, 1),
+                                                                                                                                                     (3, 1, 5, 1080000, 'REPLACE', 24, 1),
+                                                                                                                                                     (3, 1, 6, 1030000, 'REPLACE', 23, 1),
+                                                                                                                                                     (3, 1, 2, 600000, 'REPLACE', 22, 1),
+                                                                                                                                                     (3, 1, 7, 8400000, 'REPLACE', 37, 4), -- (FIXED) Lốp (ID 37) * 4
+                                                                                                                                                     (3, 1, 22, 1060000, 'REPLACE', 38, 1),
+                                                                                                                                                     (3, 1, 8, 2180000, 'REPLACE', 26, 1), -- (FIXED) Má phanh (ID 26 - F) + (ID 27 - R) -> Dùng 1 set F
+                                                                                                                                                     (3, 1, 9, 750000, 'REPLACE', 143, 1), -- (FIXED) Ống phanh -> ID 143
+                                                                                                                                                     (3, 1, 10, 3080000, 'REPLACE', 32, 1),
+                                                                                                                                                     (3, 1, 23, 2420000, 'REPLACE', 29, 1),
+                                                                                                                                                     (3, 1, 24, 3080000, 'REPLACE', 32, 1),
+                                                                                                                                                     (3, 1, 25, 1020000, 'REPLACE', 30, 1),
+                                                                                                                                                     (3, 1, 26, 1060000, 'REPLACE', 31, 1),
+                                                                                                                                                     (3, 1, 27, 750000, 'REPLACE', 33, 1),
+                                                                                                                                                     (3, 1, 16, 2020000, 'REPLACE', 36, 1),
+                                                                                                                                                     (3, 1, 17, 7400000, 'REPLACE', 35, 1),
+                                                                                                                                                     (3, 1, 18, 7400000, 'REPLACE', 35, 1),
+                                                                                                                                                     (3, 1, 19, 4500000, 'REPLACE', 25, 1),
+                                                                                                                                                     (3, 1, 21, 500000, 'REPLACE', 144, 1); -- (FIXED) Gỉ sét gầm -> ID 144
 
 -- ---------------------------------
 -- --- MODEL: VF 6 (model_id=4) ---
--- --- 21 Hạng mục (Items: 1, 2, 3, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27) ---
+-- --- IDs Phụ tùng (từ Phần 8): FLT=41, BRK=42, COOL=43, TBOX=44, GẠT MƯA=45, AC=55, LỐP=58, MÁ PHANH F=47
+-- --- IDs Mới: ỐNG PHANH=145, GỈ SÉT=146
 -- ---------------------------------
 
--- 9.4.A: Dữ liệu VF 6 theo lịch trình (từ ảnh image_bf8e7e.png)
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (4, 12000, 1, 674000, 'REPLACE'), (4, 12000, 20, 27500, 'CHECK'), (4, 12000, 3, 49500, 'CHECK'), (4, 12000, 5, 27500, 'CHECK'), (4, 12000, 6, 38500, 'CHECK'), (4, 12000, 2, 49500, 'CHECK'), (4, 12000, 7, 49500, 'CHECK'), (4, 12000, 22, 49500, 'CHECK'), (4, 12000, 8, 49500, 'CHECK'), (4, 12000, 9, 38500, 'CHECK'), (4, 12000, 10, 49500, 'CHECK'), (4, 12000, 23, 49500, 'CHECK'), (4, 12000, 24, 38500, 'CHECK'), (4, 12000, 25, 38500, 'CHECK'), (4, 12000, 26, 49500, 'CHECK'), (4, 12000, 27, 38500, 'CHECK'), (4, 12000, 16, 55000, 'CHECK'), (4, 12000, 17, 49500, 'CHECK'), (4, 12000, 18, 27500, 'CHECK'), (4, 12000, 19, 38500, 'CHECK'), (4, 12000, 21, 38500, 'CHECK');
--- Mốc 24000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 24000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 622000, action_type = 'REPLACE' WHERE vehicle_model_id = 4 AND milestone_km = 24000 AND service_item_id = 2;
--- Mốc 36000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
--- Mốc 48000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 870000, action_type = 'REPLACE' WHERE vehicle_model_id = 4 AND milestone_km = 48000 AND service_item_id = 20;
--- Mốc 60000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
--- Mốc 72000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 72000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1120000, action_type = 'REPLACE' WHERE vehicle_model_id = 4 AND milestone_km = 72000 AND service_item_id = 5;
--- Mốc 84000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
--- Mốc 96000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 96000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 48000;
--- Mốc 108000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
--- Mốc 120000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 4, 120000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1068000, action_type = 'REPLACE' WHERE vehicle_model_id = 4 AND milestone_km = 120000 AND service_item_id = 6;
-UPDATE model_package_items SET price = 1350000, action_type = 'REPLACE' WHERE vehicle_model_id = 4 AND milestone_km = 120000 AND service_item_id = 3;
+-- 9.4.A: Dữ liệu VF 6 theo lịch trình
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (4, 12000, 1, 674000, 'REPLACE', 41, 1), (4, 12000, 20, 27500, 'CHECK', null, 0), (4, 12000, 3, 49500, 'CHECK', null, 0), (4, 12000, 5, 27500, 'CHECK', null, 0), (4, 12000, 6, 38500, 'CHECK', null, 0), (4, 12000, 2, 49500, 'CHECK', null, 0), (4, 12000, 7, 49500, 'CHECK', null, 0), (4, 12000, 22, 49500, 'CHECK', null, 0), (4, 12000, 8, 49500, 'CHECK', null, 0), (4, 12000, 9, 38500, 'CHECK', null, 0), (4, 12000, 10, 49500, 'CHECK', null, 0), (4, 12000, 23, 49500, 'CHECK', null, 0), (4, 12000, 24, 38500, 'CHECK', null, 0), (4, 12000, 25, 38500, 'CHECK', null, 0), (4, 12000, 26, 49500, 'CHECK', null, 0), (4, 12000, 27, 38500, 'CHECK', null, 0), (4, 12000, 16, 55000, 'CHECK', null, 0), (4, 12000, 17, 49500, 'CHECK', null, 0), (4, 12000, 18, 27500, 'CHECK', null, 0), (4, 12000, 19, 38500, 'CHECK', null, 0), (4, 12000, 21, 38500, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 24000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 622000, action_type = 'REPLACE', included_spare_part_id = 42, included_quantity = 1 WHERE vehicle_model_id = 4 AND milestone_km = 24000 AND service_item_id = 2;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 36000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 48000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 870000, action_type = 'REPLACE', included_spare_part_id = 45, included_quantity = 1 WHERE vehicle_model_id = 4 AND milestone_km = 48000 AND service_item_id = 20;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 60000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 72000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1120000, action_type = 'REPLACE', included_spare_part_id = 44, included_quantity = 1 WHERE vehicle_model_id = 4 AND milestone_km = 72000 AND service_item_id = 5;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 84000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 96000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 48000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 108000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 4, 120000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 4 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1068000, action_type = 'REPLACE', included_spare_part_id = 43, included_quantity = 1 WHERE vehicle_model_id = 4 AND milestone_km = 120000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1350000, action_type = 'REPLACE', included_spare_part_id = 55, included_quantity = 1 WHERE vehicle_model_id = 4 AND milestone_km = 120000 AND service_item_id = 3;
 
--- 9.4.B: Dữ liệu VF 6 "Nâng cấp" (Đặt tại Mốc 1km)
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (4, 1, 20, 870000, 'REPLACE'), -- (Giá Gạt mưa WPR-BLD-VF6 720k + Công 150k)
-                                                                                                          (4, 1, 3, 1350000, 'REPLACE'), -- (Giá HĐH AC-VALVE-VF6 1050k + Công 300k)
-                                                                                                          (4, 1, 5, 1080000, 'REPLACE'), -- (Giá Pin T-Box BAT-TBOX-VF6 680k + Công 400k)
-                                                                                                          (4, 1, 6, 1050000, 'REPLACE'), -- (Giá Nước làm mát FLD-COOL-VF6 650k + Công 400k)
-                                                                                                          (4, 1, 2, 620000, 'REPLACE'), -- (Giá Dầu phanh FLD-BRK-VF6 380k + Công 240k)
-                                                                                                          (4, 1, 7, 2650000, 'REPLACE'), -- (Giá Lốp WHL-TIRE-VF6 2450k + Công 200k)
-                                                                                                          (4, 1, 22, 1060000, 'REPLACE'), -- (Giá Vành WHL-TPMS-VF6 860k + Công 200k)
-                                                                                                          (4, 1, 8, 1350000, 'REPLACE'), -- (Giá Má phanh BRK-PAD-F-VF6 1150k + Công 200k)
-                                                                                                          (4, 1, 9, 770000, 'REPLACE'), -- (Giá Ống phanh - Ước tính 570k + Công 200k)
-                                                                                                          (4, 1, 10, 3200000, 'REPLACE'), -- (Giá Bộ dẫn động DRV-AXLE-VF6 2700k + Công 500k)
-                                                                                                          (4, 1, 23, 2600000, 'REPLACE'), -- (Giá Cầu xe/HT treo SUS-SHOCK-F-VF6 2200k + Công 400k)
-                                                                                                          (4, 1, 24, 3200000, 'REPLACE'), -- (Giá Trục C/S DRV-AXLE-VF6 2700k + Công 500k)
-                                                                                                          (4, 1, 25, 1050000, 'REPLACE'), -- (Giá Khớp cầu SUS-BALLJ-VF6 850k + Công 200k)
-                                                                                                          (4, 1, 26, 1090000, 'REPLACE'), -- (Giá Cơ cấu lái SUS-TIEROD-VF6 790k + Công 300k)
-                                                                                                          (4, 1, 27, 770000, 'REPLACE'), -- (Giá Ống làm mát COOL-HOSE-VF6 570k + Công 200k)
-                                                                                                          (4, 1, 16, 2050000, 'REPLACE'), -- (Giá Pin HV-FUSE-VF6 1550k + Công 500k)
-                                                                                                          (4, 1, 17, 7500000, 'REPLACE'), -- (Giá Dây cáp HV-CABLE-VF6 6500k + Công 1000k)
-                                                                                                          (4, 1, 18, 7500000, 'REPLACE'), -- (Giá Cổng sạc - Dùng giá Dây cáp)
-                                                                                                          (4, 1, 19, 4900000, 'REPLACE'), -- (Giá Ắc quy BAT-12V-VF6 4700k + Công 200k)
-                                                                                                          (4, 1, 21, 600000, 'REPLACE'); -- (Giá Gỉ sét gầm - Ước tính 600k)
+-- 9.4.B: Dữ liệu VF 6 "Nâng cấp" (Mốc 1km)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (4, 1, 20, 870000, 'REPLACE', 45, 1),
+                                                                                                                                                     (4, 1, 3, 1350000, 'REPLACE', 55, 1),
+                                                                                                                                                     (4, 1, 5, 1080000, 'REPLACE', 44, 1),
+                                                                                                                                                     (4, 1, 6, 1050000, 'REPLACE', 43, 1),
+                                                                                                                                                     (4, 1, 2, 620000, 'REPLACE', 42, 1),
+                                                                                                                                                     (4, 1, 7, 10000000, 'REPLACE', 58, 4), -- (FIXED) Lốp (ID 58) * 4
+                                                                                                                                                     (4, 1, 22, 1060000, 'REPLACE', 59, 1),
+                                                                                                                                                     (4, 1, 8, 2430000, 'REPLACE', 47, 1), -- (FIXED) Má phanh (ID 47 - F) + (ID 48 - R) -> Dùng 1 set F
+                                                                                                                                                     (4, 1, 9, 770000, 'REPLACE', 145, 1), -- (FIXED) Ống phanh -> ID 145
+                                                                                                                                                     (4, 1, 10, 3200000, 'REPLACE', 53, 1),
+                                                                                                                                                     (4, 1, 23, 2600000, 'REPLACE', 50, 1),
+                                                                                                                                                     (4, 1, 24, 3200000, 'REPLACE', 53, 1),
+                                                                                                                                                     (4, 1, 25, 1050000, 'REPLACE', 51, 1),
+                                                                                                                                                     (4, 1, 26, 1090000, 'REPLACE', 52, 1),
+                                                                                                                                                     (4, 1, 27, 770000, 'REPLACE', 54, 1),
+                                                                                                                                                     (4, 1, 16, 2050000, 'REPLACE', 57, 1),
+                                                                                                                                                     (4, 1, 17, 7500000, 'REPLACE', 56, 1),
+                                                                                                                                                     (4, 1, 18, 7500000, 'REPLACE', 56, 1),
+                                                                                                                                                     (4, 1, 19, 4900000, 'REPLACE', 46, 1),
+                                                                                                                                                     (4, 1, 21, 600000, 'REPLACE', 146, 1); -- (FIXED) Gỉ sét gầm -> ID 146
 
 -- ---------------------------------
 -- --- MODEL: VF 7 (model_id=5) ---
--- --- 21 Hạng mục (Items: 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 27) ---
+-- --- IDs Phụ tùng (từ Phần 8): FLT=61, BRK=62, COOL=63, TBOX=64, GẠT MƯA=65, AC=75, LỐP=78, MÁ PHANH F=67
+-- --- IDs Mới: ỐNG PHANH=147, GỈ SÉT=148
 -- ---------------------------------
 
--- 9.5.A: Dữ liệu VF 7 theo lịch trình (từ ảnh image_bf8e99.png)
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (5, 12000, 1, 674000, 'REPLACE'), (5, 12000, 20, 27500, 'CHECK'), (5, 12000, 3, 49500, 'CHECK'), (5, 12000, 5, 27500, 'CHECK'), (5, 12000, 6, 38500, 'CHECK'), (5, 12000, 2, 49500, 'CHECK'), (5, 12000, 7, 49500, 'CHECK'), (5, 12000, 22, 49500, 'CHECK'), (5, 12000, 8, 49500, 'CHECK'), (5, 12000, 9, 38500, 'CHECK'), (5, 12000, 10, 49500, 'CHECK'), (5, 12000, 11, 49500, 'CHECK'), (5, 12000, 12, 38500, 'CHECK'), (5, 12000, 13, 38500, 'CHECK'), (5, 12000, 14, 49500, 'CHECK'), (5, 12000, 27, 38500, 'CHECK'), (5, 12000, 16, 55000, 'CHECK'), (5, 12000, 17, 49500, 'CHECK'), (5, 12000, 18, 27500, 'CHECK'), (5, 12000, 19, 38500, 'CHECK'), (5, 12000, 21, 38500, 'CHECK');
--- Mốc 24000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 24000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 622000, action_type = 'REPLACE' WHERE vehicle_model_id = 5 AND milestone_km = 24000 AND service_item_id = 2;
--- Mốc 36000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
--- Mốc 48000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 880000, action_type = 'REPLACE' WHERE vehicle_model_id = 5 AND milestone_km = 48000 AND service_item_id = 20;
--- Mốc 60000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
--- Mốc 72000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 72000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1120000, action_type = 'REPLACE' WHERE vehicle_model_id = 5 AND milestone_km = 72000 AND service_item_id = 5;
--- Mốc 84000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
--- Mốc 96000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 96000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 48000;
--- Mốc 108000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
--- Mốc 120000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 5, 120000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1068000, action_type = 'REPLACE' WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 6;
-UPDATE model_package_items SET price = 1390000, action_type = 'REPLACE' WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 3;
+-- 9.5.A: Dữ liệu VF 7 theo lịch trình
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (5, 12000, 1, 674000, 'REPLACE', 61, 1), (5, 12000, 20, 27500, 'CHECK', null, 0), (5, 12000, 3, 49500, 'CHECK', null, 0), (5, 12000, 5, 27500, 'CHECK', null, 0), (5, 12000, 6, 38500, 'CHECK', null, 0), (5, 12000, 2, 49500, 'CHECK', null, 0), (5, 12000, 7, 49500, 'CHECK', null, 0), (5, 12000, 22, 49500, 'CHECK', null, 0), (5, 12000, 8, 49500, 'CHECK', null, 0), (5, 12000, 9, 38500, 'CHECK', null, 0), (5, 12000, 10, 49500, 'CHECK', null, 0), (5, 12000, 11, 49500, 'CHECK', null, 0), (5, 12000, 12, 38500, 'CHECK', null, 0), (5, 12000, 13, 38500, 'CHECK', null, 0), (5, 12000, 14, 49500, 'CHECK', null, 0), (5, 12000, 27, 38500, 'CHECK', null, 0), (5, 12000, 16, 55000, 'CHECK', null, 0), (5, 12000, 17, 49500, 'CHECK', null, 0), (5, 12000, 18, 27500, 'CHECK', null, 0), (5, 12000, 19, 38500, 'CHECK', null, 0), (5, 12000, 21, 38500, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 24000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 622000, action_type = 'REPLACE', included_spare_part_id = 62, included_quantity = 1 WHERE vehicle_model_id = 5 AND milestone_km = 24000 AND service_item_id = 2;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 36000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 48000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 880000, action_type = 'REPLACE', included_spare_part_id = 65, included_quantity = 1 WHERE vehicle_model_id = 5 AND milestone_km = 48000 AND service_item_id = 20;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 60000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 72000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1120000, action_type = 'REPLACE', included_spare_part_id = 64, included_quantity = 1 WHERE vehicle_model_id = 5 AND milestone_km = 72000 AND service_item_id = 5;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 84000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 96000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 48000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 108000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 5, 120000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 5 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1068000, action_type = 'REPLACE', included_spare_part_id = 63, included_quantity = 1 WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1390000, action_type = 'REPLACE', included_spare_part_id = 75, included_quantity = 1 WHERE vehicle_model_id = 5 AND milestone_km = 120000 AND service_item_id = 3;
 
--- 9.5.B: Dữ liệu VF 7 "Nâng cấp" (Đặt tại Mốc 1km)
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (5, 1, 20, 880000, 'REPLACE'), -- (Giá Gạt mưa WPR-BLD-VF7 730k + Công 150k)
-                                                                                                          (5, 1, 3, 1390000, 'REPLACE'), -- (Giá HĐH AC-VALVE-VF7 1060k + Công 330k)
-                                                                                                          (5, 1, 5, 1120000, 'REPLACE'), -- (Giá Pin T-Box BAT-TBOX-VF7 680k + Công 440k)
-                                                                                                          (5, 1, 6, 1068000, 'REPLACE'), -- (Giá Nước làm mát FLD-COOL-VF7 650k + Công 418k)
-                                                                                                          (5, 1, 2, 622000, 'REPLACE'), -- (Giá Dầu phanh FLD-BRK-VF7 380k + Công 242k)
-                                                                                                          (5, 1, 7, 2950000, 'REPLACE'), -- (Giá Lốp WHL-TIRE-VF7 2750k + Công 200k)
-                                                                                                          (5, 1, 22, 1060000, 'REPLACE'), -- (Giá Vành WHL-TPMS-VF7 860k + Công 200k)
-                                                                                                          (5, 1, 8, 1360000, 'REPLACE'), -- (Giá Má phanh BRK-PAD-F-VF7 1160k + Công 200k)
-                                                                                                          (5, 1, 9, 780000, 'REPLACE'), -- (Giá Ống phanh - Ước tính 580k + Công 200k)
-                                                                                                          (5, 1, 10, 3250000, 'REPLACE'), -- (Giá Bộ dẫn động DRV-AXLE-VF7 2750k + Công 500k)
-                                                                                                          (5, 1, 11, 2650000, 'REPLACE'), -- (Giá HT treo SUS-SHOCK-F-VF7 2250k + Công 400k)
-                                                                                                          (5, 1, 12, 3250000, 'REPLACE'), -- (Giá Trục C/S DRV-AXLE-VF7 2750k + Công 500k)
-                                                                                                          (5, 1, 13, 1060000, 'REPLACE'), -- (Giá Khớp cầu SUS-BALLJ-VF7 860k + Công 200k)
-                                                                                                          (5, 1, 14, 1100000, 'REPLACE'), -- (Giá Thước lái SUS-TIEROD-VF7 800k + Công 300k)
-                                                                                                          (5, 1, 27, 780000, 'REPLACE'), -- (Giá Ống làm mát COOL-HOSE-VF7 580k + Công 200k)
-                                                                                                          (5, 1, 16, 2060000, 'REPLACE'), -- (Giá Pin HV-FUSE-VF7 1560k + Công 500k)
-                                                                                                          (5, 1, 17, 7600000, 'REPLACE'), -- (Giá Dây cáp HV-CABLE-VF7 6600k + Công 1000k)
-                                                                                                          (5, 1, 18, 7600000, 'REPLACE'), -- (Giá Cổng sạc - Dùng giá Dây cáp)
-                                                                                                          (5, 1, 19, 4900000, 'REPLACE'), -- (Giá Ắc quy BAT-12V-VF7 4700k + Công 200k)
-                                                                                                          (5, 1, 21, 600000, 'REPLACE'); -- (Giá Gỉ sét gầm - Ước tính 600k)
+-- 9.5.B: Dữ liệu VF 7 "Nâng cấp" (Mốc 1km)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (5, 1, 20, 880000, 'REPLACE', 65, 1),
+                                                                                                                                                     (5, 1, 3, 1390000, 'REPLACE', 75, 1),
+                                                                                                                                                     (5, 1, 5, 1120000, 'REPLACE', 64, 1),
+                                                                                                                                                     (5, 1, 6, 1068000, 'REPLACE', 63, 1),
+                                                                                                                                                     (5, 1, 2, 622000, 'REPLACE', 62, 1),
+                                                                                                                                                     (5, 1, 7, 11200000, 'REPLACE', 78, 4), -- (FIXED) Lốp (ID 78) * 4
+                                                                                                                                                     (5, 1, 22, 1060000, 'REPLACE', 79, 1),
+                                                                                                                                                     (5, 1, 8, 2450000, 'REPLACE', 67, 1), -- (FIXED) Má phanh (ID 67 - F) + (ID 68 - R) -> Dùng 1 set F
+                                                                                                                                                     (5, 1, 9, 780000, 'REPLACE', 147, 1), -- (FIXED) Ống phanh -> ID 147
+                                                                                                                                                     (5, 1, 10, 3250000, 'REPLACE', 73, 1),
+                                                                                                                                                     (5, 1, 11, 2650000, 'REPLACE', 70, 1),
+                                                                                                                                                     (5, 1, 12, 3250000, 'REPLACE', 73, 1),
+                                                                                                                                                     (5, 1, 13, 1060000, 'REPLACE', 71, 1),
+                                                                                                                                                     (5, 1, 14, 1100000, 'REPLACE', 72, 1),
+                                                                                                                                                     (5, 1, 27, 780000, 'REPLACE', 74, 1),
+                                                                                                                                                     (5, 1, 16, 2060000, 'REPLACE', 77, 1),
+                                                                                                                                                     (5, 1, 17, 7600000, 'REPLACE', 76, 1),
+                                                                                                                                                     (5, 1, 18, 7600000, 'REPLACE', 76, 1),
+                                                                                                                                                     (5, 1, 19, 4900000, 'REPLACE', 66, 1),
+                                                                                                                                                     (5, 1, 21, 600000, 'REPLACE', 148, 1); -- (FIXED) Gỉ sét gầm -> ID 148
 
 -- ---------------------------------
 -- --- MODEL: VF 8 (model_id=6) ---
--- --- 21 Hạng mục (Items: 1, 2, 3, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27) ---
+-- --- IDs Phụ tùng (từ Phần 8): FLT=101, BRK=102, COOL=103, TBOX=104, GẠT MƯA=120, AC=113, LỐP=117, MÁ PHANH F=106
+-- --- IDs Mới: ỐNG PHANH=151, GỈ SÉT=152
 -- ---------------------------------
 
--- 9.6.A: Dữ liệu VF 8 theo lịch trình (từ ảnh image_bf8e9f.png)
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (6, 12000, 1, 680000, 'REPLACE'), (6, 12000, 2, 50000, 'CHECK'), (6, 12000, 3, 50000, 'CHECK'), (6, 12000, 5, 30000, 'CHECK'), (6, 12000, 6, 40000, 'CHECK'), (6, 12000, 7, 50000, 'CHECK'), (6, 12000, 22, 50000, 'CHECK'), (6, 12000, 8, 50000, 'CHECK'), (6, 12000, 9, 40000, 'CHECK'), (6, 12000, 10, 50000, 'CHECK'), (6, 12000, 23, 50000, 'CHECK'), (6, 12000, 24, 40000, 'CHECK'), (6, 12000, 25, 40000, 'CHECK'), (6, 12000, 26, 50000, 'CHECK'), (6, 12000, 20, 30000, 'CHECK'), (6, 12000, 27, 40000, 'CHECK'), (6, 12000, 16, 50000, 'CHECK'), (6, 12000, 17, 50000, 'CHECK'), (6, 12000, 18, 30000, 'CHECK'), (6, 12000, 19, 40000, 'CHECK'), (6, 12000, 21, 40000, 'CHECK');
--- Mốc 24000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 24000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 630000, action_type = 'REPLACE' WHERE vehicle_model_id = 6 AND milestone_km = 24000 AND service_item_id = 2;
--- Mốc 36000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
--- Mốc 48000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 900000, action_type = 'REPLACE' WHERE vehicle_model_id = 6 AND milestone_km = 48000 AND service_item_id = 20;
--- Mốc 60000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
--- Mốc 72000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 72000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1110000, action_type = 'REPLACE' WHERE vehicle_model_id = 6 AND milestone_km = 72000 AND service_item_id = 5;
--- Mốc 84000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
--- Mốc 96000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 96000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 48000;
--- Mốc 108000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 1410000, action_type = 'REPLACE' WHERE vehicle_model_id = 6 AND milestone_km = 108000 AND service_item_id = 3;
--- Mốc 120000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 6, 120000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1040000, action_type = 'REPLACE' WHERE vehicle_model_id = 6 AND milestone_km = 120000 AND service_item_id = 6;
+-- 9.6.A: Dữ liệu VF 8 theo lịch trình
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (6, 12000, 1, 680000, 'REPLACE', 101, 1), (6, 12000, 2, 50000, 'CHECK', null, 0), (6, 12000, 3, 50000, 'CHECK', null, 0), (6, 12000, 5, 30000, 'CHECK', null, 0), (6, 12000, 6, 40000, 'CHECK', null, 0), (6, 12000, 7, 50000, 'CHECK', null, 0), (6, 12000, 22, 50000, 'CHECK', null, 0), (6, 12000, 8, 50000, 'CHECK', null, 0), (6, 12000, 9, 40000, 'CHECK', null, 0), (6, 12000, 10, 50000, 'CHECK', null, 0), (6, 12000, 23, 50000, 'CHECK', null, 0), (6, 12000, 24, 40000, 'CHECK', null, 0), (6, 12000, 25, 40000, 'CHECK', null, 0), (6, 12000, 26, 50000, 'CHECK', null, 0), (6, 12000, 20, 30000, 'CHECK', null, 0), (6, 12000, 27, 40000, 'CHECK', null, 0), (6, 12000, 16, 50000, 'CHECK', null, 0), (6, 12000, 17, 50000, 'CHECK', null, 0), (6, 12000, 18, 30000, 'CHECK', null, 0), (6, 12000, 19, 40000, 'CHECK', null, 0), (6, 12000, 21, 40000, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 24000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 630000, action_type = 'REPLACE', included_spare_part_id = 102, included_quantity = 1 WHERE vehicle_model_id = 6 AND milestone_km = 24000 AND service_item_id = 2;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 36000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 48000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 900000, action_type = 'REPLACE', included_spare_part_id = 120, included_quantity = 1 WHERE vehicle_model_id = 6 AND milestone_km = 48000 AND service_item_id = 20;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 60000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 72000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1110000, action_type = 'REPLACE', included_spare_part_id = 104, included_quantity = 1 WHERE vehicle_model_id = 6 AND milestone_km = 72000 AND service_item_id = 5;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 84000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 96000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 48000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 108000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 1410000, action_type = 'REPLACE', included_spare_part_id = 113, included_quantity = 1 WHERE vehicle_model_id = 6 AND milestone_km = 108000 AND service_item_id = 3;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 6, 120000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 6 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1040000, action_type = 'REPLACE', included_spare_part_id = 103, included_quantity = 1 WHERE vehicle_model_id = 6 AND milestone_km = 120000 AND service_item_id = 6;
 
--- 9.6.B: Dữ liệu VF 8 "Nâng cấp" (Đặt tại Mốc 1km)
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (6, 1, 2, 630000, 'REPLACE'), -- (Giá REPLACE của mốc 24k)
-                                                                                                          (6, 1, 3, 1410000, 'REPLACE'), -- (Giá REPLACE của mốc 108k)
-                                                                                                          (6, 1, 5, 1110000, 'REPLACE'), -- (Giá REPLACE của mốc 72k)
-                                                                                                          (6, 1, 6, 1040000, 'REPLACE'), -- (Giá REPLACE của mốc 120k)
-                                                                                                          (6, 1, 7, 3800000, 'REPLACE'), -- (Giá Lốp WHL-TIRE-VF8 3600k + Công 200k)
-                                                                                                          (6, 1, 22, 1060000, 'REPLACE'), -- (Giá Vành WHL-TPMS-VF8 860k + Công 200k)
-                                                                                                          (6, 1, 8, 1590000, 'REPLACE'), -- (Giá Má phanh BRK-PAD-F-VF8 1390k + Công 200k)
-                                                                                                          (6, 1, 9, 810000, 'REPLACE'), -- (Giá Ống phanh - Ước tính 610k + Công 200k)
-                                                                                                          (6, 1, 10, 3550000, 'REPLACE'), -- (Giá Bộ dẫn động DRV-AXLE-VF8 3050k + Công 500k)
-                                                                                                          (6, 1, 23, 2950000, 'REPLACE'), -- (Giá Cầu xe/HT treo SUS-SHOCK-F-VF8 2550k + Công 400k)
-                                                                                                          (6, 1, 24, 3550000, 'REPLACE'), -- (Giá Trục C/S DRV-AXLE-VF8 3050k + Công 500k)
-                                                                                                          (6, 1, 25, 1110000, 'REPLACE'), -- (Giá Khớp cầu SUS-BALLJ-VF8 910k + Công 200k)
-                                                                                                          (6, 1, 26, 1160000, 'REPLACE'), -- (Giá Cơ cấu lái SUS-TIEROD-VF8 860k + Công 300k)
-                                                                                                          (6, 1, 20, 900000, 'REPLACE'), -- (Giá Gạt mưa WPR-BLD-VF8 750k + Công 150k)
-                                                                                                          (6, 1, 27, 810000, 'REPLACE'), -- (Giá Ống làm mát COOL-HOSE-VF8 610k + Công 200k)
-                                                                                                          (6, 1, 16, 2110000, 'REPLACE'), -- (Giá Pin HV-FUSE-VF8 1610k + Công 500k)
-                                                                                                          (6, 1, 17, 7900000, 'REPLACE'), -- (Giá Dây cáp HV-CABLE-VF8 6900k + Công 1000k)
-                                                                                                          (6, 1, 18, 7900000, 'REPLACE'), -- (Giá Cổng sạc - Dùng giá Dây cáp)
-                                                                                                          (6, 1, 19, 4900000, 'REPLACE'), -- (Giá Ắc quy BAT-12V-VF8 4700k + Công 200k)
-                                                                                                          (6, 1, 21, 700000, 'REPLACE'); -- (Giá Gỉ sét gầm - Ước tính 700k)
+-- 9.6.B: Dữ liệu VF 8 "Nâng cấp" (Mốc 1km)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (6, 1, 2, 630000, 'REPLACE', 102, 1),
+                                                                                                                                                     (6, 1, 3, 1410000, 'REPLACE', 113, 1),
+                                                                                                                                                     (6, 1, 5, 1110000, 'REPLACE', 104, 1),
+                                                                                                                                                     (6, 1, 6, 1040000, 'REPLACE', 103, 1),
+                                                                                                                                                     (6, 1, 7, 14600000, 'REPLACE', 117, 4), -- (FIXED) Lốp (ID 117) * 4
+                                                                                                                                                     (6, 1, 22, 1060000, 'REPLACE', 118, 1),
+                                                                                                                                                     (6, 1, 8, 2880000, 'REPLACE', 106, 1), -- (FIXED) Má phanh (ID 106 - F) + (ID 107 - R) -> Dùng 1 set F
+                                                                                                                                                     (6, 1, 9, 810000, 'REPLACE', 151, 1), -- (FIXED) Ống phanh -> ID 151
+                                                                                                                                                     (6, 1, 10, 3550000, 'REPLACE', 111, 1),
+                                                                                                                                                     (6, 1, 23, 2950000, 'REPLACE', 108, 1),
+                                                                                                                                                     (6, 1, 24, 3550000, 'REPLACE', 111, 1),
+                                                                                                                                                     (6, 1, 25, 1110000, 'REPLACE', 109, 1),
+                                                                                                                                                     (6, 1, 26, 1160000, 'REPLACE', 110, 1),
+                                                                                                                                                     (6, 1, 20, 900000, 'REPLACE', 120, 1),
+                                                                                                                                                     (6, 1, 27, 810000, 'REPLACE', 112, 1),
+                                                                                                                                                     (6, 1, 16, 2110000, 'REPLACE', 115, 1),
+                                                                                                                                                     (6, 1, 17, 7900000, 'REPLACE', 114, 1),
+                                                                                                                                                     (6, 1, 18, 7900000, 'REPLACE', 114, 1),
+                                                                                                                                                     (6, 1, 19, 4900000, 'REPLACE', 105, 1),
+                                                                                                                                                     (6, 1, 21, 700000, 'REPLACE', 152, 1); -- (FIXED) Gỉ sét gầm -> ID 152
 
 -- ---------------------------------
 -- --- MODEL: VF 9 (model_id=7) ---
--- --- 21 Hạng mục (Items: 1, 2, 3, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27) ---
+-- --- IDs Phụ tùng (từ Phần 8): FLT=121, BRK=122, COOL=123, TBOX=124, GẠT MƯA=140, AC=133, LỐP=137, MÁ PHANH F=126
+-- --- IDs Mới: ỐNG PHANH=153, GỈ SÉT=154
 -- ---------------------------------
 
--- 9.7.A: Dữ liệu VF 9 theo lịch trình (từ ảnh image_bf8ec0.jpg)
--- Mốc 12000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (7, 12000, 1, 782500, 'REPLACE'), (7, 12000, 2, 57500, 'CHECK'), (7, 12000, 3, 57500, 'CHECK'), (7, 12000, 5, 34500, 'CHECK'), (7, 12000, 6, 46000, 'CHECK'), (7, 12000, 7, 57500, 'CHECK'), (7, 12000, 22, 57500, 'CHECK'), (7, 12000, 8, 57500, 'CHECK'), (7, 12000, 9, 46000, 'CHECK'), (7, 12000, 10, 57500, 'CHECK'), (7, 12000, 23, 57500, 'CHECK'), (7, 12000, 24, 46000, 'CHECK'), (7, 12000, 25, 46000, 'CHECK'), (7, 12000, 26, 57500, 'CHECK'), (7, 12000, 20, 34500, 'CHECK'), (7, 12000, 27, 46000, 'CHECK'), (7, 12000, 16, 57500, 'CHECK'), (7, 12000, 17, 57500, 'CHECK'), (7, 12000, 18, 34500, 'CHECK'), (7, 12000, 19, 46000, 'CHECK'), (7, 12000, 21, 46000, 'CHECK');
--- Mốc 24000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 24000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
-UPDATE model_package_items SET price = 667500, action_type = 'REPLACE' WHERE vehicle_model_id = 7 AND milestone_km = 24000 AND service_item_id = 2;
--- Mốc 36000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 36000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
--- Mốc 48000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 48000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 952500, action_type = 'REPLACE' WHERE vehicle_model_id = 7 AND milestone_km = 48000 AND service_item_id = 20;
--- Mốc 60000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 60000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
--- Mốc 72000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 72000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1180000, action_type = 'REPLACE' WHERE vehicle_model_id = 7 AND milestone_km = 72000 AND service_item_id = 5;
--- Mốc 84000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 84000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
--- Mốc 96000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 96000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 48000;
--- Mốc 108000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 108000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
--- Mốc 120000km
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) SELECT 7, 120000, service_item_id, price, action_type FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
-UPDATE model_package_items SET price = 1102500, action_type = 'REPLACE' WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 6;
-UPDATE model_package_items SET price = 1514500, action_type = 'REPLACE' WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 3;
+-- 9.7.A: Dữ liệu VF 9 theo lịch trình
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (7, 12000, 1, 782500, 'REPLACE', 121, 1), (7, 12000, 2, 57500, 'CHECK', null, 0), (7, 12000, 3, 57500, 'CHECK', null, 0), (7, 12000, 5, 34500, 'CHECK', null, 0), (7, 12000, 6, 46000, 'CHECK', null, 0), (7, 12000, 7, 57500, 'CHECK', null, 0), (7, 12000, 22, 57500, 'CHECK', null, 0), (7, 12000, 8, 57500, 'CHECK', null, 0), (7, 12000, 9, 46000, 'CHECK', null, 0), (7, 12000, 10, 57500, 'CHECK', null, 0), (7, 12000, 23, 57500, 'CHECK', null, 0), (7, 12000, 24, 46000, 'CHECK', null, 0), (7, 12000, 25, 46000, 'CHECK', null, 0), (7, 12000, 26, 57500, 'CHECK', null, 0), (7, 12000, 20, 34500, 'CHECK', null, 0), (7, 12000, 27, 46000, 'CHECK', null, 0), (7, 12000, 16, 57500, 'CHECK', null, 0), (7, 12000, 17, 57500, 'CHECK', null, 0), (7, 12000, 18, 34500, 'CHECK', null, 0), (7, 12000, 19, 46000, 'CHECK', null, 0), (7, 12000, 21, 46000, 'CHECK', null, 0);
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 24000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
+UPDATE model_package_items SET price = 667500, action_type = 'REPLACE', included_spare_part_id = 122, included_quantity = 1 WHERE vehicle_model_id = 7 AND milestone_km = 24000 AND service_item_id = 2;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 36000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 48000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 952500, action_type = 'REPLACE', included_spare_part_id = 140, included_quantity = 1 WHERE vehicle_model_id = 7 AND milestone_km = 48000 AND service_item_id = 20;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 60000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 72000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1180000, action_type = 'REPLACE', included_spare_part_id = 124, included_quantity = 1 WHERE vehicle_model_id = 7 AND milestone_km = 72000 AND service_item_id = 5;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 84000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 96000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 48000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 108000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 12000;
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) SELECT 7, 120000, service_item_id, price, action_type, included_spare_part_id, included_quantity FROM model_package_items WHERE vehicle_model_id = 7 AND milestone_km = 24000;
+UPDATE model_package_items SET price = 1102500, action_type = 'REPLACE', included_spare_part_id = 123, included_quantity = 1 WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 6;
+UPDATE model_package_items SET price = 1514500, action_type = 'REPLACE', included_spare_part_id = 133, included_quantity = 1 WHERE vehicle_model_id = 7 AND milestone_km = 120000 AND service_item_id = 3;
 
--- 9.7.B: Dữ liệu VF 9 "Nâng cấp" (Đặt tại Mốc 1km)
-INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type) VALUES
-                                                                                                          (7, 1, 2, 667500, 'REPLACE'), -- (Giá REPLACE của mốc 24k)
-                                                                                                          (7, 1, 3, 1514500, 'REPLACE'), -- (Giá REPLACE của mốc 120k)
-                                                                                                          (7, 1, 5, 1180000, 'REPLACE'), -- (Giá REPLACE của mốc 72k)
-                                                                                                          (7, 1, 6, 1102500, 'REPLACE'), -- (Giá REPLACE của mốc 120k)
-                                                                                                          (7, 1, 7, 4400000, 'REPLACE'), -- (Giá Lốp WHL-TIRE-VF9 4200k + Công 200k)
-                                                                                                          (7, 1, 22, 1060000, 'REPLACE'), -- (Giá Vành WHL-TPMS-VF9 860k + Công 200k)
-                                                                                                          (7, 1, 8, 1600000, 'REPLACE'), -- (Giá Má phanh BRK-PAD-F-VF9 1400k + Công 200k)
-                                                                                                          (7, 1, 9, 820000, 'REPLACE'), -- (Giá Ống phanh - Ước tính 620k + Công 200k)
-                                                                                                          (7, 1, 10, 3600000, 'REPLACE'), -- (Giá Bộ dẫn động DRV-AXLE-VF9 3100k + Công 500k)
-                                                                                                          (7, 1, 23, 3000000, 'REPLACE'), -- (Giá Cầu xe/HT treo SUS-SHOCK-F-VF9 2600k + Công 400k)
-                                                                                                          (7, 1, 24, 3600000, 'REPLACE'), -- (Giá Trục C/S DRV-AXLE-VF9 3100k + Công 500k)
-                                                                                                          (7, 1, 25, 1120000, 'REPLACE'), -- (Giá Khớp cầu SUS-BALLJ-VF9 920k + Công 200k)
-                                                                                                          (7, 1, 26, 1170000, 'REPLACE'), -- (Giá Cơ cấu lái SUS-TIEROD-VF9 870k + Công 300k)
-                                                                                                          (7, 1, 20, 952500, 'REPLACE'), -- (Giá Gạt mưa WPR-BLD-VF9 780k + Công 172.5k)
-                                                                                                          (7, 1, 27, 820000, 'REPLACE'), -- (Giá Ống làm mát COOL-HOSE-VF9 620k + Công 200k)
-                                                                                                          (7, 1, 16, 2120000, 'REPLACE'), -- (Giá Pin HV-FUSE-VF9 1620k + Công 500k)
-                                                                                                          (7, 1, 17, 8000000, 'REPLACE'), -- (Giá Dây cáp HV-CABLE-VF9 7000k + Công 1000k)
-                                                                                                          (7, 1, 18, 8000000, 'REPLACE'), -- (Giá Cổng sạc - Dùng giá Dây cáp)
-                                                                                                          (7, 1, 19, 4900000, 'REPLACE'), -- (Giá Ắc quy BAT-12V-VF9 4700k + Công 200k)
-                                                                                                          (7, 1, 21, 700000, 'REPLACE'); -- (Giá Gỉ sét gầm - Ước tính 700k)
+-- 9.7.B: Dữ liệu VF 9 "Nâng cấp" (Mốc 1km)
+INSERT INTO model_package_items (vehicle_model_id, milestone_km, service_item_id, price, action_type, included_spare_part_id, included_quantity) VALUES
+                                                                                                                                                     (7, 1, 2, 667500, 'REPLACE', 122, 1),
+                                                                                                                                                     (7, 1, 3, 1514500, 'REPLACE', 133, 1),
+                                                                                                                                                     (7, 1, 5, 1180000, 'REPLACE', 124, 1),
+                                                                                                                                                     (7, 1, 6, 1102500, 'REPLACE', 123, 1),
+                                                                                                                                                     (7, 1, 7, 17000000, 'REPLACE', 137, 4), -- (FIXED) Lốp (ID 137) * 4
+                                                                                                                                                     (7, 1, 22, 1060000, 'REPLACE', 138, 1),
+                                                                                                                                                     (7, 1, 8, 2900000, 'REPLACE', 126, 1), -- (FIXED) Má phanh (ID 126 - F) + (ID 127 - R) -> Dùng 1 set F
+                                                                                                                                                     (7, 1, 9, 820000, 'REPLACE', 153, 1), -- (FIXED) Ống phanh -> ID 153
+                                                                                                                                                     (7, 1, 10, 3600000, 'REPLACE', 131, 1),
+                                                                                                                                                     (7, 1, 23, 3000000, 'REPLACE', 128, 1),
+                                                                                                                                                     (7, 1, 24, 3600000, 'REPLACE', 131, 1),
+                                                                                                                                                     (7, 1, 25, 1120000, 'REPLACE', 129, 1),
+                                                                                                                                                     (7, 1, 26, 1170000, 'REPLACE', 130, 1),
+                                                                                                                                                     (7, 1, 20, 952500, 'REPLACE', 140, 1),
+                                                                                                                                                     (7, 1, 27, 820000, 'REPLACE', 132, 1),
+                                                                                                                                                     (7, 1, 16, 2120000, 'REPLACE', 135, 1),
+                                                                                                                                                     (7, 1, 17, 8000000, 'REPLACE', 134, 1),
+                                                                                                                                                     (7, 1, 18, 8000000, 'REPLACE', 134, 1),
+                                                                                                                                                     (7, 1, 19, 4900000, 'REPLACE', 125, 1),
+                                                                                                                                                     (7, 1, 21, 700000, 'REPLACE', 154, 1); -- (FIXED) Gỉ sét gầm -> ID 154
+
+-- [KẾT THÚC PHẦN THAY THẾ]                                                                                                                                             (7, 1, 21, 700000, 'REPLACE', null, 0); -- (Giá Gỉ sét gầm - Ước tính 700k) - KO CÓ PART
