@@ -12,6 +12,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRegistrationRequest {
     @NotBlank(message = "NOT_BLANK")
+    @Size(min = 4, max = 20, message = "USERNAME_INVALID")
+    String username;
+
+    @NotBlank(message = "NOT_BLANK")
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
 
