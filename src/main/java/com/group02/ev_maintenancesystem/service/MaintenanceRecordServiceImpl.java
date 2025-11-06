@@ -47,7 +47,6 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     SparePartService sparePartService;
     PartUsageMapper partUsageMapper;
     ModelPackageItemRepository modelPackageItemRepository;
-    // (Không cần AppointmentServiceItemDetailRepository ở đây nữa)
 
     private User getAuthenticatedUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -85,7 +84,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         maintenanceRecordRepository.save(maintenanceRecord);
         log.info("Created MaintenanceRecord {} for Appointment ID {}", maintenanceRecord.getId(), appointment.getId());
 
-        // --- LOGIC TỰ ĐỘNG TRỪ KHO ---
+        // --- LOGIC TỰ ĐỘNG TRỪ KHO (MỚI) ---
         autoDeductIncludedParts(appointment);
         // --- KẾT THÚC LOGIC TRỪ KHO ---
     }
@@ -117,6 +116,11 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                 SparePart partToDeduct = itemDefinition.getIncludedSparePart();
                 int quantityToDeduct = itemDefinition.getIncludedQuantity();
 
+                if (partToDeduct == null) {
+                    log.warn("Service item {} definition is missing 'includedSparePart' link.", detail.getServiceItem().getName());
+                    continue;
+                }
+
                 log.info("Deducting {}x {} for service {}",
                         quantityToDeduct, partToDeduct.getPartNumber(), detail.getServiceItem().getName());
 
@@ -130,7 +134,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                     sparePartService.updateStock(partToDeduct.getId(), stockRequest);
 
                     // 2. (Tùy chọn) Ghi PartUsage với giá 0 để lưu vết
-                    // (Bỏ qua bước này để giữ PartUsage chỉ dành cho PHÁT SINH)
+                    // Bỏ qua, vì PartUsage chỉ dành cho PHÁT SINH NGOÀI
 
                 } catch (AppException e) {
                     // Lỗi nghiêm trọng: Không đủ hàng trong kho
@@ -166,7 +170,6 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         return maintenanceRecordList.stream().map(this::mapRecordToResponse).toList();
     }
 
-    // ... (Các hàm find... không thay đổi) ...
     @Override
     public List<MaintenanceRecordResponse> findByCustomerId(long customerId) {
         userRepository.findById(customerId)
@@ -224,10 +227,9 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         MaintenanceRecord record = maintenanceRecordRepository.findById(recordId)
                 .orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
 
-        // Bảo mật: Chỉ Tech được gán mới có quyền
         if (record.getAppointment() == null || record.getAppointment().getTechnicianUser() == null ||
                 !record.getAppointment().getTechnicianUser().getId().equals(technician.getId())) {
-            throw new AppException(ErrorCode.TECHNICIAN_NOT_ASSIGNED);
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         SparePart sparePart = sparePartRepository.findById(request.getSparePartId())
@@ -259,46 +261,41 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         return partUsageMapper.toPartUsageResponse(savedPartUsage);
     }
 
-    // --- HÀM MAP (SỬA ĐỔI) ---
     private MaintenanceRecordResponse mapRecordToResponse(MaintenanceRecord record) {
         if (record == null) {
             return null;
         }
-
         MaintenanceRecordResponse response = maintenanceRecordMapper.toMaintenanceRecordResponse(record);
         Appointment appointment = record.getAppointment();
-
         if (appointment == null) {
             return response;
         }
 
-        // Lấy chi tiết dịch vụ từ Appointment
+        // Map Dịch vụ trọn gói (từ Appointment)
         List<ModelPackageItemDTO> itemDTOs = new ArrayList<>();
         List<AppointmentServiceItemDetail> serviceDetails = appointment.getServiceDetails();
-
-        for (AppointmentServiceItemDetail detail : serviceDetails) {
-            // Chỉ hiển thị các mục đã được khách duyệt
-            if (detail.getCustomerApproved()) {
-                ServiceItem item = detail.getServiceItem();
-                if (item == null) continue;
-
-                ServiceItemDTO nestedItemDTO = ServiceItemDTO.builder()
-                        .id(item.getId())
-                        .name(item.getName())
-                        .description(item.getDescription())
-                        .build();
-
-                ModelPackageItemDTO outerItemDTO = new ModelPackageItemDTO(
-                        nestedItemDTO,
-                        detail.getPrice(),      // Giá trọn gói
-                        detail.getActionType()  // CHECK hay REPLACE
-                );
-                itemDTOs.add(outerItemDTO);
+        if (serviceDetails != null) {
+            for (AppointmentServiceItemDetail detail : serviceDetails) {
+                if (detail.getCustomerApproved()) {
+                    ServiceItem item = detail.getServiceItem();
+                    if (item == null) continue;
+                    ServiceItemDTO nestedItemDTO = ServiceItemDTO.builder()
+                            .id(item.getId())
+                            .name(item.getName())
+                            .description(item.getDescription())
+                            .build();
+                    ModelPackageItemDTO outerItemDTO = new ModelPackageItemDTO(
+                            nestedItemDTO,
+                            detail.getPrice(),
+                            detail.getActionType()
+                    );
+                    itemDTOs.add(outerItemDTO);
+                }
             }
         }
         response.setServiceItems(itemDTOs);
 
-        // Map PartUsages (phụ tùng PHÁT SINH)
+        // Map Phụ tùng phát sinh (từ Record)
         List<PartUsageResponse> partUsageResponses = record.getPartUsages().stream()
                 .map(partUsageMapper::toPartUsageResponse)
                 .collect(Collectors.toList());
