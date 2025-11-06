@@ -4,6 +4,8 @@ import com.group02.ev_maintenancesystem.enums.Gender;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +20,10 @@ public class UserResponse {
     String phone;
     Gender gender;
     String role;
+    Long serviceCenterId;
+    String serviceCenterName;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 }

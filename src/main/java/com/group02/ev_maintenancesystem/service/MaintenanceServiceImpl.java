@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.function.Function; // Thêm import
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         int currentKm = vehicle.getCurrentKm() != null ? vehicle.getCurrentKm() : 0;
 
         // 2. Lấy lịch sử bảo dưỡng (sắp xếp giảm dần theo ngày)
-        List<MaintenanceRecord> history = maintenanceRecordRepository.findByVehicle_IdOrderByPerformedAtDesc(vehicleId);
+        List<MaintenanceRecord> history = maintenanceRecordRepository.findByAppointment_Vehicle_IdOrderByPerformedAtDesc(vehicleId);
 
         // ==========================================================
         // === LOGIC MỚI: Xử lý dựa trên việc có lịch sử hay không ===

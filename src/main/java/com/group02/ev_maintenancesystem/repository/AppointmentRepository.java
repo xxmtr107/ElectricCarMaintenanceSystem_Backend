@@ -14,19 +14,6 @@ import java.util.*;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-//    List<Appointment> findByCustomerUserId(Long customerId);
-//
-//    Optional<Appointment> findById(Long appointmentId);
-//
-//    List<Appointment> findByStatus(AppointmentStatus status);
-//
-//    List<Appointment> findByTechnicianUserIdAndAppointmentDate(Long technicianId, LocalDateTime scheduleDate);
-//
-//    boolean existsByTechnicianUserIdAndAppointmentDate(Long technicianId, LocalDateTime scheduleDate);
-//
-//    List<Appointment> getAppointmentByCustomerUser_Id(long customerId);
-//
-
 
 
     // Find by customer
@@ -57,5 +44,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> deleteByVehicleId(Long vehicleId);
 
     List<Appointment> findByAppointmentDate(LocalDateTime date);
+
+    List<Appointment> findByStatusAndServiceCenterId(AppointmentStatus status, Long centerId);
+
+    List<Appointment> findAllByServiceCenterId(Long centerId);
+
+    List<Appointment> findByAppointmentDateBetweenAndServiceCenterId(LocalDateTime startDate, LocalDateTime endDate, Long centerId);
 }
 

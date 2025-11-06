@@ -33,4 +33,6 @@ public class UserRegistrationRequest {
 
     @NotNull
     Gender gender;
+
+    Long serviceCenterId;
 }

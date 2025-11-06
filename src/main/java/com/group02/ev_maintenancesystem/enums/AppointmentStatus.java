@@ -6,7 +6,8 @@ public enum AppointmentStatus {
     CANCELLED,
     COMPLETED,
     PENDING,
-    CONFIRMED;
+    CONFIRMED,
+    WAITING_FOR_APPROVAL;
 
     @JsonCreator
     public static AppointmentStatus fromJson(String value) {

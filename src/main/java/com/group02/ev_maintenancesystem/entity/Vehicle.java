@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,8 @@ public class Vehicle extends BaseEntity{
     Integer currentKm = 0;
 
     @Column(name = "purchase_year")
-    LocalDate purchaseYear;;
+    LocalDate purchaseYear;
+
     // Relationships
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
@@ -41,9 +43,6 @@ public class Vehicle extends BaseEntity{
 
     @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
     List<Appointment> appointments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
-    List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
 
 
 }

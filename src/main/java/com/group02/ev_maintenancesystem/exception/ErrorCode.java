@@ -30,7 +30,8 @@ public enum ErrorCode {
     LICENSE_PLATE_INVALID(207, "License plate format is invalid", HttpStatus.BAD_REQUEST),
     VEHICLE_NOT_BELONG_TO_CUSTOMER(208, "Vehicle does not belong to the customer", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT(209, "Cannot delete vehicle because it has active appointments (not completed or canceled).", HttpStatus.BAD_REQUEST),
-
+    CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT(209, "Cannot update vehicle because it has active appointments (not completed or canceled).", HttpStatus.BAD_REQUEST),
+    PURCHASE_YEAR_INVALID(210, "Purchase year must be in past or present).", HttpStatus.BAD_REQUEST),
     // ========================= VEHICLE MODEL ERRORS (300 - 399) =========================
     MODEL_NAME_INVALID(300, "Name of model must follow format like VFe34 or VF8", HttpStatus.BAD_REQUEST),
     MODEL_YEAR_INVALID(301, "Vehicle model year must be between 2021 and 2025", HttpStatus.BAD_REQUEST),
@@ -53,7 +54,14 @@ public enum ErrorCode {
     CANNOT_CANCEL_COMPLETED_APPOINTMENT(407, "Cannot cancel completed appointment", HttpStatus.BAD_REQUEST),
     APPOINTMENT_ALREADY_CANCELLED(408, "Appointment is already cancelled", HttpStatus.BAD_REQUEST),
     TECHNICIAN_NOT_ASSIGNED(409, "Technician not assigned", HttpStatus.BAD_REQUEST),
-
+    APPOINTMENT_TIME_OUT_OF_BOUNDS(410, "Appointment time must be within business hours (7:00 AM - 6:00 PM)", HttpStatus.BAD_REQUEST), // THÊM MỚI
+    APPOINTMENT_NOT_COMPLETED(411, "Appointment is not completed yet", HttpStatus.BAD_REQUEST), // THÊM MỚI
+    SERVICE_ITEM_NOT_IN_APPOINTMENT(412, "Service item not found in this appointment", HttpStatus.BAD_REQUEST), // THÊM MỚI
+    SERVICE_ITEM_ALREADY_APPROVED(413, "Service item is already approved", HttpStatus.BAD_REQUEST), // THÊM MỚI
+    SERVICE_ITEM_PRICE_NOT_FOUND(414, "Cannot find price for the requested service upgrade", HttpStatus.BAD_REQUEST), // THÊM MỚI
+    SERVICE_ITEM_CANNOT_BE_REVERTED(415, "Cannot revert this service item", HttpStatus.BAD_REQUEST), // THÊM MỚI
+    SERVICE_ITEM_NOT_APPROVED_YET(416, "Cannot complete appointment, pending service items are not approved", HttpStatus.BAD_REQUEST), // THÊM MỚI
+    DETAIL_NOT_FOUND(417, "Appointment service detail not found", HttpStatus.NOT_FOUND), // THÊM MỚI
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(501, "Invalid key", HttpStatus.BAD_REQUEST),
@@ -81,19 +89,41 @@ public enum ErrorCode {
     // ========================= INVOICE ERRORS (800 - 899) =========================
     INVOICE_NOT_FOUND(800, "Invoice not found for this appointment", HttpStatus.BAD_REQUEST),
     INVOICE_ALREADY_PAID(801, "Invoice already paid", HttpStatus.BAD_REQUEST), // THÊM MÃ LỖI NÀY
-
+    INVOICE_ALREADY_EXISTS(802, "Invoice already exists for this appointment", HttpStatus.BAD_REQUEST),
     // ========================= MODEL PACKAGE ITEM ERRORS (900 - 999) =========================
     MODEL_PACKAGE_ITEM_NOT_FOUND(900, "Model package item not found", HttpStatus.NOT_FOUND),
     MODEL_PACKAGE_ITEM_EXISTED(901, "Model package item already exists", HttpStatus.BAD_REQUEST),
     PRICE_INVALID(902, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
-
+    ONLY_UPGRADE_CHECK_TO_REPLACE_ALLOWED(903, "Only upgrade from CHECK to REPLACE is allowed", HttpStatus.BAD_REQUEST),
 
     // ========================= SERVER ERRORS (1000 - 1099) =========================
     INTERNAL_SERVER_ERROR(1000, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
     UNCATEGORIZED(1001, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // ========================= SPARE PART & PART CATEGORIES ERROR (1100 - 1199) =========================
+    SPARE_PART_PRICE_MUST_BE_POSITIVE(1101, "Spare part price must be positive", HttpStatus.BAD_REQUEST),
+    SPARE_PART_STOCK_CANNOT_BE_NEGATIVE(1102, "Spare part stock cant be negative", HttpStatus.BAD_REQUEST),
+    SPARE_PART_MIN_STOCK_CANNOT_BE_NEGATIVE(1103, "Spare part minimum stock level cant be negative", HttpStatus.BAD_REQUEST),
+    SPARE_PART_NOT_FOUND(1104, "Spare part not found", HttpStatus.NOT_FOUND),
+    SPARE_PART_NUMBER_DUPLICATE(1105, "Spare part number already exists", HttpStatus.BAD_REQUEST),
+    PART_CATEGORIES_NOT_FOUND(1106, "Part category not found", HttpStatus.NOT_FOUND),
+    SPARE_PART_NAME_DUPLICATE(1107, "Spare part name already exists", HttpStatus.BAD_REQUEST),
+    STOCK_QUANTITY_INVALID(1108, "Stock quantity must be greater than or equal to zero", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK(1109, "Insufficient stock", HttpStatus.BAD_REQUEST),
 
-    MAINTENANCE_RECORD_NOT_FOUND(1100, "Maintenance record not found", HttpStatus.NOT_FOUND);
+    // ========================= MAINTENANCE RECORD ERRORS (1200 - 1299) =========================
+    MAINTENANCE_RECORD_NOT_FOUND(1200, "Maintenance record not found", HttpStatus.NOT_FOUND),
+
+
+    // ========================= SERVICE CENTER ERRORS (1300 - 1399) =========================
+    SERVICE_CENTER_NOT_FOUND(1300, "Service center not found", HttpStatus.NOT_FOUND),
+    SERVICE_CENTER_NAME_DUPLICATE(1301, "Service center name already exists", HttpStatus.BAD_REQUEST),
+    SERVICE_CENTER_PHONE_DUPLICATE(1302, "Service center phone already exists", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_SERVICE_CENTER(1303, "Cannot delete service center, it is associated with users or other records", HttpStatus.BAD_REQUEST),
+    EMPLOYEE_NOT_BELONG_TO_SERVICE_CENTER(1304, "Employee does not belong to the specified service center", HttpStatus.BAD_REQUEST),
+    // ========================= MAINTENANCE SCHEDULE ERRORS (1400 - 1499) =========================
+    NO_MAINTENANCE_DUE(1400, "No maintenance recommendations found for this vehicle.", HttpStatus.BAD_REQUEST);
+
     private final int code;
     private final String message;
     private final HttpStatus httpStatus;

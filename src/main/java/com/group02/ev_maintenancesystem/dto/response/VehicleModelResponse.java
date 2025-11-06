@@ -15,6 +15,9 @@ public class VehicleModelResponse {
     Long id;
     String name;
     String modelYear;
-
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 
 }

@@ -45,20 +45,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", // Swagger
-                                "/auth/**",                // Login, Refresh, Logout, Introspect
-                                "/customers/register"  // Đăng ký customer
+                                "/auth/**"              // Login, Refresh, Logout, Introspect
                         ).permitAll()
-                        // Allow GET all vehicle models for CUSTOMER and ADMIN
-                        .requestMatchers(HttpMethod.GET, "/vehicleModel").permitAll()
+                        // Allow GET all vehicle models and service centers
+                        .requestMatchers(HttpMethod.GET, "/vehicleModel", "/service-centers", "/service-centers/search", "/service-centers/{id}").permitAll()
 
                         // --- 2. Endpoint ADMIN (Quản lý hệ thống) ---
                         .requestMatchers(
                                 "/staffs/**",              // Quản lý Staff
-                                "/technicians/**",         // Quản lý Technician
                                 "/vehicleModel/**",        // Quản lý Model xe
                                 "/servicePackage/**",      // Quản lý Gói
                                 "/serviceItem/**",         // Quản lý Hạng mục
-                                "/model-package-items/**"  // Quản lý Menu giá
+                                "/model-package-items/**", // Quản lý Menu giá
+                                "/service-centers/**"      // Quản lý Service Center (POST, PUT, DELETE)
                         ).hasRole("ADMIN") // Chỉ ADMIN
 
                         // --- 3. Endpoint STAFF & ADMIN (Nghiệp vụ) ---
@@ -68,14 +67,19 @@ public class SecurityConfig {
                                 "/appointments/date-range",
                                 "/appointments/{appointmentId}/assign/{technicianId}",
                                 "/maintenance-records/**",
-                                "/vehicles" // GET all vehicles
+                                "/vehicles", // GET all vehicles
+                                "/technicians/**"      // Quản lý Technician
                         ).hasAnyRole("ADMIN", "STAFF")
 
                         // --- 4. Endpoint TECHNICIAN (và cao hơn) ---
                         .requestMatchers(
-                                "/appointments/setStatus/**"
+                                "/appointments/setStatus/**",
+                                "/appointments/technician/**"
+
                         ).hasAnyRole("ADMIN", "STAFF", "TECHNICIAN")
 
+                        .requestMatchers(HttpMethod.POST, "/maintenance-records/{recordId}/parts")
+                        .hasAnyRole("TECHNICIAN")
                         // --- 5. Các endpoint còn lại ---
                         // Yêu cầu phải đăng nhập (Authenticated)
                         // Quyền chi tiết (như CUSTOMER có đúng là chủ xe không)

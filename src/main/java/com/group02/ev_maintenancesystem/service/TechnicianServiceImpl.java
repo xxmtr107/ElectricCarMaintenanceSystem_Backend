@@ -5,11 +5,13 @@ import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.UserResponse;
 import com.group02.ev_maintenancesystem.entity.Role;
+import com.group02.ev_maintenancesystem.entity.ServiceCenter;
 import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.UserMapper;
 import com.group02.ev_maintenancesystem.repository.RoleRepository;
+import com.group02.ev_maintenancesystem.repository.ServiceCenterRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +30,7 @@ public class TechnicianServiceImpl implements TechnicianService {
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
+    ServiceCenterRepository serviceCenterRepository;
 
     @Override
     public UserResponse registerTechnician(UserRegistrationRequest request) {
@@ -38,6 +41,12 @@ public class TechnicianServiceImpl implements TechnicianService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         technician.setRole(role);
+        if (request.getServiceCenterId() != null) {
+            ServiceCenter center = serviceCenterRepository.findById(request.getServiceCenterId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
+            technician.setServiceCenter(center);
+        }
+
         try {
             technician = userRepository.save(technician);
         } catch (DataIntegrityViolationException e) {
@@ -56,10 +65,12 @@ public class TechnicianServiceImpl implements TechnicianService {
     public UserResponse updateTechnician(Long technicianId, UserUpdateRequest request) {
         User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+        if (request.getServiceCenterId() != null) {
+            ServiceCenter center = serviceCenterRepository.findById(request.getServiceCenterId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
+            technician.setServiceCenter(center);
+        }
         userMapper.updateUser(request, technician);
-        technician.setPassword(passwordEncoder.encode(request.getPassword()));
-
 
         return userMapper.toUserResponse(userRepository.save(technician));
     }

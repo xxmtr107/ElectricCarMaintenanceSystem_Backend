@@ -29,5 +29,7 @@ public class ModelPackageItemResponse {
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 }
 

@@ -1,4 +1,5 @@
 package com.group02.ev_maintenancesystem.service;
+import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
@@ -20,10 +21,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -48,6 +53,9 @@ public class VehicleServiceImpl implements VehicleService{
     @Override
     public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest) {
         //check Vin đã tồn tại chưa
+        Long customerId = vehicleCreationRequest.getCustomerId();
+        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (vehicleRepository.existsByVin(vehicleCreationRequest.getVin())) {
             throw new AppException(ErrorCode.VIN_ALREADY_EXISTS);
@@ -63,7 +71,7 @@ public class VehicleServiceImpl implements VehicleService{
         vehicle.setLicensePlate(vehicleCreationRequest.getLicensePlate());
         vehicle.setVin(vehicleCreationRequest.getVin());
         vehicle.setCurrentKm(vehicleCreationRequest.getCurrentKm());
-        vehicle.setPurchaseYear(vehicleCreationRequest.getPurchaseYear());
+        vehicle.setPurchaseYear(vehicleCreationRequest.getPurchaseYear().atDay(1));
 
 
         //check xem modelId có tồn tại chưa
@@ -72,14 +80,9 @@ public class VehicleServiceImpl implements VehicleService{
                 orElseThrow(() -> new AppException(ErrorCode.MODEL_NOT_FOUND));
         vehicle.setModel(model);
 
-        //check xem ModelId có tồn tại hay không và modelId có phải là customer không
-        // nếu có gán vào
-        User user = userRepository.findById(vehicleCreationRequest.getCustomerId())
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
-        if(!user.isCustomer()){
-            throw new AppException(ErrorCode.USER_NOT_CUSTOMER);
-        }
-        vehicle.setCustomerUser(user);
+
+
+        vehicle.setCustomerUser(customer);
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
 
         VehicleResponse response = new VehicleResponse();
@@ -132,9 +135,20 @@ public class VehicleServiceImpl implements VehicleService{
         //Tìm xem id của xe có tồn tại hay không
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        if(request.getCurrentKm() != null) {
+        List<Appointment> appointment = appointmentRepository.findByVehicleId(vehicleId);
+        //Nếu empty thì xóa
+        if(appointment.isEmpty()){
             vehicle.setCurrentKm(request.getCurrentKm());
         }
+
+        //CHỈ XÓA NHỮNG XE CÓ TRẠNG THÁI COMPLETED VÀ CANCELLED
+        boolean hasActiveAppointment = appointment.stream()
+                .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
+                        && app.getStatus() != AppointmentStatus.CANCELLED);
+        if(hasActiveAppointment){
+            throw new AppException(ErrorCode.CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
+        }
+
 
         vehicleRepository.save(vehicle);
         return modelMapper.map(vehicle, VehicleResponse.class);
@@ -163,4 +177,25 @@ public class VehicleServiceImpl implements VehicleService{
         return modelMapper.map(vehicle, VehicleResponse.class);
     }
 
+    public boolean isVehicleOwner(Authentication authentication, Long vehicleId) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return false;
+        }
+
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        Long customerId = jwt.getClaim("userId");
+        String rolesClaim = jwt.getClaim("scope");
+
+        // Chỉ kiểm tra nếu người dùng là CUSTOMER
+        if (customerId == null || rolesClaim == null || !rolesClaim.contains("ROLE_CUSTOMER")) {
+            return false;
+        }
+
+        // Kiểm tra xem có tồn tại xe với vehicleId và customerId này không
+        // (Sử dụng phương thức đã có sẵn trong VehicleRepository)
+        Optional<Vehicle> vehicle = vehicleRepository.findByIdAndCustomerUserId(vehicleId, customerId);
+
+        // Nếu vehicle.isPresent() == true, nghĩa là tìm thấy xe -> là chủ sở hữu
+        return vehicle.isPresent();
+    }
 }

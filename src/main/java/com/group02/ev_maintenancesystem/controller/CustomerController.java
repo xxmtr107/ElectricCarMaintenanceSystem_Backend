@@ -24,6 +24,7 @@ public class CustomerController {
     CustomerService customerService;
 
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     ApiResponse<UserResponse> register(@RequestBody @Valid UserRegistrationRequest request){
         return ApiResponse.<UserResponse>builder()
                 .message("Customer registered successfully")

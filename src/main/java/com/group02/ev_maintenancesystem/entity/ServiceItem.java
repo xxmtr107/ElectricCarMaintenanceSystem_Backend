@@ -29,29 +29,10 @@ public class ServiceItem extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(200)")
     String description;
 
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "serviceItems", fetch = FetchType.LAZY)
-    List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "serviceItems", fetch = FetchType.LAZY)
-    List<Appointment> appointments = new ArrayList<>();
-
     @JsonIgnore
     @OneToMany(mappedBy = "serviceItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<ModelPackageItem> modelPackageItems = new ArrayList<>();
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(
-//            name = "serviceitem_vehiclemodel",
-//            joinColumns = @JoinColumn(name = "service_item_id"),
-//            inverseJoinColumns = @JoinColumn(name = "vehicle_model_id")
-//    )
-//    List<VehicleModel> vehicleModelsForItems = new ArrayList<>();
-// Relationships
-//    @JsonIgnore
-//    @ManyToMany(mappedBy = "serviceItemsForPackages", fetch = FetchType.LAZY)
-//    List<ServicePackage> servicePackages = new ArrayList<>();
+
 
 
 

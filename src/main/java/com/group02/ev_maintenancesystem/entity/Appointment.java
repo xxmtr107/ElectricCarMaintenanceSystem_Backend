@@ -25,6 +25,8 @@ public class Appointment extends BaseEntity {
     @Column(nullable = false, name = "appointment_date")
     LocalDateTime appointmentDate;
 
+    Integer milestoneKm;
+
     @Enumerated(EnumType.STRING)
     AppointmentStatus status;
 
@@ -48,19 +50,28 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "service_package_id")
     ServicePackage servicePackage;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "appointment_service_items",
-            joinColumns = @JoinColumn(name = "appointment_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_item_id")
-    )
-    List<ServiceItem> serviceItems = new ArrayList<>();
+    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @Builder.Default
+    List<AppointmentServiceItemDetail> serviceDetails = new ArrayList<>();
 
-    @OneToOne(mappedBy = "appointment",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "appointment", fetch = FetchType.EAGER)
     MaintenanceRecord maintenanceRecord;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "center_id")
     ServiceCenter serviceCenter;
 
+    public void addServiceDetail(AppointmentServiceItemDetail detail) {
+        serviceDetails.add(detail);
+        detail.setAppointment(this);
+    }
+
+    // Helper method to recalculate total
+    public void recalculateEstimatedCost() {
+        this.estimatedCost = this.serviceDetails.stream()
+                .filter(AppointmentServiceItemDetail::getCustomerApproved)
+                .map(AppointmentServiceItemDetail::getPrice)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

@@ -1,10 +1,15 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO;
+import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,7 +34,6 @@ public class AppointmentResponse {
 
     Long technicianId;
     String technicianName;
-    String technicianSpecialization;
 
     Long vehicleId;
     String vehicleLicensePlate;
@@ -44,21 +48,12 @@ public class AppointmentResponse {
     String addressCenter;
     String districtCenter;
 
-    // DTO nhỏ cho service items với giá theo model
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ServiceItemDTO {
-        Long id;
-        String name;
-        String description;
-        BigDecimal price;
-    }
-
-    List<ServiceItemDTO> serviceItems;
+    Integer milestoneKm;
+    List<ModelPackageItemDTO> serviceItems;
 
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    String createdBy;
+    String updatedBy;
 }

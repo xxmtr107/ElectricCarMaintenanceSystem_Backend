@@ -1,8 +1,11 @@
 package com.group02.ev_maintenancesystem.service;
 
+import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
+import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.entity.MaintenanceRecord;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +15,7 @@ public interface MaintenanceRecordService {
 
     MaintenanceRecordResponse getByMaintenanceRecordId(long MaintenanceRecordId);
 
-    List<MaintenanceRecordResponse> getAll();
+    public List<MaintenanceRecordResponse> getAll(Authentication authentication);
 
     List<MaintenanceRecordResponse> findByCustomerId(long customerId);
 
@@ -20,8 +23,9 @@ public interface MaintenanceRecordService {
 
     List<MaintenanceRecordResponse>findByTechnicianUserId(long technicianId);
 
-    List<MaintenanceRecordResponse> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end);
+    List<MaintenanceRecordResponse> findByAppointment_AppointmentDateBetween(LocalDateTime start, LocalDateTime end, Authentication authentication);
 
+    public PartUsageResponse addPartToRecord(Long recordId, PartUsageRequest request, Authentication authentication);
 
 
 }
