@@ -440,21 +440,32 @@ public class AppointmentServiceImpl implements AppointmentService {
         for (ServiceItemApproveRequest request : requests) {
 
             AppointmentServiceItemDetail detail = appointmentServiceItemDetailRepository.findById(request.getAppointmentServiceDetailId())
-                    .orElseThrow(() -> new AppException(ErrorCode.DETAIL_NOT_FOUND)); // (Sử dụng ErrorCode mới)
+                    .orElseThrow(() -> new AppException(ErrorCode.DETAIL_NOT_FOUND));
 
             if (!detail.getAppointment().getId().equals(appointmentId)) {
                 log.error("Staff {} tried to approve detail {} which does not belong to appointment {}", staff.getUsername(), detail.getId(), appointmentId);
                 throw new AppException(ErrorCode.UNAUTHORIZED);
             }
-            if (detail.getCustomerApproved().equals(request.getApproved())) {
-                continue; // Bỏ qua nếu trạng thái đã giống
+
+            // --- SỬA LỖI 2: THAY ĐỔI LOGIC IF ---
+            // Chỉ bỏ qua (continue) nếu:
+            // 1. Hạng mục đã được duyệt (true) VÀ request cũng là duyệt (true).
+            if (detail.getCustomerApproved() && request.getApproved()) {
+                continue; // Đã duyệt rồi, không cần làm gì
             }
+            // 2. Hạng mục đang là CHECK (luôn là true) VÀ request là từ chối (false).
+            //    (Về mặt logic, không thể "từ chối" một hạng mục CHECK, nhưng nếu xảy ra, chúng ta bỏ qua)
+            if (detail.getCustomerApproved() && !request.getApproved() && detail.getActionType() == MaintenanceActionType.CHECK) {
+                continue;
+            }
+            // --- KẾT THÚC SỬA LỖI 2 ---
+
 
             if (request.getApproved()) {
-                // Khách hàng ĐỒNG Ý nâng cấp
+                // Khách hàng ĐỒNG Ý nâng cấp (từ false -> true)
                 detail.setCustomerApproved(true);
             } else {
-                // Khách hàng TỪ CHỐI (Quay về CHECK)
+                // Khách hàng TỪ CHỐI (từ false -> revert về CHECK)
                 log.warn("Staff reverting item {} for appointment {} back to CHECK", detail.getServiceItem().getId(), appointmentId);
 
                 // Tìm lại giá CHECK gốc
@@ -490,15 +501,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         log.info("Staff {} set approval for {} item(s) for appointment {}", staff.getUsername(), requests.size(), appointmentId);
 
         return mapSingleAppointmentToResponse(savedAppointment);
-    }
-
-    private List<AppointmentResponse> mapAppointmentListToResponse(List<Appointment> appointments) {
-        if (appointments == null || appointments.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return appointments.stream()
-                .map(this::mapSingleAppointmentToResponse)
-                .collect(Collectors.toList());
     }
 
     private AppointmentResponse mapSingleAppointmentToResponse(Appointment appointment) {
