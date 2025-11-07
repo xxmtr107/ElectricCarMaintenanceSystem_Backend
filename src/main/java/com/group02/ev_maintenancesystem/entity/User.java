@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group02.ev_maintenancesystem.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
@@ -78,6 +79,7 @@ public class User extends BaseEntity implements UserDetails {
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Set<ChatRoom> chatRooms = new HashSet<>();
 
     public boolean isCustomer() {

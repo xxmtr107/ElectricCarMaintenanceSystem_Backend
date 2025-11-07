@@ -112,7 +112,9 @@ public enum ErrorCode {
     CANNOT_DELETE_SERVICE_CENTER(1303, "Cannot delete service center, it is associated with users or other records", HttpStatus.BAD_REQUEST),
 
     // ========================= ROOM CHAT ERRORS (1300 - 1399) =========================
-    ROOM_CHAT_NOT_FOUND(1400, "Room chat not found", HttpStatus.NOT_FOUND);
+    ROOM_CHAT_NOT_FOUND(1400, "Room chat not found", HttpStatus.NOT_FOUND),
+    MEMBER_NOT_FOUND(1401, "Member not found", HttpStatus.NOT_FOUND),
+    ROOM_INVALID(1402, "Room is recieved", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;

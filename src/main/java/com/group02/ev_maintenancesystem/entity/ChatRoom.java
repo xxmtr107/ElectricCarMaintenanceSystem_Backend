@@ -1,5 +1,7 @@
 package com.group02.ev_maintenancesystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.group02.ev_maintenancesystem.enums.ChatRoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +21,11 @@ public class ChatRoom {
     @Column(nullable = false)
     String name;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private ChatRoomStatus status;
+
     @ManyToMany
     @JoinTable(
             name = "chatroom_members",
@@ -27,6 +34,7 @@ public class ChatRoom {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Set<User> members = new HashSet<>();
 
 }
