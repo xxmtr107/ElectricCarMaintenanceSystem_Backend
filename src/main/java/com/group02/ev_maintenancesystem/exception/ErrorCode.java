@@ -77,7 +77,7 @@ public enum ErrorCode {
     SIGNATURE_INVALID(704, "Invalid VNPay signature", HttpStatus.BAD_REQUEST),
     PAYMENT_FAILED(705, "Payment failed", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_FOUND(706, "Payment not found", HttpStatus.NOT_FOUND),
-    CREATE_PAYMENT_FAILD(707, "Create payment failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    CREATE_PAYMENT_FAILED(707, "Create payment failed", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // ========================= INVOICE ERRORS (800 - 899) =========================
     INVOICE_NOT_FOUND(800, "Invoice not found for this appointment", HttpStatus.BAD_REQUEST),
@@ -109,7 +109,10 @@ public enum ErrorCode {
     SERVICE_CENTER_NOT_FOUND(1300, "Service center not found", HttpStatus.NOT_FOUND),
     SERVICE_CENTER_NAME_DUPLICATE(1301, "Service center name already exists", HttpStatus.BAD_REQUEST),
     SERVICE_CENTER_PHONE_DUPLICATE(1302, "Service center phone already exists", HttpStatus.BAD_REQUEST),
-    CANNOT_DELETE_SERVICE_CENTER(1303, "Cannot delete service center, it is associated with users or other records", HttpStatus.BAD_REQUEST);
+    CANNOT_DELETE_SERVICE_CENTER(1303, "Cannot delete service center, it is associated with users or other records", HttpStatus.BAD_REQUEST),
+
+    // ========================= ROOM CHAT ERRORS (1300 - 1399) =========================
+    ROOM_CHAT_NOT_FOUND(1400, "Room chat not found", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;

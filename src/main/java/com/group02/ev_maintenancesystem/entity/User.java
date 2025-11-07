@@ -9,9 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 
 @Entity
@@ -76,6 +74,11 @@ public class User extends BaseEntity implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "center_id")
     ServiceCenter serviceCenter;
+
+    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<ChatRoom> chatRooms = new HashSet<>();
 
     public boolean isCustomer() {
         return role != null && "CUSTOMER".equals(role.getName());
