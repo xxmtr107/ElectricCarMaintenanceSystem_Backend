@@ -100,16 +100,43 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                 .toList();
 
         for (AppointmentServiceItemDetail detail : approvedDetails) {
-            // Tìm định nghĩa ModelPackageItem tương ứng
-            ModelPackageItem itemDefinition = modelPackageItemRepository
-                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
-                            appointment.getVehicle().getModel().getId(),
-                            appointment.getMilestoneKm(),
-                            detail.getServiceItem().getId()
-                    )
-                    // Chỉ lấy nếu action type khớp (ví dụ: chỉ trừ kho cho REPLACE, không trừ cho CHECK)
-                    .filter(def -> def.getActionType() == detail.getActionType())
-                    .orElse(null);
+
+            // --- BẮT ĐẦU THAY ĐỔI ---
+
+            ModelPackageItem itemDefinition = null;
+            Long modelId = appointment.getVehicle().getModel().getId();
+            Long serviceItemId = detail.getServiceItem().getId();
+            MaintenanceActionType actionType = detail.getActionType();
+
+            // Chỉ trừ kho nếu là REPLACE
+            if (actionType == MaintenanceActionType.REPLACE) {
+                // Ưu tiên tìm định nghĩa REPLACE ở mốc KM của lịch hẹn (ví dụ: Lọc gió 12000km)
+                itemDefinition = modelPackageItemRepository
+                        .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
+                                modelId,
+                                appointment.getMilestoneKm(),
+                                serviceItemId
+                        )
+                        .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
+                        .orElse(null);
+
+                if (itemDefinition == null) {
+                    // Nếu không tìm thấy (vì nó là 1 CHECK được nâng cấp),
+                    // hãy tìm định nghĩa REPLACE "nâng cấp" (theo quy ước là ở mốc 1km)
+                    itemDefinition = modelPackageItemRepository
+                            .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
+                                    modelId,
+                                    1, // Mốc 1km cho các định nghĩa nâng cấp
+                                    serviceItemId
+                            )
+                            .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
+                            .orElse(null);
+                }
+            }
+            // Nếu actionType là CHECK, itemDefinition sẽ là null và không trừ kho (đúng)
+
+            // --- KẾT THÚC THAY ĐỔI ---
+
 
             if (itemDefinition != null && itemDefinition.getIncludedSparePart() != null) {
                 // Dịch vụ này có định nghĩa 1 phụ tùng đi kèm

@@ -9,12 +9,14 @@ import com.group02.ev_maintenancesystem.dto.request.CustomerAppointmentRequest;
 import com.group02.ev_maintenancesystem.dto.request.ServiceItemApproveRequest;
 import com.group02.ev_maintenancesystem.dto.request.ServiceItemUpgradeRequest;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
+import com.group02.ev_maintenancesystem.dto.response.AppointmentServiceItemDetailResponse;
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.AppointmentMapper;
+import com.group02.ev_maintenancesystem.mapper.AppointmentServiceItemDetailMapper;
 import com.group02.ev_maintenancesystem.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +51,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     MaintenanceService maintenanceService;
     ServiceCenterRepository serviceCenterRepository;
     AppointmentServiceItemDetailRepository appointmentServiceItemDetailRepository;
-
+    AppointmentServiceItemDetailMapper appointmentServiceItemDetailMapper;
     @Override
     @Transactional
     public AppointmentResponse createAppointmentByCustomer(Authentication authentication, CustomerAppointmentRequest request) {
@@ -556,5 +558,26 @@ public class AppointmentServiceImpl implements AppointmentService {
             return;
         }
         throw new AppException(ErrorCode.UNAUTHORIZED);
+    }
+    @Override
+    public List<AppointmentServiceItemDetailResponse> getAppointmentDetails(Long appointmentId, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        // Kiểm tra quyền xem (chủ xe, staff, admin, hoặc KTV được gán)
+        checkAppointmentAccess(user, appointment);
+
+        // Lấy danh sách chi tiết từ lịch hẹn
+        List<AppointmentServiceItemDetail> details = appointment.getServiceDetails();
+
+        if (details == null || details.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Map sang DTO
+        return details.stream()
+                .map(appointmentServiceItemDetailMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

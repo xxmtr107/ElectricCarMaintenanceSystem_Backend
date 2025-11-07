@@ -6,6 +6,7 @@ import com.group02.ev_maintenancesystem.dto.request.ServiceItemApproveRequest;
 import com.group02.ev_maintenancesystem.dto.request.ServiceItemUpgradeRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
+import com.group02.ev_maintenancesystem.dto.response.AppointmentServiceItemDetailResponse;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.service.AppointmentService;
 import jakarta.validation.Valid;
@@ -163,6 +164,15 @@ public class AppointmentController {
         return ApiResponse.<AppointmentResponse>builder()
                 .message("Service item approval status(es) updated successfully.") // (Sửa message)
                 .result(appointmentService.approveServiceItem(appointmentId, requests, authentication)) // <-- THAY ĐỔI Ở ĐÂY
+                .build();
+    }
+    @GetMapping("/{appointmentId}/details")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<List<AppointmentServiceItemDetailResponse>> getAppointmentDetails(
+            @PathVariable Long appointmentId, Authentication authentication) {
+        return ApiResponse.<List<AppointmentServiceItemDetailResponse>>builder()
+                .message("Appointment details fetched successfully")
+                .result(appointmentService.getAppointmentDetails(appointmentId, authentication))
                 .build();
     }
 }

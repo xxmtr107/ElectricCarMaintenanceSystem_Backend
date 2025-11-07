@@ -2,6 +2,7 @@ package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.request.*;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
+import com.group02.ev_maintenancesystem.dto.response.AppointmentServiceItemDetailResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import org.springframework.cglib.core.Local;
@@ -41,4 +42,5 @@ public interface AppointmentService {
 
     AppointmentResponse upgradeServiceItem(Long appointmentId, List<ServiceItemUpgradeRequest> requests, Authentication authentication);
 
+    List<AppointmentServiceItemDetailResponse> getAppointmentDetails(Long appointmentId, Authentication authentication);
 }
