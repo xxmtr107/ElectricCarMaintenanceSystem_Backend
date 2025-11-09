@@ -36,4 +36,19 @@ public class EmailRecord {
 
     @Column(name="appointment_id")
     private Long appointmentID;
+
+    @Column(name="payment_id")
+    private Long paymentID;
+
+    @Column(name="vehicle_id")
+    private Long vehicleID;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private MailPaymentStatus status;
+
+    public enum MailPaymentStatus{
+        Success,
+        Not_Success
+    }
 }

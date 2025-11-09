@@ -62,8 +62,52 @@ public class EmailController {
     }
 
     @PostMapping("/Pay")
-    public ApiResponse<List<String>> sendReminderCheckout() throws MessagingException {
+    public ApiResponse<List<String>> sendReminderPayment() throws MessagingException {
         List<String> list=emailService.remindPayment();
+        try {
+            if(list.isEmpty()){
+                return ApiResponse.<List<String>>builder().
+                        message("No emails to send.").
+                        result(list).
+                        build();
+            }else{
+                return ApiResponse.<List<String>>builder().
+                        message("Mail sent successfully.").
+                        result(emailService.remindPayment()).
+                        build();
+            }
+        }catch (MessagingException e){
+            return ApiResponse.<List<String>>builder().
+                    message("Failed to send mail: " + e.getMessage()).
+                    build();
+        }
+    }
+
+    @PostMapping("/AppointmentConfirm")
+    public ApiResponse<List<String>> sendConfirmAppointment() throws MessagingException {
+        List<String> list=emailService.sendAppointmentConfirmation();
+        try {
+            if(list.isEmpty()){
+                return ApiResponse.<List<String>>builder().
+                        message("No emails to send.").
+                        result(list).
+                        build();
+            }else{
+                return ApiResponse.<List<String>>builder().
+                        message("Mail sent successfully.").
+                        result(emailService.remindPayment()).
+                        build();
+            }
+        }catch (MessagingException e){
+            return ApiResponse.<List<String>>builder().
+                    message("Failed to send mail: " + e.getMessage()).
+                    build();
+        }
+    }
+
+    @PostMapping("/PaymentConfirm")
+    public ApiResponse<List<String>> sendConfirmPayment() throws MessagingException {
+        List<String> list=emailService.sendPaymentConfirmation();
         try {
             if(list.isEmpty()){
                 return ApiResponse.<List<String>>builder().
