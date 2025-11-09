@@ -6,6 +6,7 @@ import com.group02.ev_maintenancesystem.dto.request.ServiceItemApproveRequest;
 import com.group02.ev_maintenancesystem.dto.request.ServiceItemUpgradeRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
+import com.group02.ev_maintenancesystem.dto.response.AppointmentServiceItemDetailResponse;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.service.AppointmentService;
 import jakarta.validation.Valid;
@@ -146,11 +147,11 @@ public class AppointmentController {
     @PreAuthorize("hasRole('TECHNICIAN')")
     public ApiResponse<AppointmentResponse> upgradeServiceItem(
             @PathVariable Long appointmentId,
-            @Valid @RequestBody ServiceItemUpgradeRequest request,
+            @Valid @RequestBody List<ServiceItemUpgradeRequest> requests, // <-- THAY ĐỔI Ở ĐÂY
             Authentication authentication) {
         return ApiResponse.<AppointmentResponse>builder()
-                .message("Service item upgrade requested successfully. Waiting for approval.")
-                .result(appointmentService.upgradeServiceItem(appointmentId, request, authentication))
+                .message("Service item upgrade(s) requested successfully. Waiting for approval.") // (Sửa message)
+                .result(appointmentService.upgradeServiceItem(appointmentId, requests, authentication)) // <-- THAY ĐỔI Ở ĐÂY
                 .build();
     }
 
@@ -158,11 +159,20 @@ public class AppointmentController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ApiResponse<AppointmentResponse> approveServiceItem(
             @PathVariable Long appointmentId,
-            @Valid @RequestBody ServiceItemApproveRequest request,
+            @Valid @RequestBody List<ServiceItemApproveRequest> requests, // <-- THAY ĐỔI Ở ĐÂY
             Authentication authentication) {
         return ApiResponse.<AppointmentResponse>builder()
-                .message("Service item approval status updated successfully.")
-                .result(appointmentService.approveServiceItem(appointmentId, request, authentication))
+                .message("Service item approval status(es) updated successfully.") // (Sửa message)
+                .result(appointmentService.approveServiceItem(appointmentId, requests, authentication)) // <-- THAY ĐỔI Ở ĐÂY
+                .build();
+    }
+    @GetMapping("/{appointmentId}/details")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ApiResponse<List<AppointmentServiceItemDetailResponse>> getAppointmentDetails(
+            @PathVariable Long appointmentId, Authentication authentication) {
+        return ApiResponse.<List<AppointmentServiceItemDetailResponse>>builder()
+                .message("Appointment details fetched successfully")
+                .result(appointmentService.getAppointmentDetails(appointmentId, authentication))
                 .build();
     }
 }

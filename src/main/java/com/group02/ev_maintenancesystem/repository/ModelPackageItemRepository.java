@@ -39,4 +39,6 @@ public interface ModelPackageItemRepository extends JpaRepository<ModelPackageIt
     boolean existsByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long itemId);
 
     List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmIn(Long modelId, List<Integer> milestones);
+
+    List<ModelPackageItem> findAllByVehicleModelId(Long vehicleModelId);
 }
