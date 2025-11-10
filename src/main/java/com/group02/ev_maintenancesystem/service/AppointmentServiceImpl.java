@@ -43,7 +43,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     UserRepository userRepository;
     AppointmentMapper appointmentMapper;
     VehicleRepository vehicleRepository;
-    ServicePackageRepository servicePackageRepository;
     ServiceItemRepository serviceItemRepository;
     ModelPackageItemRepository modelPackageItemRepository;
     MaintenanceRecordService maintenanceRecordService;
@@ -103,11 +102,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         Integer recommendedMilestoneKm = recommendation.getMilestoneKm();
 
         String milestonePackageName = "Maintenance " + recommendedMilestoneKm + "km milestone";
-        ServicePackage servicePackageForMilestone = servicePackageRepository.findByName(milestonePackageName)
-                .orElseGet(() -> {
-                    log.warn("ServicePackage with name '{}' not found. Setting package to null.", milestonePackageName);
-                    return null;
-                });
 
         Appointment appointment = new Appointment();
         appointment.setCustomerUser(customer);
@@ -115,7 +109,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setAppointmentDate(request.getAppointmentDate());
         appointment.setStatus(AppointmentStatus.PENDING);
         appointment.setEstimatedCost(recommendation.getEstimatedTotal());
-        appointment.setServicePackage(servicePackageForMilestone);
+        appointment.setServicePackageName(milestonePackageName);
         appointment.setServiceCenter(serviceCenter);
         appointment.setMilestoneKm(recommendedMilestoneKm);
 

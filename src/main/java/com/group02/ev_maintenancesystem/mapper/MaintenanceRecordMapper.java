@@ -22,8 +22,7 @@ public interface MaintenanceRecordMapper {
     @Mapping(target = "vehicleLicensePlate", source = "appointment.vehicle.licensePlate")
     @Mapping(target = "vehicleModel", source = "appointment.vehicle.model.name")
 
-    @Mapping(target = "servicePackageId", source = "appointment.servicePackage.id")
-    @Mapping(target = "servicePackageName", source = "appointment.servicePackage.name")
+    @Mapping(target = "servicePackageName", source = "appointment.servicePackageName")
 
     @Mapping(target = "serviceItems", ignore = true)
 

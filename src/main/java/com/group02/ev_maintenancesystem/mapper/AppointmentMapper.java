@@ -38,8 +38,7 @@ public interface AppointmentMapper {
     @Mapping(target = "vehicleLicensePlate", source = "vehicle.licensePlate")
     @Mapping(target = "vehicleModel", source = "vehicle.model.name")
 
-    @Mapping(target = "servicePackageId", source = "servicePackage.id")
-    @Mapping(target = "servicePackageName", source = "servicePackage.name")
+    @Mapping(target = "servicePackageName", source = "servicePackageName")
 
     @Mapping(target = "nameCenter",source = "serviceCenter.name")
     @Mapping(target = "addressCenter",source = "serviceCenter.address")
