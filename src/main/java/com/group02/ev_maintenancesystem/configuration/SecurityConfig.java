@@ -45,8 +45,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", // Swagger
-                                "/auth/**",              // Login, Refresh, Logout, Introspect
-                                "/vnPay/**"
+                                "/auth/**",                // Login, Refresh, Logout, Introspect
+                                "/customers/register",  // Đăng ký customer
+                                "/api/ws/**", //Cho phép WebSocket
+                                "/ws/**"
+
                         ).permitAll()
                         // Allow GET all vehicle models and service centers
                         .requestMatchers(HttpMethod.GET, "/vehicleModel", "/service-centers", "/service-centers/search", "/service-centers/{id}").permitAll()
@@ -69,7 +72,8 @@ public class SecurityConfig {
                                 "/appointments/{appointmentId}/assign/{technicianId}",
                                 "/maintenance-records/**",
                                 "/vehicles", // GET all vehicles
-                                "/technicians/**"      // Quản lý Technician
+                                "/technicians/**",      // Quản lý Technician
+                                "/customer"
                         ).hasAnyRole("ADMIN", "STAFF")
 
                         // --- 4. Endpoint TECHNICIAN (và cao hơn) ---
