@@ -184,11 +184,6 @@ public class EmailServiceImpl {
                         && a.getCreatedAt().isBefore(now))
                 .toList();
 
-        if(!recentAppointments.isEmpty()){
-            System.out.println("dang co "+recentAppointments.size()+" appointment:");
-        }else{
-            System.out.println("khong co appointment nao");
-        }
         for (Appointment appointment : recentAppointments) {
             boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentID(
                     appointment.getCustomerUser().getEmail(),

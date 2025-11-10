@@ -245,7 +245,7 @@ VALUES
 ('SUS-TIEROD-VFE34', N'Outer tie rod end VFe34', 850000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('DRV-AXLE-VFE34', N'CV joint VFe34', 3000000.00, 2, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('COOL-HOSE-VFE34', N'Main coolant hose VFe34', 600000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VFE34', N'A/C expansion valve VFe34', 1100000.00, 2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VFE34', N'A/C expansion valve VFe34', 1100000.00,   2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('HV-CABLE-VFE34', N'Charging cable VFe34', 6800000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('HV-FUSE-VFE34', N'Main HV fuse VFe34', 1600000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 ('WHL-TIRE-VFE34', N'Tire VFe34', 2950000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),

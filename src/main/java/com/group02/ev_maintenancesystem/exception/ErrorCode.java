@@ -120,11 +120,14 @@ public enum ErrorCode {
     SERVICE_CENTER_NAME_DUPLICATE(1301, "Service center name already exists", HttpStatus.BAD_REQUEST),
     SERVICE_CENTER_PHONE_DUPLICATE(1302, "Service center phone already exists", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_SERVICE_CENTER(1303, "Cannot delete service center, it is associated with users or other records", HttpStatus.BAD_REQUEST),
+    EMPLOYEE_NOT_BELONG_TO_SERVICE_CENTER(1304, "Employee does not belong to the specified service center", HttpStatus.BAD_REQUEST),
+    // ========================= MAINTENANCE SCHEDULE ERRORS (1400 - 1499) =========================
+    NO_MAINTENANCE_DUE(1400, "No maintenance recommendations found for this vehicle.", HttpStatus.BAD_REQUEST),
 
-    // ========================= ROOM CHAT ERRORS (1300 - 1399) =========================
-    ROOM_CHAT_NOT_FOUND(1400, "Room chat not found", HttpStatus.NOT_FOUND),
-    MEMBER_NOT_FOUND(1401, "Member not found", HttpStatus.NOT_FOUND),
-    ROOM_INVALID(1402, "Room is recieved", HttpStatus.BAD_REQUEST);
+    // ========================= ROOM CHAT ERRORS (1500 - 1599) =========================
+    ROOM_CHAT_NOT_FOUND(1500, "Room chat not found", HttpStatus.NOT_FOUND),
+    MEMBER_NOT_FOUND(1501, "Member not found", HttpStatus.NOT_FOUND),
+    ROOM_INVALID(1502, "Room is recieved", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;
