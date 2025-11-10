@@ -54,13 +54,6 @@ public class StaffController {
                 .build();
     }
 
-    @GetMapping("/center/{centerId}")
-    ApiResponse<List<UserResponse>> getStaffByCenter(@PathVariable Long centerId) {
-        return ApiResponse.<List<UserResponse>>builder()
-                .message("Staff fetched by center successfully")
-                .result(staffService.getStaffByCenter(centerId))
-                .build();
-    }
 
     @DeleteMapping("/{staffId}")
     ApiResponse<String> deleteStaff(@PathVariable Long staffId) {

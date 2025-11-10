@@ -46,9 +46,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", // Swagger
                                 "/auth/**",                // Login, Refresh, Logout, Introspect
-                                "/customers/register",  // Đăng ký customer
                                 "/api/ws/**", //Cho phép WebSocket
-                                "/ws/**"
+                                "/ws/**",
+                                "/vnPay/**"
 
                         ).permitAll()
                         // Allow GET all vehicle models and service centers
@@ -58,7 +58,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/staffs/**",              // Quản lý Staff
                                 "/vehicleModel/**",        // Quản lý Model xe
-                                "/servicePackage/**",      // Quản lý Gói
                                 "/serviceItem/**",         // Quản lý Hạng mục
                                 "/model-package-items/**", // Quản lý Menu giá
                                 "/service-centers/**",      // Quản lý Service Center (POST, PUT, DELETE)

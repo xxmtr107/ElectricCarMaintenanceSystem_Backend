@@ -5,6 +5,7 @@ import com.group02.ev_maintenancesystem.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,5 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     List<User> findAllByRole(Role role);
     Optional<User> findByIdAndRole(Long id, Role role);
-    List<User> findAllByRoleAndServiceCenterId(Role role, Long serviceCenterId);
+
+    Collection<Object> findAllByRoleAndServiceCenterId(Role role, Long centerId);
 }

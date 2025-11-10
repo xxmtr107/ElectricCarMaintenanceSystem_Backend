@@ -94,14 +94,5 @@ public class StaffServiceImpl implements StaffService {
 
         userRepository.delete(staff);
     }
-    @Override
-    public List<UserResponse> getStaffByCenter(Long centerId) {
-        if (!serviceCenterRepository.existsById(centerId)) {
-            throw new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND);
-        }
-        return userRepository.findAllByRoleAndServiceCenterId(Role.STAFF, centerId)
-                .stream()
-                .map(userMapper::toUserResponse)
-                .toList();
-    }
+
 }
