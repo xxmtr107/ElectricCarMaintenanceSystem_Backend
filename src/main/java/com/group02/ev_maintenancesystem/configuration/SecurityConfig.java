@@ -61,7 +61,8 @@ public class SecurityConfig {
                                 "/servicePackage/**",      // Quản lý Gói
                                 "/serviceItem/**",         // Quản lý Hạng mục
                                 "/model-package-items/**", // Quản lý Menu giá
-                                "/service-centers/**"      // Quản lý Service Center (POST, PUT, DELETE)
+                                "/service-centers/**",      // Quản lý Service Center (POST, PUT, DELETE)
+                                "/reports/**"
                         ).hasRole("ADMIN") // Chỉ ADMIN
 
                         // --- 3. Endpoint STAFF & ADMIN (Nghiệp vụ) ---
