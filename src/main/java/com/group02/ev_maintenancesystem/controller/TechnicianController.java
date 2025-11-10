@@ -61,6 +61,13 @@ public class TechnicianController {
                 .build();
     }
 
+    @GetMapping("/center/{centerId}")
+    ApiResponse<List<UserResponse>> getTechniciansByCenter(@PathVariable Long centerId) {
+        return ApiResponse.<List<UserResponse>>builder()
+                .message("Technicians fetched by center successfully")
+                .result(technicianService.getTechniciansByCenter(centerId))
+                .build();
+    }
 
 
 }

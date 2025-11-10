@@ -12,4 +12,5 @@ public interface StaffService {
     UserResponse getStaffById(Long staffId);
     List<UserResponse> getAllStaffs();
     void deleteStaff(Long staffId);
+    List<UserResponse> getStaffByCenter(Long centerId);
 }

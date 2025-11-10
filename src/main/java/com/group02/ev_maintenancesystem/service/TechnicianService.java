@@ -12,4 +12,5 @@ public interface TechnicianService {
     UserResponse getTechnicianById(Long technicianId);
     List<UserResponse> getAllTechnicians();
     void deleteTechnician(Long technicianId);
+    List<UserResponse> getTechniciansByCenter(Long centerId);
 }

@@ -94,4 +94,15 @@ public class TechnicianServiceImpl implements TechnicianService {
 
         userRepository.delete(technician);
     }
+
+    @Override
+    public List<UserResponse> getTechniciansByCenter(Long centerId) {
+        if (!serviceCenterRepository.existsById(centerId)) {
+            throw new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND);
+        }
+        return userRepository.findAllByRoleAndServiceCenterId(Role.TECHNICIAN, centerId)
+                .stream()
+                .map(userMapper::toUserResponse)
+                .toList();
+    }
 }
