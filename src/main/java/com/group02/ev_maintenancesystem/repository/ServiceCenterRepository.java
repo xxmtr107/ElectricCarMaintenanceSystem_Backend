@@ -13,4 +13,5 @@ public interface ServiceCenterRepository extends JpaRepository<ServiceCenter, Lo
     boolean existsByNameAndIdNot(String name, Long id);
     boolean existsByPhoneAndIdNot(String phone, Long id);
     Page<ServiceCenter> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
+    ServiceCenter findServiceCenterByAppointments_Id(long id);
 }

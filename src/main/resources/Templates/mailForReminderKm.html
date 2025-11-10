@@ -46,22 +46,23 @@
         <p>To maintain optimal vehicle performance and safety, please schedule your maintenance service as soon as
             possible.</p>
 
-        <a href="https://electric-car-maintenance.vercel.app" class="button">Book Maintenance Now</a>
+        <a href="https://electric-car-maintenance.vercel.app" class="button" style="color:white">Book Maintenance Now</a>
 
         <p style="margin-top: 20px;">
             If you have any questions or need assistance, please contact us:<br>
-
-        <div th:if="${stations != null and stations.size()>0}" th:each="s : ${stations}">
-            <div>
-                📞 <span th:text="${s.phone}">Phone</span><br>
-                ✉️ <span th:text="${s.email}">Email</span>
+        </p>
+        <div th:if="${stations != null and stations.size()>0}">
+            <div th:each="s : ${stations}">
+                <div>
+                    📞 <span th:text="${s.phone}">Phone</span><br>
+                </div>
             </div>
         </div>
+
 
         <div th:if="${stations == null or #lists.isEmpty(stations)}">
             <div>
                 📞 <span>19001009</span><br>
-                ✉️ <span>vinfastauto@gmail.com</span>
             </div>
         </div>
     </div>
