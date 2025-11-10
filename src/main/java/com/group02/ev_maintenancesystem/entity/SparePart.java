@@ -34,11 +34,12 @@ public class SparePart extends  BaseEntity {
     @Column(name = "minimum_stock_level", nullable = false, columnDefinition = "int default 10") // Mức tồn kho tối thiểu, không null, giá trị mặc định là 10
     Integer minimumStockLevel;
 
-    // Relationships
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", nullable = false)
-    PartCategory partCategory;
+    @Column(name = "category_name")
+    String categoryName;
 
+    @Column(name = "category_code")
+    String categoryCode;
+    // Relationships
     @OneToMany(mappedBy = "sparePart", fetch = FetchType.LAZY)
     List<PartUsage> partUsages = new ArrayList<>();
 

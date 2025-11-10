@@ -34,6 +34,9 @@ public class SparePartCreateRequest {
     @Min(value = 0, message = "SPARE_PART_STOCK_CANNOT_BE_NEGATIVE")
     Integer minimumStockLevel;
 
-    @NotNull(message = "NOT_BLANK")
-    Long categoryId;
+    @NotBlank(message = "NOT_BLANK")
+    String categoryName;
+
+    @NotBlank(message = "NOT_BLANK")
+    String categoryCode;
 }

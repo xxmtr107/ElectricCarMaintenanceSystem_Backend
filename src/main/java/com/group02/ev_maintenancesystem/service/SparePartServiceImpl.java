@@ -3,13 +3,10 @@ package com.group02.ev_maintenancesystem.service;
 import com.group02.ev_maintenancesystem.dto.request.SparePartCreateRequest;
 import com.group02.ev_maintenancesystem.dto.request.SparePartUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.response.PartCategoryResponse;
 import com.group02.ev_maintenancesystem.dto.response.SparePartResponse;
-import com.group02.ev_maintenancesystem.entity.PartCategory;
 import com.group02.ev_maintenancesystem.entity.SparePart;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
-import com.group02.ev_maintenancesystem.repository.PartCategoryRepository;
 import com.group02.ev_maintenancesystem.repository.SparePartRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +27,6 @@ public class SparePartServiceImpl implements  SparePartService {
 
     @Autowired
     ModelMapper modelMapper;
-
-    @Autowired
-    PartCategoryRepository partCategoryRepository;
 
     //Lấy tất cả phụ tùng theo trang
     @Override
@@ -60,17 +54,15 @@ public class SparePartServiceImpl implements  SparePartService {
         if(sparePartRepository.existsByPartNumber(sparePart.getPartNumber())){
             throw new AppException(ErrorCode.SPARE_PART_NUMBER_DUPLICATE);
         }
-
-        PartCategory partCategory = partCategoryRepository.findById(sparePart.getCategoryId()).
-                orElseThrow(() -> new AppException(ErrorCode.PART_CATEGORIES_NOT_FOUND));
-
         SparePart saveSparePart = new SparePart();
         saveSparePart.setPartNumber(sparePart.getPartNumber());
         saveSparePart.setName(sparePart.getName());
         saveSparePart.setUnitPrice(sparePart.getUnitPrice());
         saveSparePart.setMinimumStockLevel(sparePart.getMinimumStockLevel());
         saveSparePart.setQuantityInStock(sparePart.getQuantityInStock());
-        saveSparePart.setPartCategory(partCategory);
+        saveSparePart.setCategoryName(sparePart.getCategoryName());
+        saveSparePart.setCategoryCode(sparePart.getCategoryCode());
+
         sparePartRepository.save(saveSparePart);
 
         return modelMapper.map(sparePart, SparePartResponse.class);
@@ -118,11 +110,11 @@ public class SparePartServiceImpl implements  SparePartService {
             }
         }
 
-        Long newCategoryId = request.getCategoryId();
-        if (newCategoryId != null) {
-            PartCategory category = partCategoryRepository.findById(newCategoryId)
-                    .orElseThrow(() -> new AppException(ErrorCode.PART_CATEGORIES_NOT_FOUND));
-            sparePart.setPartCategory(category);
+        if (request.getCategoryName() != null) {
+            sparePart.setCategoryName(request.getCategoryName());
+        }
+        if (request.getCategoryCode() != null) {
+            sparePart.setCategoryCode(request.getCategoryCode());
         }
 
         SparePart updatedSparePart = sparePartRepository.save(sparePart);
