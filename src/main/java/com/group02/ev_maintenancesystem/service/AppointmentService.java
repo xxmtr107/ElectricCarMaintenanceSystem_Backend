@@ -1,9 +1,8 @@
 package com.group02.ev_maintenancesystem.service;
 
-import com.group02.ev_maintenancesystem.dto.request.AppointmentRegistrationRequest;
-import com.group02.ev_maintenancesystem.dto.request.AppointmentUpdateRequest;
-import com.group02.ev_maintenancesystem.dto.request.CustomerAppointmentRequest;
+import com.group02.ev_maintenancesystem.dto.request.*;
 import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
+import com.group02.ev_maintenancesystem.dto.response.AppointmentServiceItemDetailResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import org.springframework.cglib.core.Local;
@@ -25,20 +24,23 @@ public interface AppointmentService {
     // Get appointment by appointment ID
     AppointmentResponse getAppointmentByAppointmentId(Long appointmentId);
     // Get all appointments
-    List<AppointmentResponse> getAll();
+    List<AppointmentResponse> getAll(Authentication authentication);
     // Get appointments by status
-    List<AppointmentResponse> getAppointmentByStatus(AppointmentStatus status);
-    // Update appointment
-    AppointmentResponse updateAppointment(Long id,AppointmentUpdateRequest appointment);
+    List<AppointmentResponse> getAppointmentByStatus(AppointmentStatus status, Authentication authentication);
     // Cancel appointment
     AppointmentResponse cancelAppointment(Long appointmentId, Authentication authentication);
     // Get appointments between dates
-    List<AppointmentResponse> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
+    List<AppointmentResponse> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate, Authentication authentication);
     // Assign technician to appointment
-    AppointmentResponse assignTechnician(Long appointmentId, Long technicianId);
+    AppointmentResponse assignTechnician(Long appointmentId, Long technicianId, Authentication authentication);
 
-    AppointmentResponse setStatusAppointment(Long id, AppointmentStatus newStatus);
+    AppointmentResponse updateAppointment(Long id, AppointmentUpdateRequest appointment);
 
+    AppointmentResponse setStatusAppointment(Long id, AppointmentStatus newStatus, Authentication authentication);
 
-//    boolean isTechnicianAvailable(long technicianId, LocalDateTime scheduleDate);
+    AppointmentResponse approveServiceItem(Long appointmentId, List<ServiceItemApproveRequest> requests, Authentication authentication);
+
+    AppointmentResponse upgradeServiceItem(Long appointmentId, List<ServiceItemUpgradeRequest> requests, Authentication authentication);
+
+    List<AppointmentServiceItemDetailResponse> getAppointmentDetails(Long appointmentId, Authentication authentication);
 }

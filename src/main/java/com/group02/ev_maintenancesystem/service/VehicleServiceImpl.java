@@ -51,10 +51,11 @@ public class VehicleServiceImpl implements VehicleService{
 
 
     @Override
-    public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest, Authentication authentication) {
+    public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest) {
         //check Vin đã tồn tại chưa
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        Long customerId = jwt.getClaim("userId");
+        Long customerId = vehicleCreationRequest.getCustomerId();
+        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (vehicleRepository.existsByVin(vehicleCreationRequest.getVin())) {
             throw new AppException(ErrorCode.VIN_ALREADY_EXISTS);
@@ -79,8 +80,7 @@ public class VehicleServiceImpl implements VehicleService{
                 orElseThrow(() -> new AppException(ErrorCode.MODEL_NOT_FOUND));
         vehicle.setModel(model);
 
-        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
 
         vehicle.setCustomerUser(customer);
         Vehicle savedVehicle = vehicleRepository.save(vehicle);

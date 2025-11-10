@@ -40,6 +40,7 @@ public class VehicleCreationRequest {
     @NotNull(message = "NOT_BLANK")
     private Long modelId;
 
+    @NotNull(message = "NOT_BLANK")
     private Long customerId;
 
 

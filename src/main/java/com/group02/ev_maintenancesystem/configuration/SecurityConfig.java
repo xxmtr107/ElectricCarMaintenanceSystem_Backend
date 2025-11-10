@@ -83,6 +83,8 @@ public class SecurityConfig {
 
                         ).hasAnyRole("ADMIN", "STAFF", "TECHNICIAN")
 
+                        .requestMatchers(HttpMethod.POST, "/maintenance-records/{recordId}/parts")
+                        .hasAnyRole("TECHNICIAN")
                         // --- 5. Các endpoint còn lại ---
                         // Yêu cầu phải đăng nhập (Authenticated)
                         // Quyền chi tiết (như CUSTOMER có đúng là chủ xe không)

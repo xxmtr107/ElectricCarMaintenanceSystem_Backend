@@ -35,4 +35,13 @@ public class ModelPackageItem extends BaseEntity {
     @Column(name = "action_type", nullable = false)
     MaintenanceActionType actionType;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "included_spare_part_id") // Thêm cột này vào CSDL
+    SparePart includedSparePart;
+
+    // Số lượng phụ tùng được bao gồm (mặc định là 1 nếu có)
+    @Builder.Default
+    @Column(name = "included_quantity", columnDefinition = "int default 1")
+    Integer includedQuantity = 1;
 }

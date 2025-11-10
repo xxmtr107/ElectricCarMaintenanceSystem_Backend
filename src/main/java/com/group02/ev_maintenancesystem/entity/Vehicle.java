@@ -44,8 +44,5 @@ public class Vehicle extends BaseEntity{
     @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
     List<Appointment> appointments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
-    List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
-
 
 }
