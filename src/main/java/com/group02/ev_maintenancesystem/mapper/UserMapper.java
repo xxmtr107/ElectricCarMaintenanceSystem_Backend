@@ -17,7 +17,7 @@ public interface UserMapper {
     void updateUser(UserUpdateRequest request, @MappingTarget User user); // @MappingTarget để chỉ định đối tượng đích cần cập nhật
 
     // Mapping User sang UserResponse
-    @Mapping(target = "role", source = "role.name") // Chuyển đổi role.name sang role trong UserResponse
+    @Mapping(target = "role", source = "role")
     @Mapping(target = "serviceCenterId", source = "serviceCenter.id")
     @Mapping(target = "serviceCenterName", source = "serviceCenter.name")
     UserResponse toUserResponse(User user);

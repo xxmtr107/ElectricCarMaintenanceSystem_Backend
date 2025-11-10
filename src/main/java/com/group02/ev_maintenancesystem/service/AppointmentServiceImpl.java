@@ -1,6 +1,5 @@
 package com.group02.ev_maintenancesystem.service;
 
-import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendationDTO;
 import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
@@ -13,6 +12,7 @@ import com.group02.ev_maintenancesystem.dto.response.AppointmentServiceItemDetai
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
+import com.group02.ev_maintenancesystem.enums.Role;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.AppointmentMapper;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -67,7 +66,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Jwt jwt = (Jwt) authentication.getPrincipal();
         Long customerId = jwt.getClaim("userId");
-        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+        User customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
@@ -157,7 +156,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentResponse> getAppointmentByCustomerId(Long customerId) {
-        userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+        userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
         return mapAppointmentListToResponse(appointments);
@@ -195,7 +194,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentResponse> getAppointmentByTechnicianId(Long technicianId) {
-        userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+        userRepository.findByIdAndRole(technicianId, Role.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<Appointment> appointments = appointmentRepository.findByTechnicianUserId(technicianId);
         return mapAppointmentListToResponse(appointments);
@@ -207,7 +206,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         User staff = getAuthenticatedUser(authentication);
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
-        User technician = userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN)
+        User technician = userRepository.findByIdAndRole(technicianId, Role.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (staff.isStaff() && (appointment.getServiceCenter() == null ||

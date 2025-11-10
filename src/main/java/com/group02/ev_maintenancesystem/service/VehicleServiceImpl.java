@@ -1,5 +1,4 @@
 package com.group02.ev_maintenancesystem.service;
-import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
@@ -8,6 +7,7 @@ import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import com.group02.ev_maintenancesystem.enums.Role;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
@@ -26,7 +26,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +53,7 @@ public class VehicleServiceImpl implements VehicleService{
     public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest) {
         //check Vin đã tồn tại chưa
         Long customerId = vehicleCreationRequest.getCustomerId();
-        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+        User customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (vehicleRepository.existsByVin(vehicleCreationRequest.getVin())) {

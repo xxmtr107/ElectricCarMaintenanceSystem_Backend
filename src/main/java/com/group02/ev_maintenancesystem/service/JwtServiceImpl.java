@@ -42,7 +42,7 @@ public class JwtServiceImpl implements JwtService {
                 .issueTime(issueTime)
                 .expirationTime(expiredTime)
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", "ROLE_" + user.getRole().getName())
+                .claim("scope", "ROLE_" + user.getRole().name())
                 .claim("userId", user.getId())
                 .build();
 
