@@ -26,8 +26,8 @@ jwt:
 
 vnpay:
   pay-url:  "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-  return-url: "https://electric-car-maintenance.vercel.app/paymentSuccess"
-  ipn-url: "https://electriccarmaintenancesystem-production.up.railway.app/api/vnpay/ipn"
+  return-url: "http://localhost:8080/api/vnpay/return"
+  ipn-url: "https://electriccarmaintenancesystembackend-production.up.railway.app/api/vnpay/ipn"
   tmn-code: "9NN5ES27"
   secret-key: "9LKB82N3Z8HEIIACANJHCWIFDLF8HB9A"
   api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"

@@ -48,7 +48,7 @@ public class SecurityConfig {
                                 "/auth/**",                // Login, Refresh, Logout, Introspect
                                 "/api/ws/**", //Cho phép WebSocket
                                 "/ws/**",
-                                "/vnPay/**"
+                                "/vnpay/**"
 
                         ).permitAll()
                         // Allow GET all vehicle models and service centers
