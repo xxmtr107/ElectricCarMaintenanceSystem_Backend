@@ -43,25 +43,32 @@ public class VNPayServiceImpl implements  VNPayService {
 
     @Override
     public VNPayResponse createPayment(VNPayRequest request, HttpServletRequest httpServletRequest) {
-
+        Invoice invoice = invoiceRepository.findById(request.getInVoiceId())
+                .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
         try {
-            //check appointment
-            Invoice invoice = invoiceRepository.findById(request.getInVoiceId())
-                    .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
+
+            // Kiểm tra maintenance record
+            MaintenanceRecord maintenanceRecord = invoice.getMaintenanceRecord();
+
+            if(maintenanceRecord == null){
+                throw new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND);
+            }
+
+            Appointment appointment = maintenanceRecord.getAppointment();
+
+            if(appointment == null){
+                throw new AppException(ErrorCode.APPOINTMENT_NOT_FOUND);
+            }
 
             //Kiểm tra trạng thái của hóa đơn
             if ("PAID".equalsIgnoreCase(invoice.getStatus())) {
                 throw new AppException(ErrorCode.INVOICE_ALREADY_PAID);
             }
 
-            //Kiểm tra maintenanace record
-            MaintenanceRecord maintenanceRecord = invoice.getMaintenanceRecord();
             if(maintenanceRecord == null){
                 throw new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND);
             }
 
-            //Kiểm tra appointment có tồn tại
-            Appointment appointment = maintenanceRecord.getAppointment();
             if(appointment == null){
                 throw new AppException(ErrorCode.APPOINTMENT_NOT_FOUND);
             }
@@ -144,199 +151,205 @@ public class VNPayServiceImpl implements  VNPayService {
             return response;
 
 
-        }catch(Exception e){
+        }catch (AppException ae) {
+            // Bắt lại AppException của chính bạn
+            log.error("Lỗi khi tạo thanh toán: {}", ae.getErrorCode().getMessage());
+            throw ae; // Ném lại lỗi
+        } catch (Exception e) {
+            // Bắt các lỗi chung khác (NullPointerException, etc.)
+            log.error("Lỗi không xác định khi tạo thanh toán: {}", e.getMessage(), e); // THÊM LOG NÀY
             throw new AppException(ErrorCode.CREATE_PAYMENT_FAILED);
         }
     }
 
-    @Override
-    public boolean vnpayCallBack(Map<String, String> param) {
-        // Chỉ validate chữ ký đơn giản, không cập nhật CSDL
-        // Logic thật sự sẽ nằm trong processIpnCallback
-        String receivedHash = param.get("vnp_SecureHash");
-        param.remove("vnp_SecureHash");
-
-        List<String> fieldNames = new ArrayList<>(param.keySet());
-        Collections.sort(fieldNames);
-        StringBuilder hashData = new StringBuilder();
-        for (String name : fieldNames) {
-            String value = param.get(name);
-            if (value != null && !value.isEmpty()) {
-                hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.UTF_8));
-                hashData.append("&");
-            }
-        }
-        if (hashData.length() > 0) {
-            hashData.deleteCharAt(hashData.length() - 1); // Xóa dấu & cuối
-        }
-
-        String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
-
-        return computedHash.equals(receivedHash); // Chỉ trả về true/false nếu chữ ký hợp lệ
-    }
-
-    /**
-     * [THÊM MỚI] Xử lý IPN do VNPay Server gọi
-     * @return Chuỗi String (RspCode) để phản hồi cho VNPay
-     */
-    @Transactional
-    public String processIpnCallback(Map<String, String> params) {
-        try {
-            String receivedHash = params.get("vnp_SecureHash");
-            params.remove("vnp_SecureHash");
-
-            List<String> fieldNames = new ArrayList<>(params.keySet());
-            Collections.sort(fieldNames);
-            StringBuilder hashData = new StringBuilder();
-            for (String name : fieldNames) {
-                String value = params.get(name);
-                if (value != null && !value.isEmpty()) {
-                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
-                    hashData.append("&");
-                }
-            }
-            if (hashData.length() > 0) {
-                hashData.deleteCharAt(hashData.length() - 1); // Xóa dấu & cuối
-            }
-
-            String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
-
-            // 1. Kiểm tra chữ ký
-            if (!computedHash.equals(receivedHash)) {
-                log.warn("VNPay IPN Signature Invalid. TransactionCode: {}", params.get("vnp_TxnRef"));
-                return "RspCode=97&Message=InvalidSignature"; // Mã 97: Chữ ký không hợp lệ
-            }
-
-            String transactionCode = params.get("vnp_TxnRef");
-            String responseCode = params.get("vnp_ResponseCode");
-
-            // 2. Tìm Payment
-            Payment payment = paymentRepository.findByTransactionCode(transactionCode)
-                    .orElse(null);
-
-            if (payment == null) {
-                log.warn("VNPay IPN Payment not found. TransactionCode: {}", transactionCode);
-                return "RspCode=01&Message=OrderNotFound"; // Mã 01: Đơn hàng không tồn tại
-            }
-
-            // 3. Kiểm tra trạng thái (tránh xử lý lại)
-            if (payment.getStatus() == PaymentStatus.PAID) {
-                log.info("VNPay IPN duplicate callback. TransactionCode: {}", transactionCode);
-                return "RspCode=00&Message=ConfirmSuccess"; // Vẫn trả về thành công
-            }
-
-            // 4. Kiểm tra số tiền (an toàn)
-            long vnpAmount = Long.parseLong(params.get("vnp_Amount"));
-            long dbAmount = payment.getAmount().multiply(BigDecimal.valueOf(100)).longValue();
-            if (vnpAmount != dbAmount) {
-                log.error("VNPay IPN Amount mismatch. TransactionCode: {}. VNP: {}, DB: {}", transactionCode, vnpAmount, dbAmount);
-                return "RspCode=04&Message=InvalidAmount"; // Mã 04: Số tiền không hợp lệ
-            }
-
-            // 5. Cập nhật trạng thái
-            if ("00".equals(responseCode)) {
-                payment.setStatus(PaymentStatus.PAID);
-                payment.setPaymentDate(LocalDateTime.now()); // [THÊM MỚI] Ghi lại ngày thanh toán
-
-                Invoice invoice = payment.getInvoice();
-                invoice.setStatus("PAID");
-                invoiceRepository.save(invoice);
-            } else {
-                payment.setStatus(PaymentStatus.FAILED);
-            }
-            paymentRepository.save(payment);
-
-            log.info("VNPay IPN processed successfully. TransactionCode: {}", transactionCode);
-            return "RspCode=00&Message=ConfirmSuccess"; // Mã 00: Thành công
-
-        } catch (Exception e) {
-            log.error("Error processing VNPay IPN", e);
-            return "RspCode=99&Message=UnknownError"; // Mã 99: Lỗi không xác định
-        }
-    }
-
-    /**
-     * [THÊM MỚI] Lấy trạng thái thanh toán để frontend kiểm tra
-     */
-    public PaymentStatus getPaymentStatusByTransactionCode(String transactionCode) {
-        Payment payment = paymentRepository.findByTransactionCode(transactionCode)
-                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
-        return payment.getStatus();
-    }
-
-
 //    @Override
 //    public boolean vnpayCallBack(Map<String, String> param) {
-//        //Bỏ vnp_SecureHash trước khi hash lại để tránh hash nhầm vnp_secureHash do vnpay trả về
-//        String receivedHash = param.remove("vnp_SecureHash");
+//        // Chỉ validate chữ ký đơn giản, không cập nhật CSDL
+//        // Logic thật sự sẽ nằm trong processIpnCallback
+//        String receivedHash = param.get("vnp_SecureHash");
+//        param.remove("vnp_SecureHash");
 //
-//        //Sort lại và tạo chuỗi hashData để so sánh với data do vnpay trả về
 //        List<String> fieldNames = new ArrayList<>(param.keySet());
 //        Collections.sort(fieldNames);
-//
 //        StringBuilder hashData = new StringBuilder();
-//        for(int i=0; i<fieldNames.size(); i++){
-//            String name = fieldNames.get(i);
+//        for (String name : fieldNames) {
 //            String value = param.get(name);
-//            hashData.append(name).append("=");
-//            hashData.append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
-//            if(i < fieldNames.size()-1 ){
+//            if (value != null && !value.isEmpty()) {
+//                hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
 //                hashData.append("&");
 //            }
 //        }
+//        if (hashData.length() > 0) {
+//            hashData.deleteCharAt(hashData.length() - 1); // Xóa dấu & cuối
+//        }
 //
-//        //Hash lại bằng secret key để so sánh với vnp_SecureHash do vnPay trả về
 //        String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
 //
-//        //kiểm tra tính hợp lệ của chữ ký
-//        if(!computedHash.equals(receivedHash)){
-//            throw new AppException(ErrorCode.SIGNATURE_INVALID);
-//        }
+//        return computedHash.equals(receivedHash); // Chỉ trả về true/false nếu chữ ký hợp lệ
+//    }
 //
-//        //Lấy mã phản hồi từ VNPay
-//        String responseCode = param.get("vnp_ResponseCode");
-//        String transactionCode = param.get("vnp_TxnRef");
+//    /**
+//     * [THÊM MỚI] Xử lý IPN do VNPay Server gọi
+//     * @return Chuỗi String (RspCode) để phản hồi cho VNPay
+//     */
+//    @Transactional
+//    public String processIpnCallback(Map<String, String> params) {
+//        try {
+//            String receivedHash = params.get("vnp_SecureHash");
+//            params.remove("vnp_SecureHash");
 //
-//        //Tìm payment trong DataBase
-//        Payment payment = paymentRepository.findByTransactionCode(transactionCode)
-//                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+//            List<String> fieldNames = new ArrayList<>(params.keySet());
+//            Collections.sort(fieldNames);
+//            StringBuilder hashData = new StringBuilder();
+//            for (String name : fieldNames) {
+//                String value = params.get(name);
+//                if (value != null && !value.isEmpty()) {
+//                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+//                    hashData.append("&");
+//                }
+//            }
+//            if (hashData.length() > 0) {
+//                hashData.deleteCharAt(hashData.length() - 1); // Xóa dấu & cuối
+//            }
 //
-//        //Tránh xử lý lại giao dịch đã thành công
-//        if(payment.getStatus() == PaymentStatus.PAID){
-//            return true;
-//        }
+//            String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
 //
-//        //Cập nhập trạng thái các mã phản hổi
-//        if("00".equals(responseCode)){
-//            //payment set status
-//            payment.setStatus(PaymentStatus.PAID);
+//            // 1. Kiểm tra chữ ký
+//            if (!computedHash.equals(receivedHash)) {
+//                log.warn("VNPay IPN Signature Invalid. TransactionCode: {}", params.get("vnp_TxnRef"));
+//                return "RspCode=97&Message=InvalidSignature"; // Mã 97: Chữ ký không hợp lệ
+//            }
+//
+//            String transactionCode = params.get("vnp_TxnRef");
+//            String responseCode = params.get("vnp_ResponseCode");
+//
+//            // 2. Tìm Payment
+//            Payment payment = paymentRepository.findByTransactionCode(transactionCode)
+//                    .orElse(null);
+//
+//            if (payment == null) {
+//                log.warn("VNPay IPN Payment not found. TransactionCode: {}", transactionCode);
+//                return "RspCode=01&Message=OrderNotFound"; // Mã 01: Đơn hàng không tồn tại
+//            }
+//
+//            // 3. Kiểm tra trạng thái (tránh xử lý lại)
+//            if (payment.getStatus() == PaymentStatus.PAID) {
+//                log.info("VNPay IPN duplicate callback. TransactionCode: {}", transactionCode);
+//                return "RspCode=00&Message=ConfirmSuccess"; // Vẫn trả về thành công
+//            }
+//
+//            // 4. Kiểm tra số tiền (an toàn)
+//            long vnpAmount = Long.parseLong(params.get("vnp_Amount"));
+//            long dbAmount = payment.getAmount().multiply(BigDecimal.valueOf(100)).longValue();
+//            if (vnpAmount != dbAmount) {
+//                log.error("VNPay IPN Amount mismatch. TransactionCode: {}. VNP: {}, DB: {}", transactionCode, vnpAmount, dbAmount);
+//                return "RspCode=04&Message=InvalidAmount"; // Mã 04: Số tiền không hợp lệ
+//            }
+//
+//            // 5. Cập nhật trạng thái
+//            if ("00".equals(responseCode)) {
+//                payment.setStatus(PaymentStatus.PAID);
+//                payment.setPaymentDate(LocalDateTime.now()); // [THÊM MỚI] Ghi lại ngày thanh toán
+//
+//                Invoice invoice = payment.getInvoice();
+//                invoice.setStatus("PAID");
+//                invoiceRepository.save(invoice);
+//            } else {
+//                payment.setStatus(PaymentStatus.FAILED);
+//            }
 //            paymentRepository.save(payment);
 //
-//            //invoice set Status
-//            Invoice invoice = payment.getInvoice();
-//            invoice.setStatus("PAID");
-//            invoiceRepository.save(invoice);
-//            return true;
-//        }
-//        if("24".equals(responseCode)){
-//            payment.setStatus(PaymentStatus.CANCELLED);
-//            paymentRepository.save(payment);
+//            log.info("VNPay IPN processed successfully. TransactionCode: {}", transactionCode);
+//            return "RspCode=00&Message=ConfirmSuccess"; // Mã 00: Thành công
 //
-//            Invoice invoice = payment.getInvoice();
-//            invoice.setStatus("CANCELLED");
-//            invoiceRepository.save(invoice);
-//            return false;
-//        }
-//        else{
-//            payment.setStatus(PaymentStatus.FAILED);
-//            paymentRepository.save(payment);
-//
-//            Invoice invoice = payment.getInvoice();
-//            invoice.setStatus("FAIL");
-//            invoiceRepository.save(invoice);
-//            return false;
+//        } catch (Exception e) {
+//            log.error("Error processing VNPay IPN", e);
+//            return "RspCode=99&Message=UnknownError"; // Mã 99: Lỗi không xác định
 //        }
 //    }
+//
+//    /**
+//     * [THÊM MỚI] Lấy trạng thái thanh toán để frontend kiểm tra
+//     */
+//    public PaymentStatus getPaymentStatusByTransactionCode(String transactionCode) {
+//        Payment payment = paymentRepository.findByTransactionCode(transactionCode)
+//                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+//        return payment.getStatus();
+//    }
+
+
+    @Override
+    public boolean vnpayCallBack(Map<String, String> param) {
+        //Bỏ vnp_SecureHash trước khi hash lại để tránh hash nhầm vnp_secureHash do vnpay trả về
+        String receivedHash = param.remove("vnp_SecureHash");
+
+        //Sort lại và tạo chuỗi hashData để so sánh với data do vnpay trả về
+        List<String> fieldNames = new ArrayList<>(param.keySet());
+        Collections.sort(fieldNames);
+
+        StringBuilder hashData = new StringBuilder();
+        for(int i=0; i<fieldNames.size(); i++){
+            String name = fieldNames.get(i);
+            String value = param.get(name);
+            hashData.append(name).append("=");
+            hashData.append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+            if(i < fieldNames.size()-1 ){
+                hashData.append("&");
+            }
+        }
+
+        //Hash lại bằng secret key để so sánh với vnp_SecureHash do vnPay trả về
+        String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
+
+        //kiểm tra tính hợp lệ của chữ ký
+        if(!computedHash.equals(receivedHash)){
+            throw new AppException(ErrorCode.SIGNATURE_INVALID);
+        }
+
+        //Lấy mã phản hồi từ VNPay
+        String responseCode = param.get("vnp_ResponseCode");
+        String transactionCode = param.get("vnp_TxnRef");
+
+        //Tìm payment trong DataBase
+        Payment payment = paymentRepository.findByTransactionCode(transactionCode)
+                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        //Tránh xử lý lại giao dịch đã thành công
+        if(payment.getStatus() == PaymentStatus.PAID){
+            return true;
+        }
+
+        //Cập nhập trạng thái các mã phản hổi
+        if("00".equals(responseCode)){
+            //payment set status
+            payment.setStatus(PaymentStatus.PAID);
+            paymentRepository.save(payment);
+
+            //invoice set Status
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("PAID");
+            invoiceRepository.save(invoice);
+            return true;
+        }
+        if("24".equals(responseCode)){
+            payment.setStatus(PaymentStatus.CANCELLED);
+            paymentRepository.save(payment);
+
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("CANCELLED");
+            invoiceRepository.save(invoice);
+            return false;
+        }
+        else{
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+
+            Invoice invoice = payment.getInvoice();
+            invoice.setStatus("FAIL");
+            invoiceRepository.save(invoice);
+            return false;
+        }
+    }
 
     //HmacSHA512 để tạo chữ ký khi kết hợp data và key
     private String hmacSHA512(String key, String data){
