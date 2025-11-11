@@ -50,10 +50,7 @@
 //                    .result(service.vnpayCallBack(params))
 //                    .build();
 //        }
-        /**
-         * [THAY ĐỔI] Endpoint này VNPay gọi để redirect trình duyệt khách hàng.
-         * Nhiệm vụ: Chuyển hướng (redirect) khách hàng về trang frontend.
-         */
+
 //        @GetMapping("/return")
 //        public void handleVNPayReturn(@RequestParam Map<String, String> params, HttpServletResponse response) throws IOException {
 //            // Lấy URL frontend từ config
@@ -119,7 +116,6 @@
         public void handleVNPayReturn(
                 @RequestParam Map<String, String> params,
                 HttpServletResponse response) throws IOException {
-
             log.info("Received /return call from User Browser: {}", params);
 
             // 1. Thực thi logic
@@ -127,13 +123,16 @@
 
             // 2. Chuyển hướng về frontend
             // (Đây là ví dụ, bạn nên lấy URL frontend từ config)
-            String frontendUrl = "https://electric-car-maintenance.vercel.app/paymentSuccess";
+            String frontendUrl = vnPayConfig.getVnp_PayUrl();
 
-            if (paymentSuccess) {
-                response.sendRedirect(frontendUrl + "?success=true&code=" + params.get("vnp_TxnRef"));
+            String redirectUrl;
+            if (paymentSuccess){
+                redirectUrl = frontendUrl + "?success=true&code=" + params.get("vnp_TxnRef");
             } else {
-                response.sendRedirect(frontendUrl + "?success=false&code=" + params.get("vnp_ResponseCode"));
+                redirectUrl = frontendUrl + "?success=false&code=" + params.get("vnp_ResponseCode");
             }
+
+            response.sendRedirect(redirectUrl);
         }
 
         @GetMapping("/ipn")

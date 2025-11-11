@@ -14,18 +14,15 @@ import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
 import com.group02.ev_maintenancesystem.repository.InvoiceRepository;
 import com.group02.ev_maintenancesystem.repository.PaymentRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -129,8 +126,8 @@ public class VNPayServiceImpl implements  VNPayService {
                 String name = fieldName.get(i);
                 String value = vnp_Params.get(name);
                 if (value != null && !value.trim().isEmpty()) {
-                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
-                    query.append(URLEncoder.encode(name, StandardCharsets.US_ASCII)).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+                    query.append(URLEncoder.encode(name, StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(value, StandardCharsets.UTF_8));
                     if (i < fieldName.size() - 1) {
                         hashData.append("&");
                         query.append("&");
@@ -288,18 +285,22 @@ public class VNPayServiceImpl implements  VNPayService {
         Collections.sort(fieldNames);
 
         StringBuilder hashData = new StringBuilder();
-        for(int i=0; i<fieldNames.size(); i++){
-            String name = fieldNames.get(i);
+        List<String> pairs = new ArrayList<>();
+        for (String name : fieldNames) {
             String value = param.get(name);
-            hashData.append(name).append("=");
-            hashData.append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
-            if(i < fieldNames.size()-1 ){
-                hashData.append("&");
+            if (value != null && !value.trim().isEmpty()) {
+                pairs.add(name + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8));
             }
         }
+        if (!pairs.isEmpty()) {
+            hashData.append(String.join("&", pairs));
+        }
 
-        //Hash lại bằng secret key để so sánh với vnp_SecureHash do vnPay trả về
         String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
+
+        if (!computedHash.equals(receivedHash)) {
+            throw new AppException(ErrorCode.SIGNATURE_INVALID);
+        }
 
         //kiểm tra tính hợp lệ của chữ ký
         if(!computedHash.equals(receivedHash)){
