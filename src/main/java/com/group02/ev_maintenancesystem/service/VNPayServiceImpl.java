@@ -162,7 +162,7 @@ public class VNPayServiceImpl implements  VNPayService {
         for (String name : fieldNames) {
             String value = param.get(name);
             if (value != null && !value.isEmpty()) {
-                hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+                hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.UTF_8));
                 hashData.append("&");
             }
         }
