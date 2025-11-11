@@ -19,7 +19,7 @@
     import java.util.stream.Collectors;
 
     @RestController
-    @RequestMapping("/vnPay")
+    @RequestMapping("/vnpay")
     public class VNPayController {
 
         @Autowired
