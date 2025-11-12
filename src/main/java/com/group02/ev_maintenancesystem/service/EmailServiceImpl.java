@@ -2,11 +2,13 @@ package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendationDTO;
 import com.group02.ev_maintenancesystem.entity.*;
+import com.group02.ev_maintenancesystem.enums.AppointmentStatus; // THÊM MỚI
 import com.group02.ev_maintenancesystem.enums.EmailType;
 import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import com.group02.ev_maintenancesystem.repository.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j; // THÊM MỚI
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -21,8 +23,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects; // THÊM MỚI
 
 @Service
+@Slf4j // THÊM MỚI
 public class EmailServiceImpl {
 
     @Autowired
@@ -39,12 +43,15 @@ public class EmailServiceImpl {
     PaymentRepository paymentRepository;
     @Autowired
     EmailRepository emailRepository;
-
     @Autowired
     private MaintenanceService maintenanceService;
 
+    @Autowired
+    private InvoiceRepository invoiceRepository; // <-- THÊM MỚI
+
     @Scheduled(cron = "0 0 8 * * ?")
     public List<String> reminderKm() throws MessagingException {
+
         List<Vehicle> vehicles = vehicleRepository.findAll();
         List<String> receivers = new ArrayList<>();
 
@@ -181,20 +188,31 @@ public class EmailServiceImpl {
         return receivers;
     }
 
+    /**
+     * ĐÃ CẬP NHẬT LOGIC:
+     * Chạy mỗi phút, tìm các lịch hẹn vừa được CHUYỂN SANG 'CONFIRMED'
+     * và gửi mail xác nhận (1 lần duy nhất).
+     */
     @Scheduled(fixedRate = 60000)
     @Transactional
     public List<String> sendAppointmentConfirmation() throws MessagingException {
         List<String> receivers = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime fiveMinutesAgo = now.minusMinutes(5);
+        // Quét 2 phút vừa qua để tránh lỡ (do transaction commit trễ)
+        LocalDateTime twoMinutesAgo = now.minusMinutes(2);
 
+        // Lấy tất cả appointment (hơi nặng) và lọc
+        // Lý tưởng nhất là tạo method trong repository:
+        // findAllByStatusAndUpdatedAtAfter(AppointmentStatus.CONFIRMED, twoMinutesAgo)
         List<Appointment> recentAppointments = appointmentRepository.findAll().stream()
-                .filter(a -> a.getCreatedAt() != null
-                        && a.getCreatedAt().isAfter(fiveMinutesAgo)
-                        && a.getCreatedAt().isBefore(now))
+                .filter(a -> a.getStatus() == AppointmentStatus.CONFIRMED // <-- LỌC STATUS
+                        && a.getUpdatedAt() != null
+                        && a.getUpdatedAt().isAfter(twoMinutesAgo)
+                        && a.getUpdatedAt().isBefore(now))
                 .toList();
 
         for (Appointment appointment : recentAppointments) {
+            // Kiểm tra xem đã từng gửi mail CONFIRM cho lịch này CHƯA
             boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentID(
                     appointment.getCustomerUser().getEmail(),
                     EmailType.APPOINTMENT_DATE,
@@ -212,13 +230,13 @@ public class EmailServiceImpl {
                 context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
                 context.setVariable("phone", appointment.getServiceCenter().getPhone());
 
-//                String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context);
+                String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context); // Sửa lỗi
 
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
                 helper.setTo(appointment.getCustomerUser().getEmail());
                 helper.setSubject("EV Maintenance System - Appointment Confirmation");
-//                helper.setText(htmlContent, true);
+                helper.setText(htmlContent, true); // Sửa lỗi
                 mailSender.send(message);
                 saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_DATE, null,null, appointment.getId(), null, null);
                 receivers.add(appointment.getCustomerUser().getEmail());
@@ -227,31 +245,49 @@ public class EmailServiceImpl {
         return receivers;
     }
 
+    /**
+     * ĐÃ CẬP NHẬT LOGIC:
+     * Chạy mỗi phút, tìm các HÓA ĐƠN (Invoice) vừa được CHUYỂN SANG 'PAID'
+     * và gửi mail xác nhận (1 lần duy nhất).
+     */
     @Scheduled(fixedRate = 60000)
     @Transactional
     public List<String> sendPaymentConfirmation() throws MessagingException {
         List<String> receivers = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime fiveMinutesAgo = now.minusMinutes(5);
+        LocalDateTime twoMinutesAgo = now.minusMinutes(2); // Quét 2 phút
 
-        List<Payment> recentPayments = paymentRepository.findAll().stream()
-                .filter(p -> p.getCreatedAt() != null
-                        && p.getCreatedAt().isAfter(fiveMinutesAgo)
-                        && p.getCreatedAt().isBefore(now)
-                        && p.getStatus() == PaymentStatus.PAID)
+        // Tìm các HÓA ĐƠN vừa được thanh toán
+        List<Invoice> recentPaidInvoices = invoiceRepository.findByStatus("PAID").stream() // <-- TÌM THEO INVOICE
+                .filter(i -> i.getUpdatedAt() != null
+                        && i.getUpdatedAt().isAfter(twoMinutesAgo)
+                        && i.getUpdatedAt().isBefore(now))
                 .toList();
 
-        for (Payment payment : recentPayments) {
-            String email = payment.getInvoice()
+        for (Invoice invoice : recentPaidInvoices) { // <-- DUYỆT QUA INVOICE
+            String email = invoice
                     .getMaintenanceRecord()
                     .getAppointment()
                     .getCustomerUser()
                     .getEmail();
 
+            // Tìm Payment ID tương ứng để ghi log
+            Payment payment = invoice.getPayments().stream()
+                    .filter(p -> p.getStatus() == PaymentStatus.PAID)
+                    .findFirst() // Lấy payment PAID đầu tiên
+                    .orElse(null);
+
+            if (payment == null) {
+                log.warn("Invoice {} is PAID but has no corresponding PAID Payment entity. Skipping email.", invoice.getId());
+                continue;
+            }
+
+            Long paymentId = payment.getId();
+
             boolean alreadySent = emailRepository.existsByEmailAndTypeAndPaymentIDAndStatus(
                     email,
                     EmailType.PAYMENT,
-                    payment.getId(),
+                    paymentId,
                     EmailRecord.MailPaymentStatus.Success
             );
 
@@ -259,11 +295,11 @@ public class EmailServiceImpl {
                 Context context = new Context();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
-                context.setVariable("name", payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getFullName());
-                context.setVariable("vin", payment.getInvoice().getMaintenanceRecord().getAppointment().getVehicle().getVin());
-                context.setVariable("vehicle", payment.getInvoice().getMaintenanceRecord().getAppointment().getVehicle().getModel().getName());
-                context.setVariable("invoiceNo", payment.getInvoice().getId());
-                context.setVariable("amount", payment.getInvoice().getTotalAmount());
+                context.setVariable("name", invoice.getMaintenanceRecord().getAppointment().getCustomerUser().getFullName());
+                context.setVariable("vin", invoice.getMaintenanceRecord().getAppointment().getVehicle().getVin());
+                context.setVariable("vehicle", invoice.getMaintenanceRecord().getAppointment().getVehicle().getModel().getName());
+                context.setVariable("invoiceNo", invoice.getId());
+                context.setVariable("amount", invoice.getTotalAmount());
                 context.setVariable("paidDate", LocalDateTime.now().format(formatter));
 
                 String htmlContent = templateEngine.process("mailForPaymentConfirmation", context);
@@ -275,7 +311,7 @@ public class EmailServiceImpl {
                 helper.setText(htmlContent, true);
                 mailSender.send(message);
                 saveEmail(email, EmailType.PAYMENT, null,null,
-                        null, payment.getId(), EmailRecord.MailPaymentStatus.Success);
+                        null, paymentId, EmailRecord.MailPaymentStatus.Success);
                 receivers.add(email);
             }
         }
