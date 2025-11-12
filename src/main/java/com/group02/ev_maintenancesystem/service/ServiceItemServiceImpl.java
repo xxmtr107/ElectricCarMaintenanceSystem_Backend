@@ -4,16 +4,12 @@ import com.group02.ev_maintenancesystem.dto.request.ServiceItemCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.ServiceItemUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ServiceItemResponse;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
-import com.group02.ev_maintenancesystem.entity.ServicePackage;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.ServiceItemRepository;
-import com.group02.ev_maintenancesystem.repository.ServicePackageRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,8 +24,7 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
     ServiceItemRepository serviceItemRepository;
     @Autowired
     private ModelMapper modelMapper;
-    @Autowired
-    private ServicePackageRepository servicePackageRepository;
+
 
     @Override
     public ServiceItemResponse createServiceItem(ServiceItemCreationRequest request) {

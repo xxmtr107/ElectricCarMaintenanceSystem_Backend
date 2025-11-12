@@ -1,17 +1,15 @@
 package com.group02.ev_maintenancesystem.service;
 
-import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.request.PasswordUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.UserResponse;
-import com.group02.ev_maintenancesystem.entity.Role;
 import com.group02.ev_maintenancesystem.entity.User;
+import com.group02.ev_maintenancesystem.enums.Role;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.UserMapper;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
-import com.group02.ev_maintenancesystem.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,6 @@ import java.util.List;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class CustomerServiceImpl implements CustomerService {
     UserRepository userRepository;
-    RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
 
@@ -36,10 +33,7 @@ public class CustomerServiceImpl implements CustomerService {
         User customer = userMapper.toUser(request);
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Role role = roleRepository.findByName(PredefinedRole.CUSTOMER)
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
-        customer.setRole(role);
+        customer.setRole(Role.CUSTOMER);
         try {
             customer = userRepository.save(customer);
         } catch (DataIntegrityViolationException e) {
@@ -56,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public UserResponse updateCustomer(Long customerId, UserUpdateRequest request) {
-        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+        User customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         return userMapper.toUserResponse(userRepository.save(customer));
@@ -113,7 +107,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public UserResponse getCustomerById(Long customerId) {
-        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+        User customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
 
@@ -123,17 +117,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<UserResponse> getAllCustomers() {
-        Role customerRole = roleRepository.findByName(PredefinedRole.CUSTOMER)
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
-        return userRepository.findAllByRole(customerRole).stream()
+        return userRepository.findAllByRole(Role.CUSTOMER).stream()
                 .map(userMapper::toUserResponse)
                 .toList();
     }
 
     @Override
     public void deleteCustomer(Long customerId) {
-        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+        User customer = userRepository.findByIdAndRole(customerId,Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userRepository.delete(customer);

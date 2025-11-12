@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,10 +31,10 @@ public class TechnicianController {
     }
 
     @GetMapping
-    ApiResponse<List<UserResponse>> findAll(){
+    ApiResponse<List<UserResponse>> findAll(Authentication authentication){
         return ApiResponse.<List<UserResponse>>builder()
                 .message("Technicians fetched successfully")
-                .result(technicianService.getAllTechnicians())
+                .result(technicianService.getAllTechnicians(authentication))
                 .build();
     }
 
@@ -60,6 +61,7 @@ public class TechnicianController {
                 .message("Technician deleted successfully")
                 .build();
     }
+
 
 
 

@@ -1,55 +1,41 @@
 -- ========================================
--- 1. ROLES (Không thay đổi)
+-- 1. ROLES (Đã xóa, chuyển sang Enum)
 -- ========================================
-INSERT IGNORE INTO roles (name, create_at, created_by) VALUES
-                                                           ('CUSTOMER', NOW(), 'SYSTEM'),
-                                                           ('TECHNICIAN', NOW(), 'SYSTEM'),
-                                                           ('STAFF', NOW(), 'SYSTEM'),
-                                                           ('ADMIN', NOW(), 'SYSTEM');
+-- (Toàn bộ khối INSERT IGNORE INTO roles đã được xóa)
 
 -- ========================================
--- 2. USERS (Cập nhật: Bỏ username, SĐT là unique)
+-- 2. USERS (Cập nhật: Bỏ role_id, dùng cột 'role' kiểu String)
 -- ========================================
-INSERT IGNORE INTO users (username, email, password, phone, full_name, gender, role_id, create_at, update_at) VALUES
-                                                                                                                  -- CUSTOMER (role_id = 1)
-                                                                                                                  ('baobao1', 'baobao1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234001', N'Bảo Bảo', 'MALE', 1, NOW(), NOW()),
-                                                                                                                  ('triettriet1', 'triettriet1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234002', N'Triết Triết', 'FEMALE', 1, NOW(), NOW()),
-                                                                                                                  ('nguyennguyen1', 'nguyennguyen1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234003', N'Nguyên Nguyên', 'MALE', 1, NOW(), NOW()),
-                                                                                                                  ('thaothao1', 'thaothao1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234004', N'Thảo Thảo', 'FEMALE', 1,  NOW(), NOW()),
-                                                                                                                  -- TECHNICIAN (role_id = 2)
-                                                                                                                  ('baobao2', 'baobao2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234005', N'Bảo Bảo', 'MALE', 2, NOW(), NOW()),
-                                                                                                                  ('triettriet2', 'triettriet2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234006', N'Triết Triết', 'FEMALE', 2, NOW(), NOW()),
-                                                                                                                  ('nguyennguyen2', 'nguyennguyen2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234007', N'Nguyên Nguyên', 'MALE', 2, NOW(), NOW()),
-                                                                                                                  ('thaothao2', 'thaothao2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234008', N'Thảo Thảo', 'FEMALE', 2,  NOW(), NOW()),
-                                                                                                                  -- STAFF (role_id = 3)
-                                                                                                                  ('baobao3', 'baobao3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234009', N'Bảo Bảo', 'MALE', 3, NOW(), NOW()),
-                                                                                                                  ('triettriet3', 'triettriet3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234010', N'Triết Triết', 'FEMALE', 3, NOW(), NOW()),
-                                                                                                                  ('nguyennguyen3', 'nguyennguyen3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234011', N'Nguyên Nguyên', 'MALE', 3, NOW(), NOW()),
-                                                                                                                  ('thaothao3', 'thaothao3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234012', N'Thảo Thảo', 'FEMALE', 3, NOW(), NOW()),
-                                                                                                                  -- ADMIN (role_id = 4)
-                                                                                                                  ('baobao4', 'baobao4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234013', N'Bảo Bảo', 'MALE', 4, NOW(), NOW()),
-                                                                                                                  ('triettriet4', 'triettriet4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234014', N'Triết Triết', 'FEMALE', 4, NOW(), NOW()),
-                                                                                                                  ('nguyennguyen4', 'nguyennguyen4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234015', N'Nguyên Nguyên', 'MALE', 4, NOW(), NOW()),
-                                                                                                                  ('thaothao4', 'thaothao4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234016', N'Thảo Thảo', 'FEMALE', 4, NOW(), NOW());
 SET NAMES utf8mb4;
+INSERT IGNORE INTO users (username, email, password, phone, full_name, gender, role, create_at, update_at) VALUES
+                                                                                                               -- CUSTOMER (role = 'CUSTOMER')
+                                                                                                               ('baobao1', 'baobao1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234001', N'Bảo Bảo', 'MALE', 'CUSTOMER', NOW(), NOW()),
+                                                                                                               ('triettriet1', 'triettriet1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234002', N'Triết Triết', 'FEMALE', 'CUSTOMER', NOW(), NOW()),
+                                                                                                               ('nguyennguyen1', 'nguyennguyen1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234003', N'Nguyên Nguyên', 'MALE', 'CUSTOMER', NOW(), NOW()),
+                                                                                                               ('thaothao1', 'thaothao1@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234004', N'Thảo Thảo', 'FEMALE', 'CUSTOMER',  NOW(), NOW()),
+                                                                                                               -- TECHNICIAN (role = 'TECHNICIAN')
+                                                                                                               ('baobao2', 'baobao2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234005', N'Bảo Bảo', 'MALE', 'TECHNICIAN', NOW(), NOW()),
+                                                                                                               ('triettriet2', 'triettriet2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234006', N'Triết Triết', 'FEMALE', 'TECHNICIAN', NOW(), NOW()),
+                                                                                                               ('nguyennguyen2', 'nguyennguyen2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234007', N'Nguyên Nguyên', 'MALE', 'TECHNICIAN', NOW(), NOW()),
+                                                                                                               ('thaothao2', 'thaothao2@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234008', N'Thảo Thảo', 'FEMALE', 'TECHNICIAN',  NOW(), NOW()),
+                                                                                                               -- STAFF (role = 'STAFF')
+                                                                                                               ('baobao3', 'baobao3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234009', N'Bảo Bảo', 'MALE', 'STAFF', NOW(), NOW()),
+                                                                                                               ('triettriet3', 'triettriet3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234010', N'Triết Triết', 'FEMALE', 'STAFF', NOW(), NOW()),
+                                                                                                               ('nguyennguyen3', 'nguyennguyen3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234011', N'Nguyên Nguyên', 'MALE', 'STAFF', NOW(), NOW()),
+                                                                                                               ('thaothao3', 'thaothao3@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234012', N'Thảo Thảo', 'FEMALE', 'STAFF', NOW(), NOW()),
+                                                                                                               -- ADMIN (role = 'ADMIN')
+                                                                                                               ('baobao4', 'baobao4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234013', N'Bảo Bảo', 'MALE', 'ADMIN', NOW(), NOW()),
+                                                                                                               ('triettriet4', 'triettriet4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234014', N'Triết Triết', 'FEMALE', 'ADMIN', NOW(), NOW()),
+                                                                                                               ('nguyennguyen4', 'nguyennguyen4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234015', N'Nguyên Nguyên', 'MALE', 'ADMIN', NOW(), NOW()),
+                                                                                                               ('thaothao4', 'thaothao4@example.com', '$2a$10$9ViHL2oWm7hurneJAixnW.6E2OUqWYaSrALzF3sVirp9.EwWnqncG', '0901234016', N'Thảo Thảo', 'FEMALE', 'ADMIN', NOW(), NOW());
 
 -- =================================================================
--- 3. SERVICE_PACKAGES (Các mốc bảo dưỡng - Không thay đổi)
+-- 3. SERVICE_PACKAGES (Đã xóa)
 -- =================================================================
-INSERT IGNORE INTO service_packages (name, description) VALUES
-                                                            (N'Maintenance 12000km milestone', N'Periodic maintenance package at 12,000km or 1 year'),
-                                                            (N'Maintenance 24000km milestone', N'Periodic maintenance package at 24,000km or 2 years'),
-                                                            (N'Maintenance 36000km milestone', N'Periodic maintenance package at 36,000km or 3 years'),
-                                                            (N'Maintenance 48000km milestone', N'Periodic maintenance package at 48,000km or 4 years'),
-                                                            (N'Maintenance 60000km milestone', N'Periodic maintenance package at 60,000km or 5 years'),
-                                                            (N'Maintenance 72000km milestone', N'Periodic maintenance package at 72,000km or 6 years'),
-                                                            (N'Maintenance 84000km milestone', N'Periodic maintenance package at 84,000km or 7 years'),
-                                                            (N'Maintenance 96000km milestone', N'Periodic maintenance package at 96,000km or 8 years'),
-                                                            (N'Maintenance 108000km milestone', N'Periodic maintenance package at 108,000km or 9 years'),
-                                                            (N'Maintenance 120000km milestone', N'Periodic maintenance package at 120,000km or 10 years');
+-- (Toàn bộ khối INSERT IGNORE INTO service_packages đã được xóa)
 
 -- =================================================================
--- 4. SERVICE_ITEMS (Cập nhật: Dựa trên Master List 27 hạng mục)
+-- 4. SERVICE_ITEMS (Giữ nguyên)
 -- =================================================================
 INSERT INTO service_items (id, name, description) VALUES
                                                       (1, N'Lọc gió điều hòa', N'Thay thế hoặc vệ sinh lọc gió cabin'),
@@ -81,7 +67,7 @@ INSERT INTO service_items (id, name, description) VALUES
                                                       (27, N'Kiểm tra ống nước làm mát', N'Kiểm tra ống nước làm mát (VF5-9)');
 
 -- =================================================================
--- 5. VEHICLE_MODELS (Không thay đổi)
+-- 5. VEHICLE_MODELS (Giữ nguyên)
 -- =================================================================
 INSERT IGNORE INTO vehicle_models (id, name, model_year) VALUES
                                                              (1, N'VFe34', N'2021'),
@@ -93,7 +79,7 @@ INSERT IGNORE INTO vehicle_models (id, name, model_year) VALUES
                                                              (7, N'VF 9', N'2022');
 
 -- =================================================================
--- 6. SERVICE CENTER (Không thay đổi)
+-- 6. SERVICE CENTER (Giữ nguyên)
 -- =================================================================
 INSERT IGNORE INTO service_centers (name, address, district, city, phone)
 VALUES
@@ -119,203 +105,187 @@ VALUES
     ('VinFast Thao Dien', 'L1 Floor, Vincom Mega Mall Thao Dien, 159 Xa Lo Ha Noi, Thao Dien Ward', 'District 2', 'Ho Chi Minh City', '0981335514');
 
 -- =================================================================
--- 7. PART-CATEGORIES (Không thay đổi)
+-- 7. PART-CATEGORIES (Đã xóa)
 -- =================================================================
-INSERT IGNORE INTO part_categories
-(id, name, code, description, create_at, created_by, update_at, updated_by)
-VALUES
-    (1, N'Filters', 'FILTER', N'Air filters, cabin filters', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (2, N'Liquids & Chemicals', 'LIQUID', N'Brake fluid, coolant...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (3, N'Batteries & Electronics', 'ELECTRONIC', N'Key battery, T-Box battery, Sensors...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (4, N'Wipers & Washers', 'WIPER', N'Wiper blades, washer pump...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (5, N'Battery', 'BATTERY', N'12V battery', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (6, N'Brake System', 'BRAKE', N'Brake pads, brake discs...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (7, N'Suspension & Steering', 'SUSPENSION', N'Shock absorbers, tie rods, ball joints...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (8, N'Drivetrain', 'DRIVETRAIN', N'Axle shafts, joints...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (9, N'Cooling & A/C System', 'COOLING', N'Hoses, valves, sensors...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (10, N'High Voltage System', 'HIGH_VOLTAGE', N'Charging cables, fuses...', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-    (11, N'Tires & Wheels', 'WHEEL', N'Tires, TPMS valves...', NOW(), 'SYSTEM', NOW(), 'SYSTEM');
+-- (Toàn bộ khối INSERT IGNORE INTO part_categories đã được xóa)
 
 
 -- =================================================================
--- 8. SPARE-PARTS (Không thay đổi)
+-- 8. SPARE-PARTS (Cập nhật: Bỏ category_id, thêm category_name và category_code)
 -- =================================================================
 INSERT IGNORE INTO spare_parts
-(part_number, name, unit_price, quantity_in_stock, minimum_stock_level, category_id, create_at, created_by, update_at, updated_by)
+(part_number, name, unit_price, quantity_in_stock, minimum_stock_level, category_name, category_code, create_at, created_by, update_at, updated_by)
 VALUES
 -- === SPARE PARTS FOR VF 3 ===
-('FLT-VF3', N'Cabin air filter VF 3', 490000.00, 50, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-BRK-VF3', N'Brake fluid DOT 4 (VF 3)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-KEY-GEN', N'Key battery CR2032 (Common)', 45000.00, 300, 50, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Common
-('BAT-TBOX-VF3', N'T-Box battery VF 3', 650000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-12V-VF3', N'12V battery AGM 60Ah (VF 3)', 4300000.00, 15, 5, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VF3', N'Front brake pads VF 3', 990000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-R-VF3', N'Rear brake pads VF 3', 920000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-DISC-F-VF3', N'Front brake disc VF 3', 1580000.00, 10, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-SHOCK-F-VF3', N'Front shock absorber VF 3', 1950000.00, 10, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-BALLJ-VF3', N'Lower ball joint VF 3', 780000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-TIEROD-VF3', N'Outer tie rod end VF 3', 720000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('DRV-AXLE-VF3', N'CV joint VF 3', 2450000.00, 5, 2, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('COOL-HOSE-VF3', N'Main coolant hose VF 3', 520000.00, 10, 3, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VF3', N'A/C expansion valve VF 3', 990000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-CABLE-VF3', N'Charging cable VF 3', 6200000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-FUSE-VF3', N'Main HV fuse VF 3', 1450000.00, 5, 2, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TIRE-VF3', N'Tire VF 3 (175/75R16)', 1850000.00, 30, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TPMS-VF3', N'TPMS valve sensor VF 3', 850000.00, 40, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-PUMP-VF3', N'Washer fluid pump VF 3', 520000.00, 10, 3, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VF3', N'Wiper blade set VF 3', 480000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLT-VF3', N'Cabin air filter VF 3', 490000.00, 50, 10, N'Filters', 'FILTER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF3', N'Brake fluid DOT 4 (VF 3)', 380000.00, 30, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-KEY-GEN', N'Key battery CR2032 (Common)', 45000.00, 300, 50, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Common
+('BAT-TBOX-VF3', N'T-Box battery VF 3', 650000.00, 20, 5, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF3', N'12V battery AGM 60Ah (VF 3)', 4300000.00, 15, 5, N'Battery', 'BATTERY', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF3', N'Front brake pads VF 3', 990000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF3', N'Rear brake pads VF 3', 920000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF3', N'Front brake disc VF 3', 1580000.00, 10, 2, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF3', N'Front shock absorber VF 3', 1950000.00, 10, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF3', N'Lower ball joint VF 3', 780000.00, 15, 5, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF3', N'Outer tie rod end VF 3', 720000.00, 15, 5, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF3', N'CV joint VF 3', 2450000.00, 5, 2, N'Drivetrain', 'DRIVETRAIN', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF3', N'Main coolant hose VF 3', 520000.00, 10, 3, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF3', N'A/C expansion valve VF 3', 990000.00, 5, 2, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF3', N'Charging cable VF 3', 6200000.00, 3, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF3', N'Main HV fuse VF 3', 1450000.00, 5, 2, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF3', N'Tire VF 3 (175/75R16)', 1850000.00, 30, 10, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF3', N'TPMS valve sensor VF 3', 850000.00, 40, 10, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF3', N'Washer fluid pump VF 3', 520000.00, 10, 3, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF3', N'Wiper blade set VF 3', 480000.00, 20, 5, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 
 -- === SPARE PARTS FOR VF 5 ===
-('FLT-VF5', N'Cabin air filter VF 5', 490000.00, 50, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-BRK-VF5', N'Brake fluid DOT 4 (VF 5)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-COOL-VF5', N'EV Coolant Type 1 (VF 5)', 650000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-TBOX-VF5', N'T-Box battery VF 5', 680000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-12V-VF5', N'12V battery AGM 60Ah (VF 5)', 4300000.00, 15, 5, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VF5', N'Front brake pads VF 5', 1020000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-R-VF5', N'Rear brake pads VF 5', 960000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-DISC-F-VF5', N'Front brake disc VF 5', 1620000.00, 10, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-SHOCK-F-VF5', N'Front shock absorber VF 5', 2020000.00, 10, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-BALLJ-VF5', N'Lower ball joint VF 5', 820000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-TIEROD-VF5', N'Outer tie rod end VF 5', 760000.00, 15, 5, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('DRV-AXLE-VF5', N'CV joint VF 5', 2580000.00, 5, 2, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('COOL-HOSE-VF5', N'Main coolant hose VF 5', 550000.00, 10, 3, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VF5', N'A/C expansion valve VF 5', 1020000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-CABLE-VF5', N'Charging cable VF 5', 6400000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-FUSE-VF5', N'Main HV fuse VF 5', 1520000.00, 5, 2, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TIRE-VF5', N'Tire VF 5', 2050000.00, 30, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TPMS-VF5', N'TPMS valve sensor VF 5', 860000.00, 40, 10, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-PUMP-VF5', N'Washer fluid pump VF 5', 540000.00, 10, 3, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VF5', N'Wiper blade set VF 5', 500000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
+('FLT-VF5', N'Cabin air filter VF 5', 490000.00, 50, 10, N'Filters', 'FILTER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF5', N'Brake fluid DOT 4 (VF 5)', 380000.00, 30, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF5', N'EV Coolant Type 1 (VF 5)', 650000.00, 20, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF5', N'T-Box battery VF 5', 680000.00, 20, 5, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF5', N'12V battery AGM 60Ah (VF 5)', 4300000.00, 15, 5, N'Battery', 'BATTERY', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF5', N'Front brake pads VF 5', 1020000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF5', N'Rear brake pads VF 5', 960000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF5', N'Front brake disc VF 5', 1620000.00, 10, 2, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF5', N'Front shock absorber VF 5', 2020000.00, 10, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF5', N'Lower ball joint VF 5', 820000.00, 15, 5, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF5', N'Outer tie rod end VF 5', 760000.00, 15, 5, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF5', N'CV joint VF 5', 2580000.00, 5, 2, N'Drivetrain', 'DRIVETRAIN', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF5', N'Main coolant hose VF 5', 550000.00, 10, 3, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF5', N'A/C expansion valve VF 5', 1020000.00, 5, 2, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF5', N'Charging cable VF 5', 6400000.00, 3, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF5', N'Main HV fuse VF 5', 1520000.00, 5, 2, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF5', N'Tire VF 5', 2050000.00, 30, 10, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF5', N'TPMS valve sensor VF 5', 860000.00, 40, 10, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF5', N'Washer fluid pump VF 5', 540000.00, 10, 3, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF5', N'Wiper blade set VF 5', 500000.00, 20, 5, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
 
 -- === SPARE PARTS FOR VF 6 ===
-('FLT-VF6', N'Cabin air filter VF 6', 520000.00, 40, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-BRK-VF6', N'Brake fluid DOT 4 (VF 6)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-COOL-VF6', N'EV Coolant Type 1 (VF 6)', 650000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-TBOX-VF6', N'T-Box battery VF 6', 680000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VF6', N'Wiper blade set VF 6', 720000.00, 30, 10, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-12V-VF6', N'12V battery AGM 70Ah (VF 6)', 4700000.00, 10, 3, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VF6', N'Front brake pads VF 6', 1150000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-R-VF6', N'Rear brake pads VF 6', 1080000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-DISC-F-VF6', N'Front brake disc VF 6', 1850000.00, 5, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-SHOCK-F-VF6', N'Front shock absorber VF 6', 2200000.00, 5, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-BALLJ-VF6', N'Lower ball joint VF 6', 850000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-TIEROD-VF6', N'Outer tie rod end VF 6', 790000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('DRV-AXLE-VF6', N'CV joint VF 6', 2700000.00, 3, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('COOL-HOSE-VF6', N'Main coolant hose VF 6', 570000.00, 8, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VF6', N'A/C expansion valve VF 6', 1050000.00, 3, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-CABLE-VF6', N'Charging cable VF 6', 6500000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-FUSE-VF6', N'Main HV fuse VF 6', 1550000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TIRE-VF6', N'Tire VF 6', 2450000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TPMS-VF6', N'TPMS valve sensor VF 6', 860000.00, 30, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-PUMP-VF6', N'Washer fluid pump VF 6', 540000.00, 8, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLT-VF6', N'Cabin air filter VF 6', 520000.00, 40, 10, N'Filters', 'FILTER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF6', N'Brake fluid DOT 4 (VF 6)', 380000.00, 30, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF6', N'EV Coolant Type 1 (VF 6)', 650000.00, 20, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF6', N'T-Box battery VF 6', 680000.00, 20, 5, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF6', N'Wiper blade set VF 6', 720000.00, 30, 10, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF6', N'12V battery AGM 70Ah (VF 6)', 4700000.00, 10, 3, N'Battery', 'BATTERY', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF6', N'Front brake pads VF 6', 1150000.00, 15, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF6', N'Rear brake pads VF 6', 1080000.00, 15, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF6', N'Front brake disc VF 6', 1850000.00, 5, 2, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF6', N'Front shock absorber VF 6', 2200000.00, 5, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF6', N'Lower ball joint VF 6', 850000.00, 10, 3, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF6', N'Outer tie rod end VF 6', 790000.00, 10, 3, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF6', N'CV joint VF 6', 2700000.00, 3, 1, N'Drivetrain', 'DRIVETRAIN', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF6', N'Main coolant hose VF 6', 570000.00, 8, 2, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF6', N'A/C expansion valve VF 6', 1050000.00, 3, 1, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF6', N'Charging cable VF 6', 6500000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF6', N'Main HV fuse VF 6', 1550000.00, 3, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF6', N'Tire VF 6', 2450000.00, 20, 5, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF6', N'TPMS valve sensor VF 6', 860000.00, 30, 5, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF6', N'Washer fluid pump VF 6', 540000.00, 8, 2, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 
 -- === SPARE PARTS FOR VF 7 ===
-('FLT-VF7', N'Cabin air filter VF 7', 520000.00, 40, 10, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-BRK-VF7', N'Brake fluid DOT 4 (VF 7)', 380000.00, 30, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-COOL-VF7', N'EV Coolant Type 1 (VF 7)', 650000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-TBOX-VF7', N'T-Box battery VF 7', 680000.00, 20, 5, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VF7', N'Wiper blade set VF 7', 730000.00, 30, 10, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-12V-VF7', N'12V battery AGM 70Ah (VF 7)', 4700000.00, 10, 3, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VF7', N'Front brake pads VF 7', 1160000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-R-VF7', N'Rear brake pads VF 7', 1090000.00, 15, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-DISC-F-VF7', N'Front brake disc VF 7', 1860000.00, 5, 2, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-SHOCK-F-VF7', N'Front shock absorber VF 7', 2250000.00, 5, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-BALLJ-VF7', N'Lower ball joint VF 7', 860000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-TIEROD-VF7', N'Outer tie rod end VF 7', 800000.00, 10, 3, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('DRV-AXLE-VF7', N'CV joint VF 7', 2750000.00, 3, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('COOL-HOSE-VF7', N'Main coolant hose VF 7', 580000.00, 8, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VF7', N'A/C expansion valve VF 7', 1060000.00, 3, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-CABLE-VF7', N'Charging cable VF 7', 6600000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-FUSE-VF7', N'Main HV fuse VF 7', 1560000.00, 3, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TIRE-VF7', N'Tire VF 7', 2750000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TPMS-VF7', N'TPMS valve sensor VF 7', 860000.00, 30, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-PUMP-VF7', N'Washer fluid pump VF 7', 540000.00, 8, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLT-VF7', N'Cabin air filter VF 7', 520000.00, 40, 10, N'Filters', 'FILTER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF7', N'Brake fluid DOT 4 (VF 7)', 380000.00, 30, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF7', N'EV Coolant Type 1 (VF 7)', 650000.00, 20, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF7', N'T-Box battery VF 7', 680000.00, 20, 5, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF7', N'Wiper blade set VF 7', 730000.00, 30, 10, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF7', N'12V battery AGM 70Ah (VF 7)', 4700000.00, 10, 3, N'Battery', 'BATTERY', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF7', N'Front brake pads VF 7', 1160000.00, 15, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF7', N'Rear brake pads VF 7', 1090000.00, 15, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF7', N'Front brake disc VF 7', 1860000.00, 5, 2, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF7', N'Front shock absorber VF 7', 2250000.00, 5, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF7', N'Lower ball joint VF 7', 860000.00, 10, 3, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF7', N'Outer tie rod end VF 7', 800000.00, 10, 3, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF7', N'CV joint VF 7', 2750000.00, 3, 1, N'Drivetrain', 'DRIVETRAIN', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF7', N'Main coolant hose VF 7', 580000.00, 8, 2, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF7', N'A/C expansion valve VF 7', 1060000.00, 3, 1, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF7', N'Charging cable VF 7', 6600000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF7', N'Main HV fuse VF 7', 1560000.00, 3, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF7', N'Tire VF 7', 2750000.00, 20, 5, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF7', N'TPMS valve sensor VF 7', 860000.00, 30, 5, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF7', N'Washer fluid pump VF 7', 540000.00, 8, 2, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
 
 -- === SPARE PARTS FOR VFe34 ===
-('FLT-VFE34', N'Cabin air filter VFe34', 520000.00, 30, 5, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-BRK-VFE34', N'Brake fluid DOT 4 (VFe34)', 380000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-COOL-VFE34', N'EV Coolant Type 2 (VFe34)', 680000.00, 15, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-TBOX-VFE34', N'T-Box battery VFe34', 700000.00, 10, 2, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-12V-VFE34', N'12V battery AGM 70Ah (VFe34)', 4700000.00, 8, 2, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VFE34', N'Front brake pads VFe34', 1380000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-R-VFE34', N'Rear brake pads VFe34', 1280000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-DISC-F-VFE34', N'Front brake disc VFe34', 2150000.00, 5, 1, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-SHOCK-F-VFE34', N'Front shock absorber VFe34', 2500000.00, 3, 1, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-BALLJ-VFE34', N'Lower ball joint VFe34', 900000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-TIEROD-VFE34', N'Outer tie rod end VFe34', 850000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('DRV-AXLE-VFE34', N'CV joint VFe34', 3000000.00, 2, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('COOL-HOSE-VFE34', N'Main coolant hose VFe34', 600000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VFE34', N'A/C expansion valve VFe34', 1100000.00,   2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-CABLE-VFE34', N'Charging cable VFe34', 6800000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-FUSE-VFE34', N'Main HV fuse VFe34', 1600000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TIRE-VFE34', N'Tire VFe34', 2950000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TPMS-VFE34', N'TPMS valve sensor VFe34', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-PUMP-VFE34', N'Washer fluid pump VFe34', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VFE34', N'Wiper blade set VFe34', 550000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
+('FLT-VFE34', N'Cabin air filter VFe34', 520000.00, 30, 5, N'Filters', 'FILTER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VFE34', N'Brake fluid DOT 4 (VFe34)', 380000.00, 20, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VFE34', N'EV Coolant Type 2 (VFe34)', 680000.00, 15, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VFE34', N'T-Box battery VFe34', 700000.00, 10, 2, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VFE34', N'12V battery AGM 70Ah (VFe34)', 4700000.00, 8, 2, N'Battery', 'BATTERY', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VFE34', N'Front brake pads VFe34', 1380000.00, 10, 3, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VFE34', N'Rear brake pads VFe34', 1280000.00, 10, 3, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VFE34', N'Front brake disc VFe34', 2150000.00, 5, 1, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VFE34', N'Front shock absorber VFe34', 2500000.00, 3, 1, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VFE34', N'Lower ball joint VFe34', 900000.00, 8, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VFE34', N'Outer tie rod end VFe34', 850000.00, 8, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VFE34', N'CV joint VFe34', 3000000.00, 2, 1, N'Drivetrain', 'DRIVETRAIN', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VFE34', N'Main coolant hose VFe34', 600000.00, 5, 2, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VFE34', N'A/C expansion valve VFe34', 1100000.00,   2, 1, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VFE34', N'Charging cable VFe34', 6800000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VFE34', N'Main HV fuse VFe34', 1600000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VFE34', N'Tire VFe34', 2950000.00, 15, 3, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VFE34', N'TPMS valve sensor VFe34', 860000.00, 20, 5, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VFE34', N'Washer fluid pump VFe34', 540000.00, 5, 2, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VFE34', N'Wiper blade set VFe34', 550000.00, 20, 5, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
 
 -- === SPARE PARTS FOR VF 8 ===
-('FLT-VF8', N'Cabin air filter VF 8', 530000.00, 30, 5, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-BRK-VF8', N'Brake fluid DOT 4 (VF 8)', 380000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-COOL-VF8', N'EV Coolant Type 2 (VF 8)', 690000.00, 15, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-TBOX-VF8', N'T-Box battery VF 8', 710000.00, 10, 2, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-12V-VF8', N'12V battery AGM 70Ah (VF 8)', 4700000.00, 8, 2, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VF8', N'Front brake pads VF 8', 1390000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-R-VF8', N'Rear brake pads VF 8', 1290000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-DISC-F-VF8', N'Front brake disc VF 8', 2160000.00, 5, 1, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-SHOCK-F-VF8', N'Front shock absorber VF 8', 2550000.00, 3, 1, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-BALLJ-VF8', N'Lower ball joint VF 8', 910000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-TIEROD-VF8', N'Outer tie rod end VF 8', 860000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('DRV-AXLE-VF8', N'CV joint VF 8', 3050000.00, 2, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('COOL-HOSE-VF8', N'Main coolant hose VF 8', 610000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VF8', N'A/C expansion valve VF 8', 1110000.00, 2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-CABLE-VF8', N'Charging cable VF 8', 6900000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-FUSE-VF8', N'Main HV fuse VF 8', 1610000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TIRE-VF8', N'Tire VF 8', 3600000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TPMS-VF8', N'TPMS valve sensor VF 8', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-PUMP-VF8', N'Washer fluid pump VF 8', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VF8', N'Wiper blade set VF 8', 750000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
+('FLT-VF8', N'Cabin air filter VF 8', 530000.00, 30, 5, N'Filters', 'FILTER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF8', N'Brake fluid DOT 4 (VF 8)', 380000.00, 20, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF8', N'EV Coolant Type 2 (VF 8)', 690000.00, 15, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF8', N'T-Box battery VF 8', 710000.00, 10, 2, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF8', N'12V battery AGM 70Ah (VF 8)', 4700000.00, 8, 2, N'Battery', 'BATTERY', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF8', N'Front brake pads VF 8', 1390000.00, 10, 3, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF8', N'Rear brake pads VF 8', 1290000.00, 10, 3, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF8', N'Front brake disc VF 8', 2160000.00, 5, 1, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF8', N'Front shock absorber VF 8', 2550000.00, 3, 1, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF8', N'Lower ball joint VF 8', 910000.00, 8, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF8', N'Outer tie rod end VF 8', 860000.00, 8, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF8', N'CV joint VF 8', 3050000.00, 2, 1, N'Drivetrain', 'DRIVETRAIN', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF8', N'Main coolant hose VF 8', 610000.00, 5, 2, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF8', N'A/C expansion valve VF 8', 1110000.00, 2, 1, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF8', N'Charging cable VF 8', 6900000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF8', N'Main HV fuse VF 8', 1610000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF8', N'Tire VF 8', 3600000.00, 15, 3, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF8', N'TPMS valve sensor VF 8', 860000.00, 20, 5, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF8', N'Washer fluid pump VF 8', 540000.00, 5, 2, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF8', N'Wiper blade set VF 8', 750000.00, 20, 5, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
 
 -- === SPARE PARTS FOR VF 9 ===
-('FLT-VF9', N'Cabin air filter VF 9', 550000.00, 30, 5, 1, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-BRK-VF9', N'Brake fluid DOT 4 (VF 9)', 380000.00, 20, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('FLD-COOL-VF9', N'EV Coolant Type 2 (VF 9)', 700000.00, 15, 5, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-TBOX-VF9', N'T-Box battery VF 9', 720000.00, 10, 2, 3, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BAT-12V-VF9', N'12V battery AGM 70Ah (VF 9)', 4700000.00, 8, 2, 5, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-F-VF9', N'Front brake pads VF 9', 1400000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-PAD-R-VF9', N'Rear brake pads VF 9', 1300000.00, 10, 3, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-DISC-F-VF9', N'Front brake disc VF 9', 2170000.00, 5, 1, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-SHOCK-F-VF9', N'Front shock absorber VF 9', 2600000.00, 3, 1, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-BALLJ-VF9', N'Lower ball joint VF 9', 920000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('SUS-TIEROD-VF9', N'Outer tie rod end VF 9', 870000.00, 8, 2, 7, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('DRV-AXLE-VF9', N'CV joint VF 9', 3100000.00, 2, 1, 8, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('COOL-HOSE-VF9', N'Main coolant hose VF 9', 620000.00, 5, 2, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('AC-VALVE-VF9', N'A/C expansion valve VF 9', 1120000.00, 2, 1, 9, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-CABLE-VF9', N'Charging cable VF 9', 7000000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('HV-FUSE-VF9', N'Main HV fuse VF 9', 1620000.00, 2, 1, 10, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TIRE-VF9', N'Tire VF 9', 4200000.00, 15, 3, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WHL-TPMS-VF9', N'TPMS valve sensor VF 9', 860000.00, 20, 5, 11, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-PUMP-VF9', N'Washer fluid pump VF 9', 540000.00, 5, 2, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('WPR-BLD-VF9', N'Wiper blade set VF 9', 780000.00, 20, 5, 4, NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
+('FLT-VF9', N'Cabin air filter VF 9', 550000.00, 30, 5, N'Filters', 'FILTER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-BRK-VF9', N'Brake fluid DOT 4 (VF 9)', 380000.00, 20, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('FLD-COOL-VF9', N'EV Coolant Type 2 (VF 9)', 700000.00, 15, 5, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-TBOX-VF9', N'T-Box battery VF 9', 720000.00, 10, 2, N'Batteries & Electronics', 'ELECTRONIC', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BAT-12V-VF9', N'12V battery AGM 70Ah (VF 9)', 4700000.00, 8, 2, N'Battery', 'BATTERY', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-F-VF9', N'Front brake pads VF 9', 1400000.00, 10, 3, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-PAD-R-VF9', N'Rear brake pads VF 9', 1300000.00, 10, 3, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-DISC-F-VF9', N'Front brake disc VF 9', 2170000.00, 5, 1, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-SHOCK-F-VF9', N'Front shock absorber VF 9', 2600000.00, 3, 1, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-BALLJ-VF9', N'Lower ball joint VF 9', 920000.00, 8, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('SUS-TIEROD-VF9', N'Outer tie rod end VF 9', 870000.00, 8, 2, N'Suspension & Steering', 'SUSPENSION', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('DRV-AXLE-VF9', N'CV joint VF 9', 3100000.00, 2, 1, N'Drivetrain', 'DRIVETRAIN', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('COOL-HOSE-VF9', N'Main coolant hose VF 9', 620000.00, 5, 2, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('AC-VALVE-VF9', N'A/C expansion valve VF 9', 1120000.00, 2, 1, N'Cooling & A/C System', 'COOLING', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-CABLE-VF9', N'Charging cable VF 9', 7000000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('HV-FUSE-VF9', N'Main HV fuse VF 9', 1620000.00, 2, 1, N'High Voltage System', 'HIGH_VOLTAGE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TIRE-VF9', N'Tire VF 9', 4200000.00, 15, 3, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WHL-TPMS-VF9', N'TPMS valve sensor VF 9', 860000.00, 20, 5, N'Tires & Wheels', 'WHEEL', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-PUMP-VF9', N'Washer fluid pump VF 9', 540000.00, 5, 2, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('WPR-BLD-VF9', N'Wiper blade set VF 9', 780000.00, 20, 5, N'Wipers & Washers', 'WIPER', NOW(), 'SYSTEM', NOW(), 'SYSTEM'), -- Thêm (ước tính)
 
 -- [THÊM MỚI]
 -- === SPARE PARTS CHO HẠNG MỤC BỊ THIẾU (Ống phanh, Gỉ sét) - THEO TỪNG MODEL ===
-('BRK-HOSE-VF3', N'Bộ ống dầu phanh VF 3', 500000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('CHEM-RUST-VF3', N'Hóa chất phủ gầm VF 3 (Lon)', 300000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-HOSE-VF5', N'Bộ ống dầu phanh VF 5', 550000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('CHEM-RUST-VF5', N'Hóa chất phủ gầm VF 5 (Lon)', 300000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-HOSE-VF6', N'Bộ ống dầu phanh VF 6', 570000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('CHEM-RUST-VF6', N'Hóa chất phủ gầm VF 6 (Lon)', 350000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-HOSE-VF7', N'Bộ ống dầu phanh VF 7', 580000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('CHEM-RUST-VF7', N'Hóa chất phủ gầm VF 7 (Lon)', 350000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-HOSE-VFE34', N'Bộ ống dầu phanh VFe34', 600000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('CHEM-RUST-VFE34', N'Hóa chất phủ gầm VFe34 (Lon)', 400000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-HOSE-VF8', N'Bộ ống dầu phanh VF 8', 610000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('CHEM-RUST-VF8', N'Hóa chất phủ gầm VF 8 (Lon)', 400000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('BRK-HOSE-VF9', N'Bộ ống dầu phanh VF 9', 620000.00, 20, 5, 6, NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
-('CHEM-RUST-VF9', N'Hóa chất phủ gầm VF 9 (Lon)', 400000.00, 30, 10, 2, NOW(), 'SYSTEM', NOW(), 'SYSTEM');
--- [BẮT ĐẦU PHẦN THAY THẾ TOÀN BỘ PHẦN 9]
-
-
+('BRK-HOSE-VF3', N'Bộ ống dầu phanh VF 3', 500000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF3', N'Hóa chất phủ gầm VF 3 (Lon)', 300000.00, 30, 10, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF5', N'Bộ ống dầu phanh VF 5', 550000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF5', N'Hóa chất phủ gầm VF 5 (Lon)', 300000.00, 30, 10, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF6', N'Bộ ống dầu phanh VF 6', 570000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF6', N'Hóa chất phủ gầm VF 6 (Lon)', 350000.00, 30, 10, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF7', N'Bộ ống dầu phanh VF 7', 580000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF7', N'Hóa chất phủ gầm VF 7 (Lon)', 350000.00, 30, 10, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VFE34', N'Bộ ống dầu phanh VFe34', 600000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VFE34', N'Hóa chất phủ gầm VFe34 (Lon)', 400000.00, 30, 10, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF8', N'Bộ ống dầu phanh VF 8', 610000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF8', N'Hóa chất phủ gầm VF 8 (Lon)', 400000.00, 30, 10, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('BRK-HOSE-VF9', N'Bộ ống dầu phanh VF 9', 620000.00, 20, 5, N'Brake System', 'BRAKE', NOW(), 'SYSTEM', NOW(), 'SYSTEM'),
+('CHEM-RUST-VF9', N'Hóa chất phủ gầm VF 9 (Lon)', 400000.00, 30, 10, N'Liquids & Chemicals', 'LIQUID', NOW(), 'SYSTEM', NOW(), 'SYSTEM');
 -- =================================================================
 -- 9. MODEL_PACKAGE_ITEMS (Dữ liệu CHUẨN - ĐÃ SỬA LỖI TRỪ KHO VÀ FIX NULLS VÀ QUANTITY)
 -- =================================================================

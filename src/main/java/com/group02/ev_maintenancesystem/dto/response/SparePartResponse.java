@@ -17,7 +17,8 @@ public class SparePartResponse {
     BigDecimal unitPrice;
     Integer quantityInStock;
     Integer minimumStockLevel;
-    PartCategoryResponse category;
+    String categoryName;
+    String categoryCode;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

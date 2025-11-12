@@ -40,7 +40,6 @@ public class AppointmentResponse {
     String vehicleModel;
 
     BigDecimal estimatedCost;
-    Long servicePackageId;
     String servicePackageName;
 
 

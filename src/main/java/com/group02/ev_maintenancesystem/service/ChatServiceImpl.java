@@ -1,10 +1,12 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.ChatMessageDTO;
+import com.group02.ev_maintenancesystem.dto.ChatRoomDTO;
 import com.group02.ev_maintenancesystem.dto.RoomMessageDTO;
 import com.group02.ev_maintenancesystem.entity.ChatMessage;
 import com.group02.ev_maintenancesystem.entity.ChatRoom;
 import com.group02.ev_maintenancesystem.entity.User;
+import com.group02.ev_maintenancesystem.enums.ChatRoomStatus;
 import com.group02.ev_maintenancesystem.enums.MessageStatus;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
@@ -14,21 +16,31 @@ import com.group02.ev_maintenancesystem.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Transactional
+@Slf4j
 public class ChatServiceImpl implements  ChatService {
     SimpMessagingTemplate simpMessagingTemplate;
     UserRepository userRepository;
     ChatMessageRepository chatMessageRepository;
     ChatRoomRepository chatRoomRepository;
+    ModelMapper modelMapper;
+
 
     @Override
     public void processAndSendPrivateMessage(ChatMessageDTO dto, Principal principal) {
@@ -84,4 +96,6 @@ public class ChatServiceImpl implements  ChatService {
         // Gửi cho TẤT CẢ MỌI NGƯỜI đang subscribe (lắng nghe) kênh này
         simpMessagingTemplate.convertAndSend(roomTopic, dto);
     }
+
+
 }

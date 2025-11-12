@@ -1,5 +1,4 @@
 package com.group02.ev_maintenancesystem.service;
-import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
@@ -8,12 +7,15 @@ import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import com.group02.ev_maintenancesystem.entity.VehicleModel;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import com.group02.ev_maintenancesystem.enums.Role;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import com.group02.ev_maintenancesystem.repository.VehicleModelRepository;
 import com.group02.ev_maintenancesystem.repository.VehicleRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,12 +50,15 @@ public class VehicleServiceImpl implements VehicleService{
     @Autowired
     AppointmentRepository appointmentRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
     @Override
     public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest) {
         //check Vin đã tồn tại chưa
         Long customerId = vehicleCreationRequest.getCustomerId();
-        User customer = userRepository.findByIdAndRoleName(customerId, PredefinedRole.CUSTOMER)
+        User customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (vehicleRepository.existsByVin(vehicleCreationRequest.getVin())) {
@@ -156,6 +160,7 @@ public class VehicleServiceImpl implements VehicleService{
 
     @Override
     @Transactional
+
     public VehicleResponse deleteVehicle(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
@@ -173,9 +178,12 @@ public class VehicleServiceImpl implements VehicleService{
         if(hasActiveAppointment){
             throw new AppException(ErrorCode.CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
         }
+        entityManager.flush();
+        entityManager.clear();
         vehicleRepository.deleteById(vehicleId);
         return modelMapper.map(vehicle, VehicleResponse.class);
     }
+
 
     public boolean isVehicleOwner(Authentication authentication, Long vehicleId) {
         if (authentication == null || authentication.getPrincipal() == null) {
@@ -198,4 +206,5 @@ public class VehicleServiceImpl implements VehicleService{
         // Nếu vehicle.isPresent() == true, nghĩa là tìm thấy xe -> là chủ sở hữu
         return vehicle.isPresent();
     }
+
 }

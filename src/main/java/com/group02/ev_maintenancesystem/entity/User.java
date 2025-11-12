@@ -2,11 +2,13 @@ package com.group02.ev_maintenancesystem.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group02.ev_maintenancesystem.enums.Gender;
+import com.group02.ev_maintenancesystem.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.jdbc.Work;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -50,8 +52,7 @@ public class User extends BaseEntity implements UserDetails {
     Gender gender;
 
     // Relationships
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
+    @Enumerated(EnumType.STRING)
     Role role;
 
     @OneToMany(mappedBy = "customerUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -80,24 +81,27 @@ public class User extends BaseEntity implements UserDetails {
     private Set<ChatRoom> chatRooms = new HashSet<>();
 
     public boolean isCustomer() {
-        return role != null && "CUSTOMER".equals(role.getName());
+        return role == Role.CUSTOMER; // CẬP NHẬT
     }
 
     public boolean isTechnician() {
-        return role != null && "TECHNICIAN".equals(role.getName());
+        return role == Role.TECHNICIAN; // CẬP NHẬT
     }
 
     public boolean isAdmin() {
-        return role != null && "ADMIN".equals(role.getName());
+        return role == Role.ADMIN; // CẬP NHẬT
     }
 
     public boolean isStaff() {
-        return role != null && "STAFF".equals(role.getName());
+        return role == Role.STAFF; // CẬP NHẬT
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        if (role == null) {
+            return List.of();
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override

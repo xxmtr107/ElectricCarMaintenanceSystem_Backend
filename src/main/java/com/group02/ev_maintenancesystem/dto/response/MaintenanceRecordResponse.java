@@ -26,7 +26,6 @@ public class MaintenanceRecordResponse {
     String customerName;
 
 
-    Long servicePackageId;
     String servicePackageName;
 
     Long technicianId;

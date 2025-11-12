@@ -1,6 +1,5 @@
 package com.group02.ev_maintenancesystem.service;
 
-import com.group02.ev_maintenancesystem.constant.PredefinedRole;
 import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
@@ -10,6 +9,7 @@ import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
+import com.group02.ev_maintenancesystem.enums.Role;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.MaintenanceRecordMapper;
@@ -23,12 +23,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -219,7 +217,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
 
     @Override
     public List<MaintenanceRecordResponse> findByTechnicianUserId(long technicianId) {
-        userRepository.findByIdAndRoleName(technicianId, PredefinedRole.TECHNICIAN).
+        userRepository.findByIdAndRole(technicianId, Role.TECHNICIAN).
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<MaintenanceRecord> TechnicianList = maintenanceRecordRepository.findByAppointment_TechnicianUser_Id(technicianId);
         return TechnicianList.stream().

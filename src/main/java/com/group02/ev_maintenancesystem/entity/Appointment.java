@@ -46,9 +46,8 @@ public class Appointment extends BaseEntity {
     @JoinColumn(name = "vehicle_id")
     Vehicle vehicle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_package_id")
-    ServicePackage servicePackage;
+    @Column(name = "service_package_name")
+    String servicePackageName;
 
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Builder.Default

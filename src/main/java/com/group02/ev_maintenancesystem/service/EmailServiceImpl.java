@@ -202,13 +202,13 @@ public class EmailServiceImpl {
                 context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
                 context.setVariable("phone", appointment.getServiceCenter().getPhone());
 
-                String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context);
+//                String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context);
 
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
                 helper.setTo(appointment.getCustomerUser().getEmail());
                 helper.setSubject("EV Maintenance System - Appointment Confirmation");
-                helper.setText(htmlContent, true);
+//                helper.setText(htmlContent, true);
                 mailSender.send(message);
                 saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_DATE, null,null, appointment.getId(), null, null);
                 receivers.add(appointment.getCustomerUser().getEmail());

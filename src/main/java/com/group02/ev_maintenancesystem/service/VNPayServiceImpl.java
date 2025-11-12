@@ -17,14 +17,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -42,25 +40,32 @@ public class VNPayServiceImpl implements  VNPayService {
 
     @Override
     public VNPayResponse createPayment(VNPayRequest request, HttpServletRequest httpServletRequest) {
-
+        Invoice invoice = invoiceRepository.findById(request.getInVoiceId())
+                .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
         try {
-            //check appointment
-            Invoice invoice = invoiceRepository.findById(request.getInVoiceId())
-                    .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
+
+            // Kiểm tra maintenance record
+            MaintenanceRecord maintenanceRecord = invoice.getMaintenanceRecord();
+
+            if(maintenanceRecord == null){
+                throw new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND);
+            }
+
+            Appointment appointment = maintenanceRecord.getAppointment();
+
+            if(appointment == null){
+                throw new AppException(ErrorCode.APPOINTMENT_NOT_FOUND);
+            }
 
             //Kiểm tra trạng thái của hóa đơn
             if ("PAID".equalsIgnoreCase(invoice.getStatus())) {
                 throw new AppException(ErrorCode.INVOICE_ALREADY_PAID);
             }
 
-            //Kiểm tra maintenanace record
-            MaintenanceRecord maintenanceRecord = invoice.getMaintenanceRecord();
             if(maintenanceRecord == null){
                 throw new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND);
             }
 
-            //Kiểm tra appointment có tồn tại
-            Appointment appointment = maintenanceRecord.getAppointment();
             if(appointment == null){
                 throw new AppException(ErrorCode.APPOINTMENT_NOT_FOUND);
             }
@@ -121,8 +126,8 @@ public class VNPayServiceImpl implements  VNPayService {
                 String name = fieldName.get(i);
                 String value = vnp_Params.get(name);
                 if (value != null && !value.trim().isEmpty()) {
-                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
-                    query.append(URLEncoder.encode(name, StandardCharsets.US_ASCII)).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+                    query.append(URLEncoder.encode(name, StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(value, StandardCharsets.UTF_8));
                     if (i < fieldName.size() - 1) {
                         hashData.append("&");
                         query.append("&");
@@ -143,34 +148,132 @@ public class VNPayServiceImpl implements  VNPayService {
             return response;
 
 
-        }catch(Exception e){
+        }catch (AppException ae) {
+            // Bắt lại AppException của chính bạn
+            log.error("Lỗi khi tạo thanh toán: {}", ae.getErrorCode().getMessage());
+            throw ae; // Ném lại lỗi
+        } catch (Exception e) {
+            // Bắt các lỗi chung khác (NullPointerException, etc.)
+            log.error("Lỗi không xác định khi tạo thanh toán: {}", e.getMessage(), e); // THÊM LOG NÀY
             throw new AppException(ErrorCode.CREATE_PAYMENT_FAILED);
         }
     }
 
-    //Lấy địa chỉ IP của khách hàng
-    private String getIpAddress(HttpServletRequest request){
-        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+//    @Override
+//    public boolean vnpayCallBack(Map<String, String> param) {
+//        // Chỉ validate chữ ký đơn giản, không cập nhật CSDL
+//        // Logic thật sự sẽ nằm trong processIpnCallback
+//        String receivedHash = param.get("vnp_SecureHash");
+//        param.remove("vnp_SecureHash");
+//
+//        List<String> fieldNames = new ArrayList<>(param.keySet());
+//        Collections.sort(fieldNames);
+//        StringBuilder hashData = new StringBuilder();
+//        for (String name : fieldNames) {
+//            String value = param.get(name);
+//            if (value != null && !value.isEmpty()) {
+//                hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+//                hashData.append("&");
+//            }
+//        }
+//        if (hashData.length() > 0) {
+//            hashData.deleteCharAt(hashData.length() - 1); // Xóa dấu & cuối
+//        }
+//
+//        String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
+//
+//        return computedHash.equals(receivedHash); // Chỉ trả về true/false nếu chữ ký hợp lệ
+//    }
+//
+//    /**
+//     * [THÊM MỚI] Xử lý IPN do VNPay Server gọi
+//     * @return Chuỗi String (RspCode) để phản hồi cho VNPay
+//     */
+//    @Transactional
+//    public String processIpnCallback(Map<String, String> params) {
+//        try {
+//            String receivedHash = params.get("vnp_SecureHash");
+//            params.remove("vnp_SecureHash");
+//
+//            List<String> fieldNames = new ArrayList<>(params.keySet());
+//            Collections.sort(fieldNames);
+//            StringBuilder hashData = new StringBuilder();
+//            for (String name : fieldNames) {
+//                String value = params.get(name);
+//                if (value != null && !value.isEmpty()) {
+//                    hashData.append(name).append("=").append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
+//                    hashData.append("&");
+//                }
+//            }
+//            if (hashData.length() > 0) {
+//                hashData.deleteCharAt(hashData.length() - 1); // Xóa dấu & cuối
+//            }
+//
+//            String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
+//
+//            // 1. Kiểm tra chữ ký
+//            if (!computedHash.equals(receivedHash)) {
+//                log.warn("VNPay IPN Signature Invalid. TransactionCode: {}", params.get("vnp_TxnRef"));
+//                return "RspCode=97&Message=InvalidSignature"; // Mã 97: Chữ ký không hợp lệ
+//            }
+//
+//            String transactionCode = params.get("vnp_TxnRef");
+//            String responseCode = params.get("vnp_ResponseCode");
+//
+//            // 2. Tìm Payment
+//            Payment payment = paymentRepository.findByTransactionCode(transactionCode)
+//                    .orElse(null);
+//
+//            if (payment == null) {
+//                log.warn("VNPay IPN Payment not found. TransactionCode: {}", transactionCode);
+//                return "RspCode=01&Message=OrderNotFound"; // Mã 01: Đơn hàng không tồn tại
+//            }
+//
+//            // 3. Kiểm tra trạng thái (tránh xử lý lại)
+//            if (payment.getStatus() == PaymentStatus.PAID) {
+//                log.info("VNPay IPN duplicate callback. TransactionCode: {}", transactionCode);
+//                return "RspCode=00&Message=ConfirmSuccess"; // Vẫn trả về thành công
+//            }
+//
+//            // 4. Kiểm tra số tiền (an toàn)
+//            long vnpAmount = Long.parseLong(params.get("vnp_Amount"));
+//            long dbAmount = payment.getAmount().multiply(BigDecimal.valueOf(100)).longValue();
+//            if (vnpAmount != dbAmount) {
+//                log.error("VNPay IPN Amount mismatch. TransactionCode: {}. VNP: {}, DB: {}", transactionCode, vnpAmount, dbAmount);
+//                return "RspCode=04&Message=InvalidAmount"; // Mã 04: Số tiền không hợp lệ
+//            }
+//
+//            // 5. Cập nhật trạng thái
+//            if ("00".equals(responseCode)) {
+//                payment.setStatus(PaymentStatus.PAID);
+//                payment.setPaymentDate(LocalDateTime.now()); // [THÊM MỚI] Ghi lại ngày thanh toán
+//
+//                Invoice invoice = payment.getInvoice();
+//                invoice.setStatus("PAID");
+//                invoiceRepository.save(invoice);
+//            } else {
+//                payment.setStatus(PaymentStatus.FAILED);
+//            }
+//            paymentRepository.save(payment);
+//
+//            log.info("VNPay IPN processed successfully. TransactionCode: {}", transactionCode);
+//            return "RspCode=00&Message=ConfirmSuccess"; // Mã 00: Thành công
+//
+//        } catch (Exception e) {
+//            log.error("Error processing VNPay IPN", e);
+//            return "RspCode=99&Message=UnknownError"; // Mã 99: Lỗi không xác định
+//        }
+//    }
+//
+//    /**
+//     * [THÊM MỚI] Lấy trạng thái thanh toán để frontend kiểm tra
+//     */
+//    public PaymentStatus getPaymentStatusByTransactionCode(String transactionCode) {
+//        Payment payment = paymentRepository.findByTransactionCode(transactionCode)
+//                .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_NOT_FOUND));
+//        return payment.getStatus();
+//    }
 
-        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
-            ipAddress= request.getHeader("Proxy-Client-IP");
-        }
-        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
-            ipAddress= request.getHeader("WL-Proxy-Client-IP");
-        }
-        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
-            ipAddress= request.getRemoteAddr();
-            //Đối với localhost thì trả về IPv6 ::1
-            if("127.0.0.1".equals(ipAddress)){
-                return "127.0.0.1";
-            }
-        }
-        //Xử lý trường trường hợp có nhiều IP (chọn IP đầu tiên)
-        if(ipAddress != null && ipAddress.contains(",")){
-            ipAddress = ipAddress.split(",")[0].trim();
-        }
-        return ipAddress;
-    }
 
     @Override
     public boolean vnpayCallBack(Map<String, String> param) {
@@ -182,18 +285,22 @@ public class VNPayServiceImpl implements  VNPayService {
         Collections.sort(fieldNames);
 
         StringBuilder hashData = new StringBuilder();
-        for(int i=0; i<fieldNames.size(); i++){
-            String name = fieldNames.get(i);
+        List<String> pairs = new ArrayList<>();
+        for (String name : fieldNames) {
             String value = param.get(name);
-            hashData.append(name).append("=");
-            hashData.append(URLEncoder.encode(value, StandardCharsets.US_ASCII));
-            if(i < fieldNames.size()-1 ){
-                hashData.append("&");
+            if (value != null && !value.trim().isEmpty()) {
+                pairs.add(name + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8));
             }
         }
+        if (!pairs.isEmpty()) {
+            hashData.append(String.join("&", pairs));
+        }
 
-        //Hash lại bằng secret key để so sánh với vnp_SecureHash do vnPay trả về
         String computedHash = hmacSHA512(vnPayConfig.getVnp_SecretKey(), hashData.toString());
+
+        if (!computedHash.equals(receivedHash)) {
+            throw new AppException(ErrorCode.SIGNATURE_INVALID);
+        }
 
         //kiểm tra tính hợp lệ của chữ ký
         if(!computedHash.equals(receivedHash)){
@@ -269,5 +376,28 @@ public class VNPayServiceImpl implements  VNPayService {
         }catch (Exception e){
             throw new AppException(ErrorCode.HASH_DATA_FAIL);
         }
+    }
+    //Lấy địa chỉ IP của khách hàng
+    private String getIpAddress(HttpServletRequest request){
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
+            ipAddress= request.getHeader("Proxy-Client-IP");
+        }
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
+            ipAddress= request.getHeader("WL-Proxy-Client-IP");
+        }
+        if(ipAddress == null || ipAddress.isEmpty() || ipAddress.equalsIgnoreCase("unknown")){
+            ipAddress= request.getRemoteAddr();
+            //Đối với localhost thì trả về IPv6 ::1
+            if("127.0.0.1".equals(ipAddress)){
+                return "127.0.0.1";
+            }
+        }
+        //Xử lý trường trường hợp có nhiều IP (chọn IP đầu tiên)
+        if(ipAddress != null && ipAddress.contains(",")){
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
     }
 }
