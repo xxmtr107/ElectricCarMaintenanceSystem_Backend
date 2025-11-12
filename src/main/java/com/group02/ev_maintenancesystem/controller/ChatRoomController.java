@@ -59,6 +59,13 @@ public class ChatRoomController {
                 .result(chatRoomService.getPendingRooms())
                 .build();
     }
+    @PostMapping("/{roomId}/close")
+    public ApiResponse<ChatRoomDTO> closeChatRoom(@PathVariable Long roomId, Principal principal) {
+        return ApiResponse.<ChatRoomDTO>builder()
+                .message("Chat room closed successfully")
+                .result(chatRoomService.closeChatRoom(roomId, principal))
+                .build();
+    }
 
 
 }

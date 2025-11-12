@@ -143,6 +143,55 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
                 .map(room -> modelMapper.map(room, ChatRoomDTO.class))
                 .collect(Collectors.toList());
     }
-    
+
+    @Override
+    public ChatRoomDTO closeChatRoom(Long roomId, Principal principal) {
+        log.info("User {} attempt to close room {}", principal.getName(), roomId);
+
+        User currentUser = getUserFromPrincipal(principal);
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_CHAT_NOT_FOUND));
+
+        // Bảo mật: Chỉ thành viên mới được đóng
+        if (!room.getMembers().contains(currentUser)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Nếu đã đóng rồi thì thôi
+        if (room.getStatus() == ChatRoomStatus.CLOSED) {
+            log.warn("Room {} is already CLOSED.", roomId);
+            return modelMapper.map(room, ChatRoomDTO.class);
+        }
+
+        // Đổi trạng thái
+        room.setStatus(ChatRoomStatus.CLOSED);
+        ChatRoom savedRoom = chatRoomRepository.save(room);
+        log.info("Room {} has been CLOSED by user {}", roomId, currentUser.getUsername());
+
+        // Gửi thông báo "Chat đã kết thúc" cho người kia
+        String roomTopic = "/topic/chat-room/" + savedRoom.getId();
+        Map<String, Object> endMessage = Map.of(
+                "type", "CHAT_ENDED", // (Client sẽ lắng nghe "type" này)
+                "roomId", savedRoom.getId(),
+                "endedBy", currentUser.getFullName() != null ? currentUser.getFullName() : currentUser.getUsername()
+        );
+
+        try {
+            simpMessagingTemplate.convertAndSend(roomTopic, endMessage);
+        } catch (Exception e) {
+            log.error("--- BROADCAST FAILED (END_CHAT) --- {}", e.getMessage(), e);
+        }
+
+        return modelMapper.map(savedRoom, ChatRoomDTO.class);
+    }
+
+    private User getUserFromPrincipal(Principal principal) {
+        if (principal == null) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        return userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
 
 }
