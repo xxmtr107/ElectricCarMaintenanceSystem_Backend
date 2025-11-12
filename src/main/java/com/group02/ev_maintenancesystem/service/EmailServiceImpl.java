@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.service;
 
+import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendationDTO;
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.EmailType;
 import com.group02.ev_maintenancesystem.enums.PaymentStatus;
@@ -39,44 +40,53 @@ public class EmailServiceImpl {
     @Autowired
     EmailRepository emailRepository;
 
+    @Autowired
+    private MaintenanceService maintenanceService;
+
     @Scheduled(cron = "0 0 8 * * ?")
     public List<String> reminderKm() throws MessagingException {
-
         List<Vehicle> vehicles = vehicleRepository.findAll();
         List<String> receivers = new ArrayList<>();
 
-        int[] serviceKmList = {12000, 24000, 36000, 48000, 60000, 72000, 84000, 96000, 108000, 120000};
-
         for (Vehicle vehicle : vehicles) {
-            int currentKm = vehicle.getCurrentKm();
+            // 1. Gọi service "thông minh" để lấy đề xuất
+            List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId());
 
-            for (int serviceKm : serviceKmList) {
-                if (currentKm >= serviceKm - 100 && currentKm <= serviceKm + 100) {
+            // 2. Nếu có đề xuất (tức là xe đến hạn)
+            if (recommendations != null && !recommendations.isEmpty()) {
+                MaintenanceRecommendationDTO recommendation = recommendations.get(0); // Lấy đề xuất đầu tiên
+                int currentKm = vehicle.getCurrentKm();
+                int serviceKm = recommendation.getMilestoneKm();
+                String email = vehicle.getCustomerUser().getEmail();
 
-                    String email = vehicle.getCustomerUser().getEmail();
-                    //mail này chỉ gửi 1 lần duy nhất
-                    int count = emailRepository.countByEmailAndTypeAndCurrentKmAndVehicleID(email, EmailType.KM,vehicle.getCurrentKm(), vehicle.getId());
-                    if (count >= 1) continue;
-
-                    Context context = new Context();
-                    context.setVariable("name", vehicle.getCustomerUser().getFullName());
-                    context.setVariable("vin", vehicle.getVin());
-                    context.setVariable("vehicle", vehicle.getModel().getName());
-                    context.setVariable("currentKm", currentKm);
-                    context.setVariable("serviceKm", serviceKm);
-                    List<ServiceCenter> stations = getServiceCenters(vehicle.getId());
-                    context.setVariable("stations", stations);
-                    String htmlContent = templateEngine.process("mailForReminderKm", context);
-                    MimeMessage message = mailSender.createMimeMessage();
-                    MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-                    helper.setTo(email);
-                    helper.setSubject("EV Maintenance System - Service Reminder");
-                    helper.setText(htmlContent, true);
-                    mailSender.send(message);
-                    saveEmail(email, EmailType.KM,vehicle.getCurrentKm(), vehicle.getId(), null, null, null);
-                    receivers.add(email);
-                    break;
+                // 3. Kiểm tra xem đã gửi email cho mốc này với số km này chưa
+                // (Tránh spam nếu xe không được cập nhật km và chạy cron mỗi ngày)
+                int count = emailRepository.countByEmailAndTypeAndCurrentKmAndVehicleID(email, EmailType.KM, currentKm, vehicle.getId());
+                if (count >= 1) {
+                    continue; // Đã gửi rồi, bỏ qua
                 }
+
+                // 4. Gửi email
+                Context context = new Context();
+                context.setVariable("name", vehicle.getCustomerUser().getFullName());
+                context.setVariable("vin", vehicle.getVin());
+                context.setVariable("vehicle", vehicle.getModel().getName());
+                context.setVariable("currentKm", currentKm);
+                context.setVariable("serviceKm", serviceKm); // Mốc KM được đề xuất
+                List<ServiceCenter> stations = getServiceCenters(vehicle.getId());
+                context.setVariable("stations", stations);
+
+                String htmlContent = templateEngine.process("mailForReminderKm", context);
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+                helper.setTo(email);
+                helper.setSubject("EV Maintenance System - Service Reminder");
+                helper.setText(htmlContent, true);
+                mailSender.send(message);
+
+                // 5. Lưu lại email đã gửi
+                saveEmail(email, EmailType.KM, currentKm, vehicle.getId(), null, null, null);
+                receivers.add(email);
             }
         }
         return receivers;
