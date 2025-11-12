@@ -3,6 +3,7 @@ package com.group02.ev_maintenancesystem.controller;
 import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
+import com.group02.ev_maintenancesystem.dto.response.PartUsageDetailResponse;
 import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.service.MaintenanceRecordService;
 import jakarta.validation.Valid;
@@ -97,6 +98,16 @@ public class MaintenanceRecordController {
         return ApiResponse.<PartUsageResponse>builder()
                 .message("Part added to maintenance record successfully")
                 .result(maintenanceRecordService.addPartToRecord(recordId, request, authentication))
+                .build();
+    }
+
+    @GetMapping("/{id}/all-parts")
+    @PreAuthorize("isAuthenticated()") // Bất kỳ ai có quyền xem record đều có thể xem
+    public ApiResponse<List<PartUsageDetailResponse>> getAllPartsForRecord(
+            @PathVariable long id, Authentication authentication) {
+        return ApiResponse.<List<PartUsageDetailResponse>>builder()
+                .message("All parts used for record fetched successfully")
+                .result(maintenanceRecordService.getAllPartUsagesForRecord(id, authentication))
                 .build();
     }
 }
