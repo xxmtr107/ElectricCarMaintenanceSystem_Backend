@@ -171,7 +171,7 @@ public class EmailServiceImpl {
         return receivers;
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 1)
     @Transactional
     public List<String> sendAppointmentConfirmation() throws MessagingException {
         List<String> receivers = new ArrayList<>();
@@ -217,7 +217,7 @@ public class EmailServiceImpl {
         return receivers;
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 1)
     @Transactional
     public List<String> sendPaymentConfirmation() throws MessagingException {
         List<String> receivers = new ArrayList<>();
