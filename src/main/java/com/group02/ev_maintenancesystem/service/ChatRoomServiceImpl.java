@@ -13,7 +13,9 @@ import com.group02.ev_maintenancesystem.repository.ChatMessageRepository;
 import com.group02.ev_maintenancesystem.repository.ChatRoomRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -29,18 +31,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ChatRoomServiceImpl implements  ChatRoomService {
-    @Autowired
     ChatRoomRepository chatRoomRepository;
-    @Autowired
     UserRepository userRepository;
-    @Autowired
     ChatMessageRepository chatMessageRepository;
-    @Autowired
     ModelMapper modelMapper;
-    @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
     private static final String STAFF_LOBBY_TOPIC = "/topic/staff-lobby";
+
 
     @Override
     public ChatRoomDTO createChatRoom(@RequestBody CreateRoomRequest request, Principal principal) {
@@ -54,10 +55,15 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
         newRoom.getMembers().add(customer);
 
         ChatRoom savedRoom = chatRoomRepository.save(newRoom);
-        ChatRoomDTO roomDTO = modelMapper.map(newRoom, ChatRoomDTO.class);
+        ChatRoomDTO roomDTO = modelMapper.map(savedRoom, ChatRoomDTO.class);
 
         //Thông báo cho các staff
-        simpMessagingTemplate.convertAndSend(STAFF_LOBBY_TOPIC, roomDTO);
+        try {
+            log.info("Broadcasting new room {} to {}", savedRoom.getId(), STAFF_LOBBY_TOPIC);
+            simpMessagingTemplate.convertAndSend(STAFF_LOBBY_TOPIC, roomDTO);
+        } catch (Exception e) {
+            log.error("--- BROADCAST FAILED --- {}", e.getMessage(), e);
+        }
         return roomDTO;
     }
 
@@ -122,6 +128,19 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
                     dto.setRoomId(msg.getRoom().getId());
                     return dto;
                 })
+                .collect(Collectors.toList());
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoomDTO> getPendingRooms() {
+        log.info("Fetching all PENDING chat rooms for Staff Lobby");
+
+        // 1. Tìm tất cả phòng có status là PENDING
+        List<ChatRoom> pendingRooms = chatRoomRepository.findByStatus(ChatRoomStatus.PENDING);
+
+        // 2. Chuyển đổi (map) sang DTO
+        return pendingRooms.stream()
+                .map(room -> modelMapper.map(room, ChatRoomDTO.class))
                 .collect(Collectors.toList());
     }
     

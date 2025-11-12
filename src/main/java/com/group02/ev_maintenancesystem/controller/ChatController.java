@@ -18,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.time.Instant;
 
 @Controller
 public class ChatController {

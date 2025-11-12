@@ -14,4 +14,5 @@ public interface ChatRoomService {
     ChatRoomDTO joinChatRoom(Long roomId, Principal principal);
     Set<ChatRoomDTO> getMyRooms(Principal principal);
     List<RoomMessageDTO> getChatHistory(Long roomId, Principal principal);
+    List<ChatRoomDTO> getPendingRooms();
 }
