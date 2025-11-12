@@ -27,7 +27,7 @@ import java.util.Objects; // THÊM MỚI
 
 @Service
 @Slf4j // THÊM MỚI
-public class EmailServiceImpl {
+public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
@@ -49,8 +49,9 @@ public class EmailServiceImpl {
     @Autowired
     private InvoiceRepository invoiceRepository; // <-- THÊM MỚI
 
+    @Override
     @Scheduled(cron = "0 0 8 * * ?")
-    public List<String> reminderKm() throws MessagingException {
+    public List<String> reminderMaintenance() throws MessagingException {
 
         List<Vehicle> vehicles = vehicleRepository.findAll();
         List<String> receivers = new ArrayList<>();
@@ -109,6 +110,7 @@ public class EmailServiceImpl {
         return list;
     }
 
+    @Override
     @Scheduled(cron = "0 0 8 * * ?")
     public List<String> upcomingAppointment() throws MessagingException {
         List<String> receivers = new ArrayList<>();
@@ -149,6 +151,7 @@ public class EmailServiceImpl {
         return receivers;
     }
 
+    @Override
     @Scheduled(cron = "0 0 8 * * ?")
     @Transactional
     public List<String> remindPayment() throws MessagingException {
@@ -190,36 +193,26 @@ public class EmailServiceImpl {
 
     /**
      * ĐÃ CẬP NHẬT LOGIC:
-     * Chạy mỗi phút, tìm các lịch hẹn vừa được CHUYỂN SANG 'CONFIRMED'
-     * và gửi mail xác nhận (1 lần duy nhất).
+     * Chuyển thành hàm public void, được gọi trực tiếp từ AppointmentServiceImpl.
+     * Chỉ gửi mail nếu lịch hẹn ở trạng thái CONFIRMED và chưa được gửi.
      */
-    @Scheduled(fixedRate = 60000)
     @Transactional
-    public List<String> sendAppointmentConfirmation() throws MessagingException {
-        List<String> receivers = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
-        // Quét 2 phút vừa qua để tránh lỡ (do transaction commit trễ)
-        LocalDateTime twoMinutesAgo = now.minusMinutes(2);
+    public void sendAppointmentConfirmation(Appointment appointment) {
+        // Kiểm tra đầu vào
+        if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+            log.warn("sendAppointmentConfirmation called with invalid status or null appointment. Skipping.");
+            return;
+        }
 
-        // Lấy tất cả appointment (hơi nặng) và lọc
-        // Lý tưởng nhất là tạo method trong repository:
-        // findAllByStatusAndUpdatedAtAfter(AppointmentStatus.CONFIRMED, twoMinutesAgo)
-        List<Appointment> recentAppointments = appointmentRepository.findAll().stream()
-                .filter(a -> a.getStatus() == AppointmentStatus.CONFIRMED // <-- LỌC STATUS
-                        && a.getUpdatedAt() != null
-                        && a.getUpdatedAt().isAfter(twoMinutesAgo)
-                        && a.getUpdatedAt().isBefore(now))
-                .toList();
+        // Kiểm tra xem đã từng gửi mail CONFIRM cho lịch này CHƯA
+        boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentID(
+                appointment.getCustomerUser().getEmail(),
+                EmailType.APPOINTMENT_DATE,
+                appointment.getId()
+        );
 
-        for (Appointment appointment : recentAppointments) {
-            // Kiểm tra xem đã từng gửi mail CONFIRM cho lịch này CHƯA
-            boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentID(
-                    appointment.getCustomerUser().getEmail(),
-                    EmailType.APPOINTMENT_DATE,
-                    appointment.getId()
-            );
-
-            if (!alreadySent) {
+        if (!alreadySent) {
+            try {
                 Context context = new Context();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
@@ -230,68 +223,66 @@ public class EmailServiceImpl {
                 context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
                 context.setVariable("phone", appointment.getServiceCenter().getPhone());
 
-                String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context); // Sửa lỗi
+                String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context);
 
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
                 helper.setTo(appointment.getCustomerUser().getEmail());
                 helper.setSubject("EV Maintenance System - Appointment Confirmation");
-                helper.setText(htmlContent, true); // Sửa lỗi
+                helper.setText(htmlContent, true);
                 mailSender.send(message);
-                saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_DATE, null,null, appointment.getId(), null, null);
-                receivers.add(appointment.getCustomerUser().getEmail());
+
+                // Ghi lại email đã gửi
+                saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_DATE, null, null, appointment.getId(), null, null);
+                log.info("Sent appointment confirmation email for appointment ID: {}", appointment.getId());
+            } catch (Exception e) {
+                log.error("Failed to send appointment confirmation email for ID {}: {}", appointment.getId(), e.getMessage());
             }
         }
-        return receivers;
     }
+
 
     /**
      * ĐÃ CẬP NHẬT LOGIC:
-     * Chạy mỗi phút, tìm các HÓA ĐƠN (Invoice) vừa được CHUYỂN SANG 'PAID'
-     * và gửi mail xác nhận (1 lần duy nhất).
+     * Chuyển thành hàm public void, được gọi trực tiếp từ VNPayServiceImpl.
+     * Chỉ gửi mail nếu Hóa đơn ở trạng thái PAID và chưa được gửi.
      */
-    @Scheduled(fixedRate = 60000)
     @Transactional
-    public List<String> sendPaymentConfirmation() throws MessagingException {
-        List<String> receivers = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime twoMinutesAgo = now.minusMinutes(2); // Quét 2 phút
+    public void sendPaymentConfirmation(Invoice invoice) {
+        // Kiểm tra đầu vào
+        if (invoice == null || !"PAID".equals(invoice.getStatus())) {
+            log.warn("sendPaymentConfirmation called with invalid status or null invoice. Skipping.");
+            return;
+        }
 
-        // Tìm các HÓA ĐƠN vừa được thanh toán
-        List<Invoice> recentPaidInvoices = invoiceRepository.findByStatus("PAID").stream() // <-- TÌM THEO INVOICE
-                .filter(i -> i.getUpdatedAt() != null
-                        && i.getUpdatedAt().isAfter(twoMinutesAgo)
-                        && i.getUpdatedAt().isBefore(now))
-                .toList();
+        String email = invoice
+                .getMaintenanceRecord()
+                .getAppointment()
+                .getCustomerUser()
+                .getEmail();
 
-        for (Invoice invoice : recentPaidInvoices) { // <-- DUYỆT QUA INVOICE
-            String email = invoice
-                    .getMaintenanceRecord()
-                    .getAppointment()
-                    .getCustomerUser()
-                    .getEmail();
+        // Tìm Payment ID tương ứng để ghi log
+        Payment payment = invoice.getPayments().stream()
+                .filter(p -> p.getStatus() == PaymentStatus.PAID)
+                .findFirst() // Lấy payment PAID đầu tiên
+                .orElse(null);
 
-            // Tìm Payment ID tương ứng để ghi log
-            Payment payment = invoice.getPayments().stream()
-                    .filter(p -> p.getStatus() == PaymentStatus.PAID)
-                    .findFirst() // Lấy payment PAID đầu tiên
-                    .orElse(null);
+        if (payment == null) {
+            log.warn("Invoice {} is PAID but has no corresponding PAID Payment entity. Skipping email.", invoice.getId());
+            return;
+        }
 
-            if (payment == null) {
-                log.warn("Invoice {} is PAID but has no corresponding PAID Payment entity. Skipping email.", invoice.getId());
-                continue;
-            }
+        Long paymentId = payment.getId();
 
-            Long paymentId = payment.getId();
+        boolean alreadySent = emailRepository.existsByEmailAndTypeAndPaymentIDAndStatus(
+                email,
+                EmailType.PAYMENT,
+                paymentId,
+                EmailRecord.MailPaymentStatus.Success
+        );
 
-            boolean alreadySent = emailRepository.existsByEmailAndTypeAndPaymentIDAndStatus(
-                    email,
-                    EmailType.PAYMENT,
-                    paymentId,
-                    EmailRecord.MailPaymentStatus.Success
-            );
-
-            if (!alreadySent) {
+        if (!alreadySent) {
+            try {
                 Context context = new Context();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
@@ -310,12 +301,15 @@ public class EmailServiceImpl {
                 helper.setSubject("EV Maintenance System - Payment Confirmation");
                 helper.setText(htmlContent, true);
                 mailSender.send(message);
-                saveEmail(email, EmailType.PAYMENT, null,null,
+
+                // Ghi lại email đã gửi
+                saveEmail(email, EmailType.PAYMENT, null, null,
                         null, paymentId, EmailRecord.MailPaymentStatus.Success);
-                receivers.add(email);
+                log.info("Sent payment confirmation email for invoice ID: {}", invoice.getId());
+            } catch (Exception e) {
+                log.error("Failed to send payment confirmation email for invoice ID {}: {}", invoice.getId(), e.getMessage());
             }
         }
-        return receivers;
     }
 
     private void saveEmail(String email, EmailType emailType,Integer currentKm,Long vehicleID,Long appointmentID,Long paymentID,EmailRecord.MailPaymentStatus status) {

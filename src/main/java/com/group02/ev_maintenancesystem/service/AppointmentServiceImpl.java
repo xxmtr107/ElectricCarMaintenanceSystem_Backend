@@ -50,6 +50,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     ServiceCenterRepository serviceCenterRepository;
     AppointmentServiceItemDetailRepository appointmentServiceItemDetailRepository;
     AppointmentServiceItemDetailMapper appointmentServiceItemDetailMapper;
+    EmailService emailService;
+
     @Override
     @Transactional
     public AppointmentResponse createAppointmentByCustomer(Authentication authentication, CustomerAppointmentRequest request) {
@@ -212,12 +214,22 @@ public class AppointmentServiceImpl implements AppointmentService {
                 throw new AppException(ErrorCode.UNAUTHORIZED);
             }
         }
-
         appointment.setTechnicianUser(technician);
+        boolean statusChanged = false;
         if (appointment.getStatus() == AppointmentStatus.PENDING) {
             appointment.setStatus(AppointmentStatus.CONFIRMED);
+            statusChanged = true;
         }
         Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // Chỉ gửi email xác nhận 1 LẦN DUY NHẤT tại đây
+        if (statusChanged) {
+            try {
+                emailService.sendAppointmentConfirmation(savedAppointment);
+            } catch (Exception e) {
+                log.error("Failed to send confirmation email for appointment {}: {}", savedAppointment.getId(), e.getMessage());
+            }
+        }
         return mapSingleAppointmentToResponse(savedAppointment);
     }
 
@@ -264,6 +276,21 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
         checkAppointmentAccess(user, appointment);
+
+        // --- BẮT ĐẦU SỬA: CẬP NHẬT LOGIC CHO IN_PROGRESS ---
+        if (newStatus == AppointmentStatus.IN_PROGRESS) {
+            if (!user.isTechnician()) {
+                throw new AppException(ErrorCode.UNAUTHORIZED); // Chỉ tech mới được IN_PROGRESS
+            }
+            // Tech có thể bắt đầu làm việc nếu lịch đã CONFIRMED hoặc KH đã duyệt
+            if (appointment.getStatus() != AppointmentStatus.CONFIRMED &&
+                    appointment.getStatus() != AppointmentStatus.CUSTOMER_APPROVED) { // <-- Sửa: Bỏ REJECTED
+
+                log.warn("Technician {} tried to set IN_PROGRESS on appointment {} with status {}", user.getUsername(), id, appointment.getStatus());
+                throw new AppException(ErrorCode.STATUS_INVALID);
+            }
+        }
+        // --- KẾT THÚC SỬA ---
 
         if (appointment.getStatus() == AppointmentStatus.WAITING_FOR_APPROVAL &&
                 newStatus != AppointmentStatus.CANCELLED) {
@@ -349,9 +376,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (!technician.isTechnician() || appointment.getTechnicianUser() == null || !appointment.getTechnicianUser().getId().equals(technician.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-        if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+        // --- BẮT ĐẦU SỬA: Cho phép KTV nâng cấp khi đang CONFIRMED, IN_PROGRESS hoặc CUSTOMER_APPROVED ---
+        // (KTV có thể phát hiện thêm khi đang làm)
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED &&
+                appointment.getStatus() != AppointmentStatus.IN_PROGRESS &&
+                appointment.getStatus() != AppointmentStatus.CUSTOMER_APPROVED) { // <-- Sửa
+            log.warn("Technician {} tried to upgrade items on appointment {} with status {}", technician.getUsername(), appointmentId, appointment.getStatus());
             throw new AppException(ErrorCode.STATUS_INVALID);
         }
+        // --- KẾT THÚC SỬA ---
 
         if (requests == null || requests.isEmpty()) {
             log.warn("upgradeServiceItem called with no requests for appointment {}", appointmentId);
@@ -431,9 +464,12 @@ public class AppointmentServiceImpl implements AppointmentService {
             return mapSingleAppointmentToResponse(appointment);
         }
 
-        // 1. Bắt đầu vòng lặp
-        for (ServiceItemApproveRequest request : requests) {
+        // --- BẮT ĐẦU SỬA: LOGIC XỬ LÝ 1 DUYỆT, 1 TỪ CHỐI ---
 
+        int totalUpgradeRequestsInBatch = requests.size();
+        int totalRejectionsInBatch = 0;
+
+        for (ServiceItemApproveRequest request : requests) {
             AppointmentServiceItemDetail detail = appointmentServiceItemDetailRepository.findById(request.getAppointmentServiceDetailId())
                     .orElseThrow(() -> new AppException(ErrorCode.DETAIL_NOT_FOUND));
 
@@ -442,28 +478,21 @@ public class AppointmentServiceImpl implements AppointmentService {
                 throw new AppException(ErrorCode.UNAUTHORIZED);
             }
 
-            // --- SỬA LỖI 2: THAY ĐỔI LOGIC IF ---
-            // Chỉ bỏ qua (continue) nếu:
-            // 1. Hạng mục đã được duyệt (true) VÀ request cũng là duyệt (true).
-            if (detail.getCustomerApproved() && request.getApproved()) {
-                continue; // Đã duyệt rồi, không cần làm gì
-            }
-            // 2. Hạng mục đang là CHECK (luôn là true) VÀ request là từ chối (false).
-            //    (Về mặt logic, không thể "từ chối" một hạng mục CHECK, nhưng nếu xảy ra, chúng ta bỏ qua)
-            if (detail.getCustomerApproved() && !request.getApproved() && detail.getActionType() == MaintenanceActionType.CHECK) {
+            // Chỉ xử lý các item đang chờ duyệt (approved=false)
+            if (detail.getCustomerApproved()) {
+                // Nếu item đã được duyệt, nó không phải là 1 "request mới" cần xử lý
+                totalUpgradeRequestsInBatch--;
                 continue;
             }
-            // --- KẾT THÚC SỬA LỖI 2 ---
-
 
             if (request.getApproved()) {
                 // Khách hàng ĐỒNG Ý nâng cấp (từ false -> true)
                 detail.setCustomerApproved(true);
             } else {
                 // Khách hàng TỪ CHỐI (từ false -> revert về CHECK)
+                totalRejectionsInBatch++; // Đếm 1 lần từ chối
                 log.warn("Staff reverting item {} for appointment {} back to CHECK", detail.getServiceItem().getId(), appointmentId);
 
-                // Tìm lại giá CHECK gốc
                 ModelPackageItem originalItem = modelPackageItemRepository
                         .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
                                 appointment.getVehicle().getModel().getId(),
@@ -477,23 +506,40 @@ public class AppointmentServiceImpl implements AppointmentService {
                 detail.setPrice(originalItem.getPrice());
                 detail.setCustomerApproved(true); // Đã duyệt (với tư cách là CHECK)
             }
-            // (Không save ở đây, để save 1 lần ở cuối)
         }
 
-        // 2. Cập nhật lịch hẹn (sau khi vòng lặp kết thúc)
         appointment.recalculateEstimatedCost(); // Tính lại tổng tiền
 
         // Kiểm tra xem tất cả các hạng mục (sau khi cập nhật) đã được duyệt chưa
-        boolean allApproved = appointment.getServiceDetails().stream()
+        boolean allItemsInAppointmentAreHandled = appointment.getServiceDetails().stream()
                 .allMatch(AppointmentServiceItemDetail::getCustomerApproved);
 
-        if (allApproved && appointment.getStatus() == AppointmentStatus.WAITING_FOR_APPROVAL) {
-            // Nếu tất cả đã được xử lý (duyệt hoặc từ chối), trả về CONFIRMED
-            appointment.setStatus(AppointmentStatus.CONFIRMED);
-        }
+        // Logic mới để xử lý các kịch bản
+        if (allItemsInAppointmentAreHandled) {
+            // Nếu không còn gì chờ duyệt
 
-        Appointment savedAppointment = appointmentRepository.save(appointment); // Lưu 1 lần
+            // --- SỬA ĐỔI THEO YÊU CẦU MỚI ---
+            if (totalRejectionsInBatch > 0 && totalRejectionsInBatch == totalUpgradeRequestsInBatch) {
+                // Kịch bản 1 (Yêu cầu 4): TẤT CẢ yêu cầu trong đợt này bị từ chối
+                appointment.setStatus(AppointmentStatus.COMPLETED); // <-- SỬA TỪ CONFIRMED SANG COMPLETED
+                // Vì đã COMPLETED, chúng ta phải tạo Maintenance Record ngay lập tức
+                maintenanceRecordService.createMaintenanceRecord(appointment); // <-- THÊM MỚI
+            } else {
+                // Kịch bản 2 (Yêu cầu 3): Có ít nhất 1 duyệt (hoặc 1 duyệt 1 từ chối)
+                appointment.setStatus(AppointmentStatus.CUSTOMER_APPROVED);
+            }
+            // --- KẾT THÚC SỬA ĐỔI ---
+
+        } else {
+            // Nếu vẫn còn mục đang chờ (false), trạng thái giữ nguyên
+            appointment.setStatus(AppointmentStatus.WAITING_FOR_APPROVAL);
+        }
+        // --- KẾT THÚC SỬA ---
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
         log.info("Staff {} set approval for {} item(s) for appointment {}", staff.getUsername(), requests.size(), appointmentId);
+
+        // (Không gửi email ở đây)
 
         return mapSingleAppointmentToResponse(savedAppointment);
     }
