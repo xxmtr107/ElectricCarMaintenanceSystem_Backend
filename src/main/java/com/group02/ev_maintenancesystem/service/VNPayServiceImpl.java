@@ -37,6 +37,9 @@ public class VNPayServiceImpl implements  VNPayService {
     @Autowired
     AppointmentRepository appointmentRepository;
 
+    @Autowired
+    EmailServiceImpl emailService;
+
 
     @Override
     public VNPayResponse createPayment(VNPayRequest request, HttpServletRequest httpServletRequest) {
@@ -330,6 +333,13 @@ public class VNPayServiceImpl implements  VNPayService {
             Invoice invoice = payment.getInvoice();
             invoice.setStatus("PAID");
             invoiceRepository.save(invoice);
+            // --- GỌI EMAIL SERVICE (SAU KHI INVOICE ĐÃ PAID) ---
+            try {
+                emailService.sendPaymentConfirmation(invoice);
+            } catch (Exception e) {
+                log.error("Failed to send payment confirmation email for invoice {}: {}", invoice.getId(), e.getMessage());
+            }
+            // --- KẾT THÚC GỌI EMAIL ---
             return true;
         }
         if("24".equals(responseCode)){
