@@ -52,6 +52,13 @@ public class ChatRoomController {
                 .result(chatRoomService.getChatHistory(roomId, principal))
                 .build();
     }
+    @GetMapping("/pending")
+    public ApiResponse<List<ChatRoomDTO>> getPendingRooms() {
+        return ApiResponse.<List<ChatRoomDTO>>builder()
+                .message("Get pending rooms successfully")
+                .result(chatRoomService.getPendingRooms())
+                .build();
+    }
 
 
 }

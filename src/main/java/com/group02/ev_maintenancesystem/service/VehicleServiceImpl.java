@@ -14,6 +14,8 @@ import com.group02.ev_maintenancesystem.repository.AppointmentRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import com.group02.ev_maintenancesystem.repository.VehicleModelRepository;
 import com.group02.ev_maintenancesystem.repository.VehicleRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ public class VehicleServiceImpl implements VehicleService{
 
     @Autowired
     AppointmentRepository appointmentRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
 
     @Override
@@ -155,6 +160,7 @@ public class VehicleServiceImpl implements VehicleService{
 
     @Override
     @Transactional
+
     public VehicleResponse deleteVehicle(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
@@ -172,9 +178,12 @@ public class VehicleServiceImpl implements VehicleService{
         if(hasActiveAppointment){
             throw new AppException(ErrorCode.CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
         }
+        entityManager.flush();
+        entityManager.clear();
         vehicleRepository.deleteById(vehicleId);
         return modelMapper.map(vehicle, VehicleResponse.class);
     }
+
 
     public boolean isVehicleOwner(Authentication authentication, Long vehicleId) {
         if (authentication == null || authentication.getPrincipal() == null) {
@@ -197,4 +206,5 @@ public class VehicleServiceImpl implements VehicleService{
         // Nếu vehicle.isPresent() == true, nghĩa là tìm thấy xe -> là chủ sở hữu
         return vehicle.isPresent();
     }
+
 }
