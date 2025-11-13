@@ -18,8 +18,7 @@ import java.util.Set;
 @RequestMapping("/chat-rooms")
 @RequiredArgsConstructor
 public class ChatRoomController {
-    @Autowired
-    ChatRoomService chatRoomService;
+    private final ChatRoomService chatRoomService;
 
     @PostMapping("/create")
     public ApiResponse<ChatRoomDTO> createChatRoom(@RequestBody CreateRoomRequest chatRoom, Principal principal){
@@ -57,6 +56,13 @@ public class ChatRoomController {
         return ApiResponse.<List<ChatRoomDTO>>builder()
                 .message("Get pending rooms successfully")
                 .result(chatRoomService.getPendingRooms())
+                .build();
+    }
+    @PostMapping("/{roomId}/close")
+    public ApiResponse<ChatRoomDTO> closeChatRoom(@PathVariable Long roomId, Principal principal) {
+        return ApiResponse.<ChatRoomDTO>builder()
+                .message("Chat room closed successfully")
+                .result(chatRoomService.closeChatRoom(roomId, principal))
                 .build();
     }
 
