@@ -29,6 +29,7 @@ public class JwtAuthChannelInterceptor implements ChannelInterceptor {
     JwtService jwtService;
     CustomUserDetailService userDetailsService;
 
+
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);

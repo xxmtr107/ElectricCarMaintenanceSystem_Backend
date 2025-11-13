@@ -5,6 +5,7 @@ import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
 import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
+import com.group02.ev_maintenancesystem.dto.response.PartUsageDetailResponse;
 import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
 import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
@@ -23,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -328,4 +330,127 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
 
         return response;
     }
+    @Override
+    public List<PartUsageDetailResponse> getAllPartUsagesForRecord(Long recordId, Authentication authentication) {
+        // 1. Xác thực và lấy Record
+        User user = getAuthenticatedUser(authentication);
+        MaintenanceRecord record = maintenanceRecordRepository.findById(recordId)
+                .orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
+
+        // 2. Kiểm tra quyền truy cập (Admin, Staff, Tech, hoặc chủ xe)
+        checkRecordAccess(user, record);
+
+        List<PartUsageDetailResponse> allParts = new ArrayList<>();
+
+        // 3. Lấy Phụ tùng phát sinh (EXTRA)
+        List<PartUsageDetailResponse> extraParts = record.getPartUsages().stream()
+                .map(pu -> PartUsageDetailResponse.builder()
+                        .id(pu.getId()) // Có ID thật
+                        .quantityUsed(pu.getQuantityUsed())
+                        .totalPrice(pu.getTotalPrice())
+                        .sparePartId(pu.getSparePart().getId())
+                        .sparePartName(pu.getSparePart().getName())
+                        .sparePartNumber(pu.getSparePart().getPartNumber())
+                        .maintenanceRecordId(pu.getMaintenanceRecord().getId())
+                        .createdAt(pu.getCreatedAt())
+                        .usageType("EXTRA") // Loại phát sinh
+                        .build())
+                .collect(Collectors.toList());
+        allParts.addAll(extraParts);
+
+        // 4. Lấy Phụ tùng trọn gói (INCLUDED)
+        Appointment appointment = record.getAppointment();
+        if (appointment == null || appointment.getVehicle() == null || appointment.getVehicle().getModel() == null) {
+            return allParts; // Trả về nếu thiếu thông tin
+        }
+        Long modelId = appointment.getVehicle().getModel().getId();
+
+        // Lấy các dịch vụ 'REPLACE' đã được duyệt
+        List<AppointmentServiceItemDetail> approvedReplaces = appointment.getServiceDetails().stream()
+                .filter(d -> d.getCustomerApproved() && d.getActionType() == MaintenanceActionType.REPLACE)
+                .toList();
+
+        for (AppointmentServiceItemDetail detail : approvedReplaces) {
+            // Tìm định nghĩa phụ tùng đi kèm
+            ModelPackageItem itemDefinition = findItemDefinition(
+                    modelId,
+                    appointment.getMilestoneKm(),
+                    detail.getServiceItem().getId()
+            );
+
+            if (itemDefinition != null && itemDefinition.getIncludedSparePart() != null) {
+                SparePart includedPart = itemDefinition.getIncludedSparePart();
+
+                // Xây dựng response ảo
+                PartUsageDetailResponse includedPartResponse = PartUsageDetailResponse.builder()
+                        .id(null) // Không có ID PartUsage
+                        .quantityUsed(itemDefinition.getIncludedQuantity())
+                        .totalPrice(BigDecimal.ZERO) // Giá 0 vì đã bao gồm
+                        .sparePartId(includedPart.getId())
+                        .sparePartName(includedPart.getName())
+                        .sparePartNumber(includedPart.getPartNumber())
+                        .maintenanceRecordId(recordId)
+                        .createdAt(detail.getCreatedAt()) // Lấy thời gian của record
+                        .usageType("INCLUDED") // Loại trọn gói
+                        .build();
+
+                allParts.add(includedPartResponse);
+            }
+        }
+
+        return allParts;
+    }
+    /**
+     * Helper: Tìm định nghĩa ModelPackageItem cho một dịch vụ REPLACE
+     */
+    private ModelPackageItem findItemDefinition(Long modelId, Integer appointmentMilestoneKm, Long serviceItemId) {
+        // 1. Tìm ở mốc KM của lịch hẹn
+        ModelPackageItem itemDefinition = modelPackageItemRepository
+                .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
+                        modelId,
+                        appointmentMilestoneKm,
+                        serviceItemId
+                )
+                .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
+                .orElse(null);
+
+        // 2. Nếu không thấy (ví dụ: đó là 1 CHECK được nâng cấp), tìm ở mốc 1km (quy ước)
+        if (itemDefinition == null) {
+            itemDefinition = modelPackageItemRepository
+                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
+                            modelId,
+                            1, // Mốc 1km cho các định nghĩa nâng cấp
+                            serviceItemId
+                    )
+                    .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
+                    .orElse(null);
+        }
+        return itemDefinition;
+    }
+
+    /**
+     * Helper: Kiểm tra quyền truy cập vào một MaintenanceRecord
+     */
+    private void checkRecordAccess(User user, MaintenanceRecord record) {
+        if (user.isAdmin()) return; // Admin có toàn quyền
+
+        Appointment appointment = record.getAppointment();
+        if (appointment == null) throw new AppException(ErrorCode.UNAUTHORIZED);
+
+        // Staff/Technician của trung tâm
+        if ((user.isStaff() || user.isTechnician()) && user.getServiceCenter() != null &&
+                appointment.getServiceCenter() != null &&
+                user.getServiceCenter().getId().equals(appointment.getServiceCenter().getId())) {
+            return;
+        }
+
+        // Chủ sở hữu xe
+        if (user.isCustomer() && appointment.getCustomerUser() != null &&
+                appointment.getCustomerUser().getId().equals(user.getId())) {
+            return;
+        }
+
+        throw new AppException(ErrorCode.UNAUTHORIZED);
+    }
+    // --- KẾT THÚC THÊM MỚI ---
 }

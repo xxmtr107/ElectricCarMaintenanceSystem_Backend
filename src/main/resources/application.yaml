@@ -10,16 +10,19 @@ spring:
     password: "yhnLlvlxzUMQmvdtFUKGwyxfxrHDzJtm"
   jpa:
     hibernate:
-        ddl-auto: update
+        ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
   sql:
     init:
       mode: never
       continue-on-error: false  # Dừng nếu có lỗi
+
+  flyway:
+    enabled: true
+
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
 

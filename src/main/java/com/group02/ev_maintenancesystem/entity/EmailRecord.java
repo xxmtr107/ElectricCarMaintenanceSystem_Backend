@@ -43,6 +43,12 @@ public class EmailRecord {
     @Column(name="vehicle_id")
     private Long vehicleID;
 
+    @Column(name="technician_id")
+    private Long technicianID;
+
+    @Column(name="customer_id")
+    private Long customerID;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private MailPaymentStatus status;
