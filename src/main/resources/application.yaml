@@ -15,7 +15,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
   sql:
     init:
       mode: never
@@ -23,8 +22,6 @@ spring:
 
   flyway:
     enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
 

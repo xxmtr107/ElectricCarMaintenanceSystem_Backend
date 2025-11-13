@@ -386,27 +386,3 @@ CREATE TABLE IF NOT EXISTS `part_categories` (
     PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- =============================================
--- Table: work_schedules
--- =============================================
-CREATE TABLE IF NOT EXISTS `work_schedules` (
-                                                `id` bigint NOT NULL AUTO_INCREMENT,
-                                                `employee_id` bigint NOT NULL,
-                                                `schedule_date` date NOT NULL,
-                                                `day_of_week` enum('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY') DEFAULT NULL,
-    `start_time` time(6) NOT NULL,
-    `end_time` time(6) NOT NULL,
-    `is_working` bit(1) NOT NULL,
-    `created_by_admin_id` bigint DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FKbkav7h2mc46ajm7928vsjk7ht` (`employee_id`),
-    KEY `FKg15hdpu1n7f4vu154m9065au2` (`created_by_admin_id`),
-    CONSTRAINT `FKbkav7h2mc46ajm7928vsjk7ht` FOREIGN KEY (`employee_id`) REFERENCES `users` (`id`),
-    CONSTRAINT `FKg15hdpu1n7f4vu154m9065au2` FOREIGN KEY (`created_by_admin_id`) REFERENCES `users` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-SET FOREIGN_KEY_CHECKS=1;
