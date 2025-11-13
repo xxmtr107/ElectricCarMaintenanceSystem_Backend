@@ -104,13 +104,20 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
                 "roomId", savedRoom.getId(),
                 "staffName", staff.getFullName() != null ? staff.getFullName() : staff.getUsername()
         );
+        simpMessagingTemplate.convertAndSend(STAFF_LOBBY_TOPIC, updateMsg);
+
         String roomTopic = "/topic/chat-room/" + savedRoom.getId();
         Map<String, Object> roomUpdateMsg = Map.of(
-                "type", "STAFF_JOINED", // (Client sẽ lắng nghe "type" này)
+                "type", "STAFF_JOINED",
                 "roomId", savedRoom.getId(),
                 "staffName", staff.getFullName() != null ? staff.getFullName() : staff.getUsername()
         );
-        simpMessagingTemplate.convertAndSend(STAFF_LOBBY_TOPIC, updateMsg);
+        try {
+            log.info("Broadcasting STAFF_JOINED to {}", roomTopic);
+            simpMessagingTemplate.convertAndSend(roomTopic, roomUpdateMsg);
+        } catch (Exception e) {
+            log.error("--- BROADCAST FAILED (STAFF_JOINED) --- {}", e.getMessage(), e);
+        }
 
         return modelMapper.map(savedRoom, ChatRoomDTO.class);
     }
