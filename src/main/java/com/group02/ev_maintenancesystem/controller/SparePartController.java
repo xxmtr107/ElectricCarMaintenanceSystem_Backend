@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/spareParts")
 public class SparePartController {
@@ -64,6 +66,14 @@ public class SparePartController {
         return ApiResponse.<SparePartResponse>builder()
                 .message("Update spare part stock successfully")
                 .result(sparePartService.updateStock(id, request))
+                .build();
+    }
+
+    @GetMapping("/model/{modelId}")
+    public ApiResponse<List<SparePartResponse>> getSparePartsByModel(@PathVariable Long modelId){
+        return ApiResponse.<List<SparePartResponse>>builder()
+                .message("Get spare parts by vehicle model successfully")
+                .result(sparePartService.getSparePartsByModelId(modelId))
                 .build();
     }
 }

@@ -1,7 +1,10 @@
 package com.group02.ev_maintenancesystem.repository;
 
 import com.group02.ev_maintenancesystem.entity.ModelPackageItem;
+import com.group02.ev_maintenancesystem.entity.SparePart;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,23 +16,9 @@ public interface ModelPackageItemRepository extends JpaRepository<ModelPackageIt
 
     List<ModelPackageItem> findByVehicleModelId(Long vehicleModelId);
 
-//    List<ModelPackageItem> findByServicePackageId(Long servicePackageId);
-//
-//    List<ModelPackageItem> findByVehicleModelIdAndServicePackageId(Long modelId, Long servicePackageId);
-//
-//    List<ModelPackageItem> findByVehicleModelIdAndServicePackageIsNull(Long vehicleModelId);
-//
-//    Optional<ModelPackageItem> findByVehicleModelIdAndServicePackageIsNullAndServiceItemId(Long modelId, Long serviceItemId);
-//
-//    Optional<ModelPackageItem> findByVehicleModelIdAndServicePackageIdAndServiceItemId(Long modelId, Long packageId, Long itemId);
-//
-//    boolean existsByVehicleModelIdAndServicePackageIdAndServiceItemId(Long modelId, Long packageId, Long itemId);
-//
-//    boolean existsByVehicleModelIdAndServicePackageIsNullAndServiceItemId(Long modelId, Long itemId);
-//
-//    List<ModelPackageItem> findByVehicleModelAndServicePackage(VehicleModel model, ServicePackage recommendedPackage);
-//
-//    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKm(Long modelId, Integer milestoneToRecommend);
+
+    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmGreaterThan(Long vehicleModelId, Integer minKm);
+
     List<ModelPackageItem> findByVehicleModelIdAndMilestoneKm(Long modelId, Integer milestoneKm);
 
     Optional<ModelPackageItem> findByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long serviceItemId);
@@ -39,4 +28,8 @@ public interface ModelPackageItemRepository extends JpaRepository<ModelPackageIt
     List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmIn(Long modelId, List<Integer> milestones);
 
     List<ModelPackageItem> findAllByVehicleModelId(Long vehicleModelId);
+
+    @Query("SELECT DISTINCT m.includedSparePart FROM ModelPackageItem m " +
+            "WHERE m.vehicleModel.id = :modelId AND m.includedSparePart IS NOT NULL")
+    List<SparePart> findDistinctSparePartsByModelId(@Param("modelId") Long modelId);
 }
