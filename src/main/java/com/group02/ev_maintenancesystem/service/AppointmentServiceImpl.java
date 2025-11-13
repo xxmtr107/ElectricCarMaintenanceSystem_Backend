@@ -50,6 +50,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     ServiceCenterRepository serviceCenterRepository;
     AppointmentServiceItemDetailRepository appointmentServiceItemDetailRepository;
     AppointmentServiceItemDetailMapper appointmentServiceItemDetailMapper;
+    EmailServiceImpl emailService;
     @Override
     @Transactional
     public AppointmentResponse createAppointmentByCustomer(Authentication authentication, CustomerAppointmentRequest request) {

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class EmailServiceImpl {
+public class EmailServiceImpl implements  EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
@@ -171,7 +171,6 @@ public class EmailServiceImpl {
         return receivers;
     }
 
-    @Scheduled(fixedRate = 1)
     @Transactional
     public List<String> sendAppointmentConfirmation() throws MessagingException {
         List<String> receivers = new ArrayList<>();
