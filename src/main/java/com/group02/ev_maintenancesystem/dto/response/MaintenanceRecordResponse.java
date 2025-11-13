@@ -40,6 +40,9 @@ public class MaintenanceRecordResponse {
 
     List<PartUsageResponse> partUsages;
 
+    String serviceCenterName;
+    BigDecimal totalPrice;
+
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }
