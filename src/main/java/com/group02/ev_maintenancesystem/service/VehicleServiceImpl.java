@@ -2,10 +2,7 @@ package com.group02.ev_maintenancesystem.service;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.VehicleResponse;
-import com.group02.ev_maintenancesystem.entity.Appointment;
-import com.group02.ev_maintenancesystem.entity.User;
-import com.group02.ev_maintenancesystem.entity.Vehicle;
-import com.group02.ev_maintenancesystem.entity.VehicleModel;
+import com.group02.ev_maintenancesystem.entity.*;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.enums.Role;
 import com.group02.ev_maintenancesystem.exception.AppException;
@@ -49,9 +46,6 @@ public class VehicleServiceImpl implements VehicleService{
 
     @Autowired
     AppointmentRepository appointmentRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
 
     @Override
@@ -164,23 +158,40 @@ public class VehicleServiceImpl implements VehicleService{
     public VehicleResponse deleteVehicle(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        //appointmentRepository.deleteByVehicleId(vehicleId);
-        List<Appointment> appointment = appointmentRepository.findByVehicleId(vehicleId);
+        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
         //Nếu empty thì xóa
-        if(appointment.isEmpty()){
-            vehicleRepository.deleteById(vehicleId);
+        if (appointments != null && !appointments.isEmpty()) {
+            for (Appointment app : appointments) {
+
+                // 1. Kiểm tra: CHỈ được phép COMPLETED
+                if (app.getStatus() != AppointmentStatus.COMPLETED) {
+                    // Nếu là PENDING, CONFIRMED, hoặc kể cả CANCELLED -> Lỗi
+                    log.warn("Cannot delete vehicle {}. Appointment {} is not COMPLETED (Status: {}).",
+                            vehicleId, app.getId(), app.getStatus());
+                    // Lỗi này có nghĩa là "có lịch hẹn không phải COMPLETED"
+                    throw new AppException(ErrorCode.CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
+                }
+
+                // 2. Kiểm tra: Phải có Invoice
+                MaintenanceRecord record = app.getMaintenanceRecord();
+                if (record == null || record.getInvoice() == null) {
+                    log.warn("Cannot delete vehicle {}. Appointment {} is COMPLETED but has no Invoice.",
+                            vehicleId, app.getId());
+                    throw new AppException(ErrorCode.INVOICE_NOT_FOUND);
+                }
+                Invoice invoice = record.getInvoice();
+
+                // 3. Kiểm tra: Invoice phải là PAID
+                if (!"PAID".equalsIgnoreCase(invoice.getStatus())) {
+                    log.warn("Cannot delete vehicle {}. Invoice {} is not PAID (Status: {}).",
+                            vehicleId, invoice.getId(), invoice.getStatus());
+                    // Dùng mã lỗi mới 211
+                    throw new AppException(ErrorCode.CANNOT_DELETE_VEHICLE_INVOICE_UNPAID);
+                }
+            }
         }
 
-        //CHỈ XÓA NHỮNG XE CÓ TRẠNG THÁI COMPLETED VÀ CANCELLED
-        boolean hasActiveAppointment = appointment.stream()
-                .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
-                        && app.getStatus() != AppointmentStatus.CANCELLED);
-        if(hasActiveAppointment){
-            throw new AppException(ErrorCode.CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
-        }
-        entityManager.flush();
-        entityManager.clear();
-        vehicleRepository.deleteById(vehicleId);
+        appointmentRepository.deleteAll(appointments);
         return modelMapper.map(vehicle, VehicleResponse.class);
     }
 

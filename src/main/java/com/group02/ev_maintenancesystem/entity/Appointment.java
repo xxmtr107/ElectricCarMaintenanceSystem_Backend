@@ -53,7 +53,7 @@ public class Appointment extends BaseEntity {
     @Builder.Default
     List<AppointmentServiceItemDetail> serviceDetails = new ArrayList<>();
 
-    @OneToOne(mappedBy = "appointment", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     MaintenanceRecord maintenanceRecord;
 
     @ManyToOne(fetch = FetchType.EAGER)

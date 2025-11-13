@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ChatRoomServiceImpl implements  ChatRoomService {
     ChatRoomRepository chatRoomRepository;
@@ -42,9 +42,22 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
     SimpMessagingTemplate simpMessagingTemplate;
     private static final String STAFF_LOBBY_TOPIC = "/topic/staff-lobby";
 
+    @Autowired
+    public ChatRoomServiceImpl(ChatRoomRepository chatRoomRepository,
+                               UserRepository userRepository,
+                               ChatMessageRepository chatMessageRepository,
+                               ModelMapper modelMapper,
+                               SimpMessagingTemplate simpMessagingTemplate) {
+        this.chatRoomRepository = chatRoomRepository;
+        this.userRepository = userRepository;
+        this.chatMessageRepository = chatMessageRepository;
+        this.modelMapper = modelMapper;
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
+
 
     @Override
-    public ChatRoomDTO createChatRoom(@RequestBody CreateRoomRequest request, Principal principal) {
+    public ChatRoomDTO createChatRoom(CreateRoomRequest request, Principal principal) {
         User customer = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -92,6 +105,19 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
                 "staffName", staff.getFullName() != null ? staff.getFullName() : staff.getUsername()
         );
         simpMessagingTemplate.convertAndSend(STAFF_LOBBY_TOPIC, updateMsg);
+
+        String roomTopic = "/topic/chat-room/" + savedRoom.getId();
+        Map<String, Object> roomUpdateMsg = Map.of(
+                "type", "STAFF_JOINED",
+                "roomId", savedRoom.getId(),
+                "staffName", staff.getFullName() != null ? staff.getFullName() : staff.getUsername()
+        );
+        try {
+            log.info("Broadcasting STAFF_JOINED to {}", roomTopic);
+            simpMessagingTemplate.convertAndSend(roomTopic, roomUpdateMsg);
+        } catch (Exception e) {
+            log.error("--- BROADCAST FAILED (STAFF_JOINED) --- {}", e.getMessage(), e);
+        }
 
         return modelMapper.map(savedRoom, ChatRoomDTO.class);
     }
@@ -143,6 +169,55 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
                 .map(room -> modelMapper.map(room, ChatRoomDTO.class))
                 .collect(Collectors.toList());
     }
-    
+
+    @Override
+    public ChatRoomDTO closeChatRoom(Long roomId, Principal principal) {
+        log.info("User {} attempt to close room {}", principal.getName(), roomId);
+
+        User currentUser = getUserFromPrincipal(principal);
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_CHAT_NOT_FOUND));
+
+        // Bảo mật: Chỉ thành viên mới được đóng
+        if (!room.getMembers().contains(currentUser)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Nếu đã đóng rồi thì thôi
+        if (room.getStatus() == ChatRoomStatus.CLOSED) {
+            log.warn("Room {} is already CLOSED.", roomId);
+            return modelMapper.map(room, ChatRoomDTO.class);
+        }
+
+        // Đổi trạng thái
+        room.setStatus(ChatRoomStatus.CLOSED);
+        ChatRoom savedRoom = chatRoomRepository.save(room);
+        log.info("Room {} has been CLOSED by user {}", roomId, currentUser.getUsername());
+
+        // Gửi thông báo "Chat đã kết thúc" cho người kia
+        String roomTopic = "/topic/chat-room/" + savedRoom.getId();
+        Map<String, Object> endMessage = Map.of(
+                "type", "CHAT_ENDED", // (Client sẽ lắng nghe "type" này)
+                "roomId", savedRoom.getId(),
+                "endedBy", currentUser.getFullName() != null ? currentUser.getFullName() : currentUser.getUsername()
+        );
+
+        try {
+            simpMessagingTemplate.convertAndSend(roomTopic, endMessage);
+        } catch (Exception e) {
+            log.error("--- BROADCAST FAILED (END_CHAT) --- {}", e.getMessage(), e);
+        }
+
+        return modelMapper.map(savedRoom, ChatRoomDTO.class);
+    }
+
+    private User getUserFromPrincipal(Principal principal) {
+        if (principal == null) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        return userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
 
 }
