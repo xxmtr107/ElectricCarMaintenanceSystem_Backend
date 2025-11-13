@@ -33,10 +33,10 @@ public class MaintenanceRecord extends  BaseEntity {
     @JoinColumn(name = "appointment_id")
     Appointment appointment;
 
-    @OneToOne(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     Invoice invoice;
 
-    @OneToMany(mappedBy = "maintenanceRecord")
+    @OneToMany(mappedBy = "maintenanceRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     List<PartUsage> partUsages = new ArrayList<>();
 
 }

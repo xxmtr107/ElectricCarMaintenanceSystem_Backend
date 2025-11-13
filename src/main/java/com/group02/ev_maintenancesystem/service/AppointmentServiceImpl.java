@@ -544,6 +544,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return mapSingleAppointmentToResponse(savedAppointment);
     }
 
+
     private List<AppointmentResponse> mapAppointmentListToResponse(List<Appointment> appointments) {
         if (appointments == null || appointments.isEmpty()) {
             return Collections.emptyList();
@@ -582,6 +583,101 @@ public class AppointmentServiceImpl implements AppointmentService {
         response.setServiceItems(modelPackageItemDTOs);
         return response;
     }
+
+//    @Override
+//    @Transactional
+//    public AppointmentResponse approveServiceItem(Long appointmentId, List<ServiceItemApproveRequest> requests, Authentication authentication) {
+//        User staff = getAuthenticatedUser(authentication);
+//        if (!staff.isAdmin() && !staff.isStaff()) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED);
+//        }
+//
+//        Appointment appointment = appointmentRepository.findById(appointmentId)
+//                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+//        checkAppointmentAccess(staff, appointment);
+//
+//        if (requests == null || requests.isEmpty()) {
+//            log.warn("approveServiceItem called with no requests for appointment {}", appointmentId);
+//            return mapSingleAppointmentToResponse(appointment);
+//        }
+//
+//        int totalUpgradeRequestsInBatch = requests.size();
+//        int totalRejectionsInBatch = 0;
+//
+//        for (ServiceItemApproveRequest request : requests) {
+//            AppointmentServiceItemDetail detail = appointmentServiceItemDetailRepository.findById(request.getAppointmentServiceDetailId())
+//                    .orElseThrow(() -> new AppException(ErrorCode.DETAIL_NOT_FOUND));
+//
+//            if (!detail.getAppointment().getId().equals(appointmentId)) {
+//                log.error("Staff {} tried to approve detail {} which does not belong to appointment {}", staff.getUsername(), detail.getId(), appointmentId);
+//                throw new AppException(ErrorCode.UNAUTHORIZED);
+//            }
+//
+//            if (detail.getCustomerApproved()) {
+//                totalUpgradeRequestsInBatch--;
+//                continue;
+//            }
+//
+//            if (request.getApproved()) {
+//                detail.setCustomerApproved(true);
+//            } else {
+//                totalRejectionsInBatch++;
+//                log.warn("Staff reverting item {} for appointment {} back to CHECK", detail.getServiceItem().getId(), appointmentId);
+//
+//                ModelPackageItem originalItem = modelPackageItemRepository
+//                        .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
+//                                appointment.getVehicle().getModel().getId(),
+//                                appointment.getMilestoneKm(),
+//                                detail.getServiceItem().getId()
+//                        )
+//                        .filter(item -> item.getActionType() == MaintenanceActionType.CHECK)
+//                        .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_CANNOT_BE_REVERTED));
+//
+//                detail.setActionType(originalItem.getActionType());
+//                detail.setPrice(originalItem.getPrice());
+//                detail.setCustomerApproved(true);
+//            }
+//        }
+//
+//        appointment.recalculateEstimatedCost();
+//
+//        boolean allItemsInAppointmentAreHandled = appointment.getServiceDetails().stream()
+//                .allMatch(AppointmentServiceItemDetail::getCustomerApproved);
+//
+//        // --- BẮT ĐẦU SỬA LỖI ---
+//
+//        boolean createRecordFlag = false; // 1. Đặt một cờ (flag)
+//
+//        if (allItemsInAppointmentAreHandled) {
+//            if (totalRejectionsInBatch > 0 && totalRejectionsInBatch == totalUpgradeRequestsInBatch) {
+//                // Kịch bản 1: TẤT CẢ bị từ chối -> COMPLETED
+//                appointment.setStatus(AppointmentStatus.COMPLETED);
+//                createRecordFlag = true; // 2. Đánh dấu cờ để tạo record
+//            } else {
+//                // Kịch bản 2: Có ít nhất 1 duyệt -> CUSTOMER_APPROVED
+//                appointment.setStatus(AppointmentStatus.CUSTOMER_APPROVED);
+//            }
+//        } else {
+//            // Kịch bản 3: Vẫn còn item đang chờ (false)
+//            appointment.setStatus(AppointmentStatus.WAITING_FOR_APPROVAL);
+//        }
+//
+//        // 3. LƯU APPOINTMENT (VỚI STATUS MỚI) TRƯỚC TIÊN
+//        // Hành động này làm cho 'appointment' trở thành "persistent"
+//        Appointment savedAppointment = appointmentRepository.save(appointment);
+//
+//        log.info("Staff {} set approval for {} item(s) for appointment {}. New status: {}",
+//                staff.getUsername(), requests.size(), appointmentId, savedAppointment.getStatus());
+//
+//        // 4. TẠO MAINTENANCE RECORD (NẾU CỜ ĐƯỢC ĐÁNH DẤU)
+//        // Chúng ta gọi hàm này SAU KHI đã save và dùng đối tượng 'savedAppointment'
+//        if (createRecordFlag) {
+//            maintenanceRecordService.createMaintenanceRecord(savedAppointment);
+//        }
+//        // --- KẾT THÚC SỬA LỖI ---
+//
+//        return mapSingleAppointmentToResponse(savedAppointment);
+//    }
 
     private void checkAppointmentAccess(User user, Appointment appointment) {
         if (user.isAdmin()) {

@@ -32,6 +32,7 @@ public enum ErrorCode {
     CANNOT_DELETE_VEHICLE_WITH_ACTIVE_APPOINTMENT(209, "Cannot delete vehicle because it has active appointments (not completed or canceled).", HttpStatus.BAD_REQUEST),
     CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT(209, "Cannot update vehicle because it has active appointments (not completed or canceled).", HttpStatus.BAD_REQUEST),
     PURCHASE_YEAR_INVALID(210, "Purchase year must be in past or present).", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_VEHICLE_INVOICE_UNPAID(211, "Cannot delete vehicle, an associated invoice is not PAID.", HttpStatus.BAD_REQUEST),
     // ========================= VEHICLE MODEL ERRORS (300 - 399) =========================
     MODEL_NAME_INVALID(300, "Name of model must follow format like VFe34 or VF8", HttpStatus.BAD_REQUEST),
     MODEL_YEAR_INVALID(301, "Vehicle model year must be between 2021 and 2025", HttpStatus.BAD_REQUEST),
