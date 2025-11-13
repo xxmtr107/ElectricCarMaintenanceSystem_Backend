@@ -18,8 +18,7 @@ import java.util.Set;
 @RequestMapping("/chat-rooms")
 @RequiredArgsConstructor
 public class ChatRoomController {
-    @Autowired
-    ChatRoomService chatRoomService;
+    private final ChatRoomService chatRoomService;
 
     @PostMapping("/create")
     public ApiResponse<ChatRoomDTO> createChatRoom(@RequestBody CreateRoomRequest chatRoom, Principal principal){

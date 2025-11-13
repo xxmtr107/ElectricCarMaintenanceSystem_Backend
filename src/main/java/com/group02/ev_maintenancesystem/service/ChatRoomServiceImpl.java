@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ChatRoomServiceImpl implements  ChatRoomService {
     ChatRoomRepository chatRoomRepository;
@@ -42,9 +42,22 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
     SimpMessagingTemplate simpMessagingTemplate;
     private static final String STAFF_LOBBY_TOPIC = "/topic/staff-lobby";
 
+    @Autowired
+    public ChatRoomServiceImpl(ChatRoomRepository chatRoomRepository,
+                               UserRepository userRepository,
+                               ChatMessageRepository chatMessageRepository,
+                               ModelMapper modelMapper,
+                               SimpMessagingTemplate simpMessagingTemplate) {
+        this.chatRoomRepository = chatRoomRepository;
+        this.userRepository = userRepository;
+        this.chatMessageRepository = chatMessageRepository;
+        this.modelMapper = modelMapper;
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
+
 
     @Override
-    public ChatRoomDTO createChatRoom(@RequestBody CreateRoomRequest request, Principal principal) {
+    public ChatRoomDTO createChatRoom(CreateRoomRequest request, Principal principal) {
         User customer = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -88,6 +101,12 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
 
         Map<String, Object> updateMsg = Map.of(
                 "type", "CLAIMED",
+                "roomId", savedRoom.getId(),
+                "staffName", staff.getFullName() != null ? staff.getFullName() : staff.getUsername()
+        );
+        String roomTopic = "/topic/chat-room/" + savedRoom.getId();
+        Map<String, Object> roomUpdateMsg = Map.of(
+                "type", "STAFF_JOINED", // (Client sẽ lắng nghe "type" này)
                 "roomId", savedRoom.getId(),
                 "staffName", staff.getFullName() != null ? staff.getFullName() : staff.getUsername()
         );
