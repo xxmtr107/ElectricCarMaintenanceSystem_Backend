@@ -4,8 +4,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum EmailType {
     KM,
-    APPOINTMENT_DATE,
-    PAYMENT;
+    APPOINTMENT_CONFIRMATION,
+    APPOINTMENT_CONFIRMED_AND_ASSIGNED_SUCCESS,
+    APPOINTMENT_REMINDER,
+    PAYMENT_REMINDER,
+    PAYMENT_CONFIRMATION,
+    ACCOUNT_CREATION;
+
+
 
     @JsonCreator
     public static EmailType fromValue(String type){

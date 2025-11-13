@@ -14,6 +14,7 @@ public interface EmailRepository extends JpaRepository<EmailRecord, Long> {
     int countByEmailAndTypeAndCurrentKmAndVehicleID(String email, EmailType type, Integer currentKm, Long vehicleID);
     int countByEmailAndTypeAndAppointmentID(String email, EmailType type, Long id);
     boolean existsByEmailAndTypeAndAppointmentID(String email, EmailType type, Long id);
+    boolean existsByEmailAndTypeAndAppointmentIDAndTechnicianID(String email, EmailType type, Long id,Long technicianID);
     int countByEmailAndTypeAndPaymentIDAndStatus(String email, EmailType type, Long id, EmailRecord.MailPaymentStatus status);
     boolean existsByEmailAndTypeAndPaymentIDAndStatus(String email, EmailType type, Long paymentID, EmailRecord.MailPaymentStatus status);
     List<EmailRecord> findByVehicleID(Long vehicleId);

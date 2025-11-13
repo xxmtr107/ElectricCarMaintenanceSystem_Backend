@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Account Registration Successful</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #ffffff;
+            color: #0078D7;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 3px solid #0078D7;
+        }
+        .header img {
+            width: 120px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px auto;
+        }
+        .content {
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .content h2 {
+            color: #0078D7;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #0078D7;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #777;
+        }
+        .footer a {
+            color: #0078D7;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="/Logo.png" alt="Brand Logo" style="width:300px; height:300px;">
+        <h1>Welcome to NTNTB!</h1>
+    </div>
+    <div class="content">
+        <p>Dear <strong th:text="${name}"></strong>,</p>
+        <p>Congratulations! Your account has been successfully created on the <strong>EV Maintenance System</strong>.</p>
+
+        <h2>Your Account Information</h2>
+        <p>
+            <strong>Username:</strong> <span th:text="${username}"></span><br>
+            <strong>Password:</strong> <span th:text="${password}"></span>
+        </p>
+
+        <p>For your security, please log in and change your password as soon as possible.</p>
+        <a class="button" href="https://electric-car-maintenance.vercel.app/login">Login Now</a>
+
+        <p>If you did not register for this account, please contact our support team immediately:<br>
+            📞 1900 23 23 89</p>
+    </div>
+    <div class="footer">
+        <p>Thank you for joining NTNTB.<br>
+            <span>NTNTB – Clean Energy for Every Journey.</span>
+        </p>
+    </div>
+</div>
+</body>
+</html>

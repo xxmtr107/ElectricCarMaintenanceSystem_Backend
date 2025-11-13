@@ -27,6 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
+    EmailServiceImpl emailService;
 
     @Override
     public UserResponse registerCustomer(UserRegistrationRequest request) {
@@ -36,6 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setRole(Role.CUSTOMER);
         try {
             customer = userRepository.save(customer);
+            emailService.sendAccountCreationEmail(customer, request.getPassword());
         } catch (DataIntegrityViolationException e) {
             String message = e.getMostSpecificCause().getMessage();
             if (message.contains("UK_username")) {
@@ -52,7 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
     public UserResponse updateCustomer(Long customerId, UserUpdateRequest request) {
         User customer = userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+        userMapper.updateUser(request, customer);
         return userMapper.toUserResponse(userRepository.save(customer));
     }
     @Override

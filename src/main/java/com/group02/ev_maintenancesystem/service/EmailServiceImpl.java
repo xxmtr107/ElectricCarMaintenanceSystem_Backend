@@ -93,7 +93,7 @@ public class EmailServiceImpl implements EmailService {
                 mailSender.send(message);
 
                 // 5. Lưu lại email đã gửi
-                saveEmail(email, EmailType.KM, currentKm, vehicle.getId(), null, null, null);
+                saveEmail(email, EmailType.KM, currentKm, vehicle.getId(), null, null, null, null, null);
                 receivers.add(email);
             }
         }
@@ -125,8 +125,8 @@ public class EmailServiceImpl implements EmailService {
         for (Appointment appointment : appointments) {
 
             String email = appointment.getCustomerUser().getEmail();
-            if (alreadySentRecently(email, EmailType.APPOINTMENT_DATE, 1)) continue;
-            int count = emailRepository.countByEmailAndTypeAndAppointmentID(email, EmailType.APPOINTMENT_DATE,appointment.getId());
+            if (alreadySentRecently(email, EmailType.APPOINTMENT_REMINDER, 1)) continue;
+            int count = emailRepository.countByEmailAndTypeAndAppointmentID(email, EmailType.APPOINTMENT_REMINDER,appointment.getId());
             // để >=2 vì sẽ gửi 1 lần confirmAppointment
             if (count >= 2) continue;
 
@@ -145,7 +145,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject("EV Maintenance System - Appointment Reminder");
             helper.setText(htmlContent, true);
             mailSender.send(message);
-            saveEmail(email, EmailType.APPOINTMENT_DATE,null,null,appointment.getId(), null, null);
+            saveEmail(email, EmailType.APPOINTMENT_REMINDER,null,null,appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
             receivers.add(appointment.getCustomerUser().getEmail());
         }
         return receivers;
@@ -165,7 +165,7 @@ public class EmailServiceImpl implements EmailService {
                     payment.getStatus().equals(PaymentStatus.FAILED)) {
 
                 String email = payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail();
-                int count=emailRepository.countByEmailAndTypeAndPaymentIDAndStatus(email,EmailType.PAYMENT,payment.getId(), EmailRecord.MailPaymentStatus.Not_Success);
+                int count=emailRepository.countByEmailAndTypeAndPaymentIDAndStatus(email,EmailType.PAYMENT_REMINDER,payment.getId(), EmailRecord.MailPaymentStatus.Not_Success);
                 if(count >= 1) continue;
 
                 Context context = new Context();
@@ -184,7 +184,7 @@ public class EmailServiceImpl implements EmailService {
                 helper.setSubject("EV Maintenance System - Checkout Reminder");
                 helper.setText(htmlContent, true);
                 mailSender.send(message);
-                saveEmail(email, EmailType.PAYMENT,null,null,null, payment.getId(), EmailRecord.MailPaymentStatus.Not_Success);
+                saveEmail(email, EmailType.PAYMENT_REMINDER,null,null,null, payment.getId(), payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Not_Success);
                 receivers.add(payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail());
             }
         }
@@ -207,7 +207,7 @@ public class EmailServiceImpl implements EmailService {
         // Kiểm tra xem đã từng gửi mail CONFIRM cho lịch này CHƯA
         boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentID(
                 appointment.getCustomerUser().getEmail(),
-                EmailType.APPOINTMENT_DATE,
+                EmailType.APPOINTMENT_CONFIRMATION,
                 appointment.getId()
         );
 
@@ -233,7 +233,7 @@ public class EmailServiceImpl implements EmailService {
                 mailSender.send(message);
 
                 // Ghi lại email đã gửi
-                saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_DATE, null, null, appointment.getId(), null, null);
+                saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMATION, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
                 log.info("Sent appointment confirmation email for appointment ID: {}", appointment.getId());
             } catch (Exception e) {
                 log.error("Failed to send appointment confirmation email for ID {}: {}", appointment.getId(), e.getMessage());
@@ -276,7 +276,7 @@ public class EmailServiceImpl implements EmailService {
 
         boolean alreadySent = emailRepository.existsByEmailAndTypeAndPaymentIDAndStatus(
                 email,
-                EmailType.PAYMENT,
+                EmailType.PAYMENT_CONFIRMATION,
                 paymentId,
                 EmailRecord.MailPaymentStatus.Success
         );
@@ -303,8 +303,8 @@ public class EmailServiceImpl implements EmailService {
                 mailSender.send(message);
 
                 // Ghi lại email đã gửi
-                saveEmail(email, EmailType.PAYMENT, null, null,
-                        null, paymentId, EmailRecord.MailPaymentStatus.Success);
+                saveEmail(email, EmailType.PAYMENT_CONFIRMATION, null, null, invoice.getMaintenanceRecord().getAppointment().getId(), paymentId,
+                        invoice.getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Success);
                 log.info("Sent payment confirmation email for invoice ID: {}", invoice.getId());
             } catch (Exception e) {
                 log.error("Failed to send payment confirmation email for invoice ID {}: {}", invoice.getId(), e.getMessage());
@@ -312,7 +312,92 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    private void saveEmail(String email, EmailType emailType,Integer currentKm,Long vehicleID,Long appointmentID,Long paymentID,EmailRecord.MailPaymentStatus status) {
+    @Transactional
+    public void sendAccountCreationEmail(User user, String rawPassword) {
+        if (user == null || user.getEmail() == null) {
+            log.warn("sendAccountCreationEmail called with invalid user data. Skipping.");
+            return;
+        }
+
+        try {
+            Context context = new Context();
+            context.setVariable("name", user.getFullName());
+            context.setVariable("username", user.getUsername());
+            context.setVariable("password", rawPassword);
+
+            String htmlContent = templateEngine.process("mailForAccountCreation", context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+            helper.setTo(user.getEmail());
+            helper.setSubject("EV Maintenance System - Account Created Successfully");
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+
+            saveEmail(user.getEmail(), EmailType.ACCOUNT_CREATION, null, null, null, null, user.getId(), null, null);
+            log.info("Sent account creation email to {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send account creation email to {}: {}", user.getEmail(), e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void sendConfirmAndAssignAppointment(Appointment appointment) {
+        if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED ) {
+            log.warn("sendConfirmAndAssignAppointment called with invalid status or null appointment. Skipping.");
+            return;
+        }
+
+        boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentIDAndTechnicianID(
+                appointment.getCustomerUser().getEmail(),
+                EmailType.APPOINTMENT_CONFIRMED_AND_ASSIGNED_SUCCESS,
+                appointment.getId(),
+                appointment.getTechnicianUser().getId()
+        );
+        if (!alreadySent) {
+            try {
+                Context context = new Context();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+
+                // Gán các biến vào context
+                context.setVariable("name", appointment.getCustomerUser().getFullName());
+                context.setVariable("dateTime", appointment.getAppointmentDate().format(formatter));
+                context.setVariable("center", appointment.getServiceCenter().getName());
+                context.setVariable("address", appointment.getServiceCenter().getAddress());
+                context.setVariable("phone", appointment.getServiceCenter().getPhone());
+                context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
+
+                // Nếu có technician
+                if (appointment.getTechnicianUser() != null) {
+                    context.setVariable("technicianName", appointment.getTechnicianUser().getFullName());
+                    context.setVariable("technicianPhone", appointment.getTechnicianUser().getPhone());
+                } else {
+                    context.setVariable("technicianName", "To be assigned");
+                    context.setVariable("technicianPhone", "N/A");
+                }
+
+                // Render HTML email template
+                String htmlContent = templateEngine.process("mailForConfirmAndAssignAppointment", context);
+
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+                helper.setTo(appointment.getCustomerUser().getEmail());
+                helper.setSubject("EV Maintenance System - Appointment Confirmed & Technician Assigned");
+                helper.setText(htmlContent, true);
+                mailSender.send(message);
+
+                // Lưu lại record email gửi thành công
+                saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMED_AND_ASSIGNED_SUCCESS, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), appointment.getTechnicianUser().getId(), null);
+                log.info("Sent appointment confirm & technician assign email for appointment ID: {}", appointment.getId());
+            } catch (Exception e) {
+                log.error("Failed to send confirm & assign email for appointment ID {}: {}", appointment.getId(), e.getMessage());
+            }
+        } else {
+            log.info("Confirm & assign email already sent for appointment ID: {}", appointment.getId());
+        }
+    }
+
+    private void saveEmail(String email, EmailType emailType,Integer currentKm,Long vehicleID,Long appointmentID,Long paymentID,Long customerID,Long technicianID,EmailRecord.MailPaymentStatus status) {
         EmailRecord mail = EmailRecord.builder().
                 email(email).
                 type(emailType).
@@ -321,6 +406,8 @@ public class EmailServiceImpl implements EmailService {
                 appointmentID(appointmentID).
                 currentKm(currentKm).
                 paymentID(paymentID).
+                customerID(customerID).
+                technicianID(technicianID).
                 status(status).
                 build();
         emailRepository.save(mail);

@@ -136,6 +136,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
+        emailService.sendAppointmentConfirmation(savedAppointment);
         AppointmentResponse response = mapSingleAppointmentToResponse(savedAppointment);
         log.info("Successfully created appointment ID {} for vehicle ID {} at milestone {}km.", savedAppointment.getId(), vehicle.getId(), recommendedMilestoneKm);
         return response;
@@ -225,7 +226,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // Chỉ gửi email xác nhận 1 LẦN DUY NHẤT tại đây
         if (statusChanged) {
             try {
-                emailService.sendAppointmentConfirmation(savedAppointment);
+                emailService.sendConfirmAndAssignAppointment(savedAppointment);
             } catch (Exception e) {
                 log.error("Failed to send confirmation email for appointment {}: {}", savedAppointment.getId(), e.getMessage());
             }
