@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional; // Thêm import
@@ -183,10 +184,57 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    // --- THÊM PHƯƠNG THỨC MỚI VÀO INTERFACE ModelPackageItemService ---
-    /* Trong ModelPackageItemService.java:
-    List<ModelPackageItemResponse> getByVehicleModelAndMilestoneKm(Long vehicleModelId, Integer milestoneKm);
-    BigDecimal getMilestoneTotalPrice(Long vehicleModelId, Integer milestoneKm);
-    // Bỏ các hàm liên quan đến servicePackageId, individual service nếu không dùng
-    */
+    @Override
+    @Transactional
+    public void cloneConfiguration(Long sourceModelId, Long targetModelId) {
+        log.info("Bắt đầu yêu cầu sao chép cấu hình từ model {} sang model {}", sourceModelId, targetModelId);
+
+        // 1. Validate
+        if (sourceModelId.equals(targetModelId)) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_SERVICE_CENTER); // Tạm dùng lỗi này, nên tạo lỗi mới
+        }
+
+        VehicleModel sourceModel = vehicleModelRepository.findById(sourceModelId)
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
+
+        VehicleModel targetModel = vehicleModelRepository.findById(targetModelId)
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
+
+        // 2. Kiểm tra xem model đích đã có cấu hình chưa (RẤT QUAN TRỌNG)
+        List<ModelPackageItem> existingItems = modelPackageItemRepository.findByVehicleModelId(targetModelId);
+        if (existingItems != null && !existingItems.isEmpty()) {
+            log.warn("Model đích {} đã có {} hạng mục. Không thể sao chép.", targetModelId, existingItems.size());
+            // Bạn nên tạo một ErrorCode mới, ví dụ: MODEL_CONFIG_ALREADY_EXISTS
+            throw new AppException(ErrorCode.MODEL_PACKAGE_ITEM_EXISTED);
+        }
+
+        // 3. Lấy tất cả cấu hình của model nguồn
+        List<ModelPackageItem> sourceItems = modelPackageItemRepository.findByVehicleModelId(sourceModelId);
+        if (sourceItems == null || sourceItems.isEmpty()) {
+            log.warn("Model nguồn {} không có cấu hình nào để sao chép.", sourceModelId);
+            return; // Không có gì để làm
+        }
+
+        // 4. Tạo danh sách các bản sao mới
+        List<ModelPackageItem> newItems = new ArrayList<>();
+        for (ModelPackageItem sourceItem : sourceItems) {
+            ModelPackageItem newItem = ModelPackageItem.builder()
+                    .vehicleModel(targetModel) // Gán cho model ĐÍCH
+                    .milestoneKm(sourceItem.getMilestoneKm())
+                    .serviceItem(sourceItem.getServiceItem()) // Giữ nguyên tham chiếu ServiceItem
+                    .actionType(sourceItem.getActionType())
+                    .price(sourceItem.getPrice())
+                    .includedSparePart(sourceItem.getIncludedSparePart()) // Giữ nguyên tham chiếu Phụ tùng
+                    .includedQuantity(sourceItem.getIncludedQuantity())
+                    .build();
+            // (Lưu ý: BaseEntity (createdAt, createdBy...) sẽ tự động được gán)
+            newItems.add(newItem);
+        }
+
+        // 5. Lưu tất cả bản sao vào database
+        modelPackageItemRepository.saveAll(newItems);
+
+        log.info("Sao chép thành công {} hạng mục từ model {} ({}) sang model {} ({})",
+                newItems.size(), sourceModel.getName(), sourceModelId, targetModel.getName(), targetModelId);
+    }
 }

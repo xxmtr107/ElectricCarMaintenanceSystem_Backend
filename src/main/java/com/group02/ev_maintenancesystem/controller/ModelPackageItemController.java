@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -22,6 +23,19 @@ import java.util.List;
 public class ModelPackageItemController {
 
     ModelPackageItemService modelPackageItemService;
+
+    @PostMapping("/clone-from-model/{sourceModelId}/to-model/{targetModelId}")
+    @PreAuthorize("hasRole('ADMIN')") // Chỉ Admin được dùng
+    public ApiResponse<Void> cloneConfiguration(
+            @PathVariable Long sourceModelId,
+            @PathVariable Long targetModelId) {
+
+        modelPackageItemService.cloneConfiguration(sourceModelId, targetModelId);
+
+        return ApiResponse.<Void>builder()
+                .message("Configuration cloned successfully")
+                .build();
+    }
 
     @PostMapping
     public ApiResponse<ModelPackageItemResponse> createModelPackageItem(

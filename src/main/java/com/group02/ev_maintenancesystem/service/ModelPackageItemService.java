@@ -17,6 +17,7 @@ public interface ModelPackageItemService {
     List<ModelPackageItemResponse> getByVehicleModelId(Long vehicleModelId);
     List<ModelPackageItemResponse> getAllModelPackageItems();
     ModelPackageItemResponse getModelPackageItemById(Long id);
+    void cloneConfiguration(Long sourceModelId, Long targetModelId);
 
 }
 
