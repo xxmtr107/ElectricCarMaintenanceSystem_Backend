@@ -7,302 +7,333 @@ SET FOREIGN_KEY_CHECKS=0;
 -- =============================================
 -- Table: service_centers
 -- =============================================
-CREATE TABLE IF NOT EXISTS `service_centers` (
-                                                 `id` bigint NOT NULL AUTO_INCREMENT,
-                                                 `name` varchar(255) DEFAULT NULL,
-    `address` varchar(255) DEFAULT NULL,
-    `city` varchar(100) DEFAULT NULL,
-    `district` varchar(100) DEFAULT NULL,
-    `phone` varchar(255) DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+CREATE TABLE service_centers
+(
+    id         BIGINT AUTO_INCREMENT NOT NULL,
+    create_at  TIMESTAMP(0)          NULL,
+    update_at  TIMESTAMP(0)          NULL,
+    created_by VARCHAR(255)          NULL,
+    updated_by VARCHAR(255)          NULL,
+    name       VARCHAR(255)          NULL,
+    address    VARCHAR(255)          NULL,
+    district   VARCHAR(100)          NULL,
+    city       VARCHAR(100)          NULL,
+    phone      VARCHAR(255)          NULL,
+    CONSTRAINT pk_service_centers PRIMARY KEY (id)
+);
 -- =============================================
 -- Table: users
 -- =============================================
-CREATE TABLE IF NOT EXISTS `users` (
-                                       `id` bigint NOT NULL AUTO_INCREMENT,
-                                       `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-    `password` varchar(255) NOT NULL,
-    `email` varchar(255) NOT NULL,
-    `full_name` varchar(255) NOT NULL,
-    `phone` varchar(255) NOT NULL,
-    `gender` enum('MALE','FEMALE','OTHER') DEFAULT NULL,
-    `role` enum('ADMIN','CUSTOMER','STAFF','TECHNICIAN') DEFAULT NULL,
-    `role_id` bigint NOT NULL,
-    `center_id` bigint DEFAULT NULL,
-    `last_login` datetime(6) DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UK_username` (`username`),
-    UNIQUE KEY `UK_email` (`email`),
-    KEY `FKnwuxsl4ux127j20jj0yakgp8g` (`center_id`),
-    CONSTRAINT `FKnwuxsl4ux127j20jj0yakgp8g` FOREIGN KEY (`center_id`) REFERENCES `service_centers` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE users
+(
+    id         BIGINT AUTO_INCREMENT                   NOT NULL,
+    create_at  TIMESTAMP(0)                            NULL,
+    update_at  TIMESTAMP(0)                            NULL,
+    created_by VARCHAR(255)                            NULL,
+    updated_by VARCHAR(255)                            NULL,
+    username   VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    email      VARCHAR(255)                            NOT NULL,
+    password   VARCHAR(255)                            NOT NULL,
+    phone      VARCHAR(255)                            NOT NULL,
+    last_login datetime                                NULL,
+    full_name  VARCHAR(255)                            NOT NULL,
+    gender     VARCHAR(255)                            NULL,
+    `role`     VARCHAR(255)                            NULL,
+    center_id  BIGINT                                  NULL,
+    CONSTRAINT pk_users PRIMARY KEY (id)
+);
 
+ALTER TABLE users
+    ADD CONSTRAINT UK_email UNIQUE (email);
+
+ALTER TABLE users
+    ADD CONSTRAINT UK_username UNIQUE (username);
+
+ALTER TABLE users
+    ADD CONSTRAINT FK_USERS_ON_CENTER FOREIGN KEY (center_id) REFERENCES service_centers (id);
 -- =============================================
 -- Table: vehicle_models
 -- =============================================
-CREATE TABLE IF NOT EXISTS `vehicle_models` (
-                                                `id` bigint NOT NULL AUTO_INCREMENT,
-                                                `name` varchar(255) NOT NULL,
-    `model_year` varchar(255) DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UKp5maaq9pv6glmk4nebv0mu6vi` (`name`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE vehicle_models
+(
+    id         BIGINT AUTO_INCREMENT NOT NULL,
+    create_at  TIMESTAMP(0)          NULL,
+    update_at  TIMESTAMP(0)          NULL,
+    created_by VARCHAR(255)          NULL,
+    updated_by VARCHAR(255)          NULL,
+    name       VARCHAR(255)          NOT NULL,
+    model_year VARCHAR(255)          NULL,
+    CONSTRAINT pk_vehicle_models PRIMARY KEY (id)
+);
 
+ALTER TABLE vehicle_models
+    ADD CONSTRAINT uc_vehicle_models_name UNIQUE (name);
 -- =============================================
 -- Table: vehicles
 -- =============================================
-CREATE TABLE IF NOT EXISTS `vehicles` (
-                                          `id` bigint NOT NULL AUTO_INCREMENT,
-                                          `license_plate` varchar(255) NOT NULL,
-    `vin` varchar(255) DEFAULT NULL,
-    `current_km` int DEFAULT NULL,
-    `purchase_year` date DEFAULT NULL,
-    `customer_id` bigint NOT NULL,
-    `model_id` bigint NOT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UK9vovnbiegxevdhqfcwvp2g8pj` (`license_plate`),
-    KEY `FKgqjc8pmwiyjslyyf2dnkpdgcs` (`customer_id`),
-    KEY `FKe4n3vwcrfkcfpyp8g0jsqlr4d` (`model_id`),
-    CONSTRAINT `FKe4n3vwcrfkcfpyp8g0jsqlr4d` FOREIGN KEY (`model_id`) REFERENCES `vehicle_models` (`id`),
-    CONSTRAINT `FKgqjc8pmwiyjslyyf2dnkpdgcs` FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE vehicles
+(
+    id            BIGINT AUTO_INCREMENT NOT NULL,
+    create_at     TIMESTAMP(0)          NULL,
+    update_at     TIMESTAMP(0)          NULL,
+    created_by    VARCHAR(255)          NULL,
+    updated_by    VARCHAR(255)          NULL,
+    license_plate VARCHAR(255)          NOT NULL,
+    vin           VARCHAR(255)          NULL,
+    current_km    INT                   NULL,
+    purchase_year date                  NULL,
+    customer_id   BIGINT                NOT NULL,
+    model_id      BIGINT                NOT NULL,
+    CONSTRAINT pk_vehicles PRIMARY KEY (id)
+);
 
+ALTER TABLE vehicles
+    ADD CONSTRAINT uc_vehicles_license_plate UNIQUE (license_plate);
+
+ALTER TABLE vehicles
+    ADD CONSTRAINT FK_VEHICLES_ON_CUSTOMER FOREIGN KEY (customer_id) REFERENCES users (id);
+
+ALTER TABLE vehicles
+    ADD CONSTRAINT FK_VEHICLES_ON_MODEL FOREIGN KEY (model_id) REFERENCES vehicle_models (id);
 -- =============================================
 -- Table: service_items
 -- =============================================
-CREATE TABLE IF NOT EXISTS `service_items` (
-                                               `id` bigint NOT NULL AUTO_INCREMENT,
-                                               `name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-    `description` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UK2sjc2unhcd6wet5ce6ebgrkfv` (`name`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE service_items
+(
+    id            BIGINT AUTO_INCREMENT NOT NULL,
+    create_at     TIMESTAMP(0)          NULL,
+    update_at     TIMESTAMP(0)          NULL,
+    created_by    VARCHAR(255)          NULL,
+    updated_by    VARCHAR(255)          NULL,
+    name          NVARCHAR(100)         NOT NULL,
+    `description` NVARCHAR(200)         NULL,
+    CONSTRAINT pk_service_items PRIMARY KEY (id)
+);
 
+ALTER TABLE service_items
+    ADD CONSTRAINT uc_service_items_name UNIQUE (name);
 -- =============================================
 -- Table: spare_parts
 -- =============================================
-CREATE TABLE IF NOT EXISTS `spare_parts` (
-                                             `id` bigint NOT NULL AUTO_INCREMENT,
-                                             `part_number` varchar(255) NOT NULL,
-    `name` varchar(255) DEFAULT NULL,
-    `category_id` bigint NOT NULL,
-    `category_code` varchar(255) DEFAULT NULL,
-    `category_name` varchar(255) DEFAULT NULL,
-    `unit_price` decimal(10,2) NOT NULL,
-    `quantity_in_stock` int NOT NULL,
-    `minimum_stock_level` int NOT NULL DEFAULT 10,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UKse9rxewv9r3wcqefv7jvbp19w` (`part_number`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE spare_parts
+(
+    id                  BIGINT AUTO_INCREMENT NOT NULL,
+    create_at           TIMESTAMP(0)          NULL,
+    update_at           TIMESTAMP(0)          NULL,
+    created_by          VARCHAR(255)          NULL,
+    updated_by          VARCHAR(255)          NULL,
+    part_number         VARCHAR(255)          NOT NULL,
+    name                VARCHAR(255)          NULL,
+    unit_price          DECIMAL(10, 2)        NOT NULL,
+    quantity_in_stock   INT                   NOT NULL,
+    minimum_stock_level INT DEFAULT 10        NOT NULL,
+    category_name       VARCHAR(255)          NULL,
+    category_code       VARCHAR(255)          NULL,
+    CONSTRAINT pk_spare_parts PRIMARY KEY (id)
+);
 
+ALTER TABLE spare_parts
+    ADD CONSTRAINT uc_spare_parts_part_number UNIQUE (part_number);
 -- =============================================
 -- Table: model_package_items
 -- =============================================
-CREATE TABLE IF NOT EXISTS `model_package_items` (
-                                                     `id` bigint NOT NULL AUTO_INCREMENT,
-                                                     `vehicle_model_id` bigint NOT NULL,
-                                                     `service_item_id` bigint DEFAULT NULL,
-                                                     `milestone_km` int NOT NULL,
-                                                     `action_type` enum('CHECK','REPLACE') NOT NULL,
-    `included_spare_part_id` bigint DEFAULT NULL,
-    `included_quantity` int DEFAULT 1,
-    `price` decimal(38,2) NOT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FKrgbj58oaqqpo4k9r2s9rve6lp` (`vehicle_model_id`),
-    KEY `FKmwgnb62y5hw61q76rsiefdmvj` (`service_item_id`),
-    KEY `FKppp3ucljewxfc9gdck83jdr12` (`included_spare_part_id`),
-    CONSTRAINT `FKmwgnb62y5hw61q76rsiefdmvj` FOREIGN KEY (`service_item_id`) REFERENCES `service_items` (`id`),
-    CONSTRAINT `FKppp3ucljewxfc9gdck83jdr12` FOREIGN KEY (`included_spare_part_id`) REFERENCES `spare_parts` (`id`),
-    CONSTRAINT `FKrgbj58oaqqpo4k9r2s9rve6lp` FOREIGN KEY (`vehicle_model_id`) REFERENCES `vehicle_models` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE model_package_items
+(
+    id                     BIGINT AUTO_INCREMENT NOT NULL,
+    create_at              TIMESTAMP(0)          NULL,
+    update_at              TIMESTAMP(0)          NULL,
+    created_by             VARCHAR(255)          NULL,
+    updated_by             VARCHAR(255)          NULL,
+    price                  DECIMAL               NOT NULL,
+    vehicle_model_id       BIGINT                NOT NULL,
+    milestone_km           INT                   NOT NULL,
+    service_item_id        BIGINT                NULL,
+    action_type            VARCHAR(255)          NOT NULL,
+    included_spare_part_id BIGINT                NULL,
+    included_quantity      INT DEFAULT 1         NULL,
+    CONSTRAINT pk_model_package_items PRIMARY KEY (id)
+);
 
--- =============================================
--- Table: service_packages
--- =============================================
-CREATE TABLE IF NOT EXISTS `service_packages` (
-                                                  `id` bigint NOT NULL AUTO_INCREMENT,
-                                                  `name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-    `description` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UKchi9s9s0lxqdmla9ebqhlp34x` (`name`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+ALTER TABLE model_package_items
+    ADD CONSTRAINT FK_MODEL_PACKAGE_ITEMS_ON_INCLUDED_SPARE_PART FOREIGN KEY (included_spare_part_id) REFERENCES spare_parts (id);
 
+ALTER TABLE model_package_items
+    ADD CONSTRAINT FK_MODEL_PACKAGE_ITEMS_ON_SERVICE_ITEM FOREIGN KEY (service_item_id) REFERENCES service_items (id);
+
+ALTER TABLE model_package_items
+    ADD CONSTRAINT FK_MODEL_PACKAGE_ITEMS_ON_VEHICLE_MODEL FOREIGN KEY (vehicle_model_id) REFERENCES vehicle_models (id);
 -- =============================================
 -- Table: appointments
 -- =============================================
-CREATE TABLE IF NOT EXISTS `appointments` (
-                                              `id` bigint NOT NULL AUTO_INCREMENT,
-                                              `customer_id` bigint DEFAULT NULL,
-                                              `vehicle_id` bigint DEFAULT NULL,
-                                              `center_id` bigint DEFAULT NULL,
-                                              `technician_id` bigint DEFAULT NULL,
-                                              `service_package_id` bigint DEFAULT NULL,
-                                              `service_package_name` varchar(255) DEFAULT NULL,
-    `appointment_date` datetime(6) NOT NULL,
-    `milestone_km` int DEFAULT NULL,
-    `estimated_cost` decimal(10,2) NOT NULL,
-    `status` enum('PENDING','CONFIRMED','WAITING_FOR_APPROVAL','COMPLETED','CANCELLED') DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FK4q5rt20vvnkv7eohwq22l3ayy` (`customer_id`),
-    KEY `FK8rj1bo0yghp7xxocvsdxts3dd` (`center_id`),
-    KEY `FKi31x63g3sb93cwo03xuexx6qa` (`technician_id`),
-    KEY `FKalpncq8pxtwld2wmgw4sxct70` (`vehicle_id`),
-    KEY `FKo9pu4xrn0xv4tmlbaqdi9hjme` (`service_package_id`),
-    CONSTRAINT `FK4q5rt20vvnkv7eohwq22l3ayy` FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`),
-    CONSTRAINT `FK8rj1bo0yghp7xxocvsdxts3dd` FOREIGN KEY (`center_id`) REFERENCES `service_centers` (`id`),
-    CONSTRAINT `FKalpncq8pxtwld2wmgw4sxct70` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`),
-    CONSTRAINT `FKi31x63g3sb93cwo03xuexx6qa` FOREIGN KEY (`technician_id`) REFERENCES `users` (`id`),
-    CONSTRAINT `FKo9pu4xrn0xv4tmlbaqdi9hjme` FOREIGN KEY (`service_package_id`) REFERENCES `service_packages` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE appointments
+(
+    id                   BIGINT AUTO_INCREMENT NOT NULL,
+    create_at            TIMESTAMP(0)          NULL,
+    update_at            TIMESTAMP(0)          NULL,
+    created_by           VARCHAR(255)          NULL,
+    updated_by           VARCHAR(255)          NULL,
+    appointment_date     datetime              NOT NULL,
+    milestone_km         INT                   NULL,
+    status               VARCHAR(255)          NULL,
+    estimated_cost       DECIMAL(10, 2)        NOT NULL,
+    customer_id          BIGINT                NULL,
+    technician_id        BIGINT                NULL,
+    vehicle_id           BIGINT                NULL,
+    service_package_name VARCHAR(255)          NULL,
+    center_id            BIGINT                NULL,
+    CONSTRAINT pk_appointments PRIMARY KEY (id)
+);
 
+ALTER TABLE appointments
+    ADD CONSTRAINT FK_APPOINTMENTS_ON_CENTER FOREIGN KEY (center_id) REFERENCES service_centers (id);
+
+ALTER TABLE appointments
+    ADD CONSTRAINT FK_APPOINTMENTS_ON_CUSTOMER FOREIGN KEY (customer_id) REFERENCES users (id);
+
+ALTER TABLE appointments
+    ADD CONSTRAINT FK_APPOINTMENTS_ON_TECHNICIAN FOREIGN KEY (technician_id) REFERENCES users (id);
+
+ALTER TABLE appointments
+    ADD CONSTRAINT FK_APPOINTMENTS_ON_VEHICLE FOREIGN KEY (vehicle_id) REFERENCES vehicles (id);
 -- =============================================
 -- Table: appointment_service_details
 -- =============================================
-CREATE TABLE IF NOT EXISTS `appointment_service_details` (
-                                                             `id` bigint NOT NULL AUTO_INCREMENT,
-                                                             `appointment_id` bigint NOT NULL,
-                                                             `service_item_id` bigint NOT NULL,
-                                                             `action_type` enum('CHECK','REPLACE') NOT NULL,
-    `price` decimal(10,2) NOT NULL,
-    `customer_approved` bit(1) NOT NULL,
-    `technician_notes` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FKnuf5bsi81se32nr3a2496ivd3` (`appointment_id`),
-    KEY `FK3lrxsf9895h2ri8u6mbo0nool` (`service_item_id`),
-    CONSTRAINT `FK3lrxsf9895h2ri8u6mbo0nool` FOREIGN KEY (`service_item_id`) REFERENCES `service_items` (`id`),
-    CONSTRAINT `FKnuf5bsi81se32nr3a2496ivd3` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE appointment_service_details
+(
+    id                BIGINT AUTO_INCREMENT NOT NULL,
+    create_at         TIMESTAMP(0)          NULL,
+    update_at         TIMESTAMP(0)          NULL,
+    created_by        VARCHAR(255)          NULL,
+    updated_by        VARCHAR(255)          NULL,
+    appointment_id    BIGINT                NOT NULL,
+    service_item_id   BIGINT                NOT NULL,
+    action_type       VARCHAR(255)          NOT NULL,
+    price             DECIMAL(10, 2)        NOT NULL,
+    customer_approved BIT(1)                NOT NULL,
+    technician_notes  NVARCHAR(255)         NULL,
+    CONSTRAINT pk_appointment_service_details PRIMARY KEY (id)
+);
 
+ALTER TABLE appointment_service_details
+    ADD CONSTRAINT FK_APPOINTMENT_SERVICE_DETAILS_ON_APPOINTMENT FOREIGN KEY (appointment_id) REFERENCES appointments (id);
+
+ALTER TABLE appointment_service_details
+    ADD CONSTRAINT FK_APPOINTMENT_SERVICE_DETAILS_ON_SERVICE_ITEM FOREIGN KEY (service_item_id) REFERENCES service_items (id);
 -- =============================================
 -- Table: maintenance_records
 -- =============================================
-CREATE TABLE IF NOT EXISTS `maintenance_records` (
-                                                     `id` bigint NOT NULL AUTO_INCREMENT,
-                                                     `appointment_id` bigint DEFAULT NULL,
-                                                     `odometer` int DEFAULT NULL,
-                                                     `performed_at` datetime(6) DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UK39789tp9ugvby3a8icnhyfho7` (`appointment_id`),
-    CONSTRAINT `FKck40sg41uu66rsx8b0m5ees2r` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE maintenance_records
+(
+    id             BIGINT AUTO_INCREMENT NOT NULL,
+    create_at      TIMESTAMP(0)          NULL,
+    update_at      TIMESTAMP(0)          NULL,
+    created_by     VARCHAR(255)          NULL,
+    updated_by     VARCHAR(255)          NULL,
+    odometer       INT                   NULL,
+    performed_at   datetime              NULL,
+    appointment_id BIGINT                NULL,
+    CONSTRAINT pk_maintenance_records PRIMARY KEY (id)
+);
 
+ALTER TABLE maintenance_records
+    ADD CONSTRAINT uc_maintenance_records_appointment UNIQUE (appointment_id);
+
+ALTER TABLE maintenance_records
+    ADD CONSTRAINT FK_MAINTENANCE_RECORDS_ON_APPOINTMENT FOREIGN KEY (appointment_id) REFERENCES appointments (id);
 -- =============================================
 -- Table: part_usages
 -- =============================================
-CREATE TABLE IF NOT EXISTS `part_usages` (
-                                             `id` bigint NOT NULL AUTO_INCREMENT,
-                                             `record_id` bigint NOT NULL,
-                                             `spare_part_id` bigint NOT NULL,
-                                             `quantity_used` int NOT NULL,
-                                             `total_price` decimal(38,2) NOT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FKfgo023iyenuya3hg50o9j5k8l` (`record_id`),
-    KEY `FKj3d4m6ia43gs1hah9yu0eal86` (`spare_part_id`),
-    CONSTRAINT `FKfgo023iyenuya3hg50o9j5k8l` FOREIGN KEY (`record_id`) REFERENCES `maintenance_records` (`id`),
-    CONSTRAINT `FKj3d4m6ia43gs1hah9yu0eal86` FOREIGN KEY (`spare_part_id`) REFERENCES `spare_parts` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE part_usages
+(
+    id            BIGINT AUTO_INCREMENT NOT NULL,
+    create_at     TIMESTAMP(0)          NULL,
+    update_at     TIMESTAMP(0)          NULL,
+    created_by    VARCHAR(255)          NULL,
+    updated_by    VARCHAR(255)          NULL,
+    quantity_used INT                   NOT NULL,
+    total_price   DECIMAL               NOT NULL,
+    spare_part_id BIGINT                NOT NULL,
+    record_id     BIGINT                NOT NULL,
+    CONSTRAINT pk_part_usages PRIMARY KEY (id)
+);
 
+ALTER TABLE part_usages
+    ADD CONSTRAINT FK_PART_USAGES_ON_RECORD FOREIGN KEY (record_id) REFERENCES maintenance_records (id);
+
+ALTER TABLE part_usages
+    ADD CONSTRAINT FK_PART_USAGES_ON_SPARE_PART FOREIGN KEY (spare_part_id) REFERENCES spare_parts (id);
 -- =============================================
 -- Table: invoices
 -- =============================================
-CREATE TABLE IF NOT EXISTS `invoices` (
-                                          `id` bigint NOT NULL AUTO_INCREMENT,
-                                          `record_id` bigint DEFAULT NULL,
-                                          `center_id` bigint DEFAULT NULL,
-                                          `total_amount` decimal(10,2) DEFAULT NULL,
-    `status` varchar(255) DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UK728va3etsjsc8uwm6h4xr01ax` (`record_id`),
-    KEY `FKt5j9ruw0ypel5smwl5rcheh51` (`center_id`),
-    CONSTRAINT `FK4c3jv4rvr6tts7tmuk1cxdmyt` FOREIGN KEY (`record_id`) REFERENCES `maintenance_records` (`id`),
-    CONSTRAINT `FKt5j9ruw0ypel5smwl5rcheh51` FOREIGN KEY (`center_id`) REFERENCES `service_centers` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE invoices
+(
+    id           BIGINT AUTO_INCREMENT NOT NULL,
+    create_at    TIMESTAMP(0)          NULL,
+    update_at    TIMESTAMP(0)          NULL,
+    created_by   VARCHAR(255)          NULL,
+    updated_by   VARCHAR(255)          NULL,
+    total_amount DECIMAL(10, 2)        NULL,
+    status       VARCHAR(255)          NULL,
+    record_id    BIGINT                NULL,
+    center_id    BIGINT                NULL,
+    CONSTRAINT pk_invoices PRIMARY KEY (id)
+);
 
+ALTER TABLE invoices
+    ADD CONSTRAINT uc_invoices_record UNIQUE (record_id);
+
+ALTER TABLE invoices
+    ADD CONSTRAINT FK_INVOICES_ON_CENTER FOREIGN KEY (center_id) REFERENCES service_centers (id);
+
+ALTER TABLE invoices
+    ADD CONSTRAINT FK_INVOICES_ON_RECORD FOREIGN KEY (record_id) REFERENCES maintenance_records (id);
 -- =============================================
 -- Table: payments
 -- =============================================
-CREATE TABLE IF NOT EXISTS `payments` (
-                                          `id` bigint NOT NULL AUTO_INCREMENT,
-                                          `invoice_id` bigint NOT NULL,
-                                          `amount` decimal(38,2) DEFAULT NULL,
-    `method` varchar(255) DEFAULT NULL,
-    `transaction_code` varchar(255) DEFAULT NULL,
-    `status` enum('UN_PAID','PAID','FAILED','CANCELLED') DEFAULT NULL,
-    `payment_date` datetime(6) DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UK8inpv30544qjykcwa6ck7pusy` (`transaction_code`),
-    KEY `FKrbqec6be74wab8iifh8g3i50i` (`invoice_id`),
-    CONSTRAINT `FKrbqec6be74wab8iifh8g3i50i` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE payments
+(
+    id               BIGINT AUTO_INCREMENT NOT NULL,
+    create_at        TIMESTAMP(0)          NULL,
+    update_at        TIMESTAMP(0)          NULL,
+    created_by       VARCHAR(255)          NULL,
+    updated_by       VARCHAR(255)          NULL,
+    method           VARCHAR(255)          NULL,
+    amount           DECIMAL               NULL,
+    payment_date     datetime              NULL,
+    status           VARCHAR(255)          NULL,
+    transaction_code VARCHAR(255)          NULL,
+    invoice_id       BIGINT                NOT NULL,
+    CONSTRAINT pk_payments PRIMARY KEY (id)
+);
 
+ALTER TABLE payments
+    ADD CONSTRAINT uc_payments_transaction_code UNIQUE (transaction_code);
+
+ALTER TABLE payments
+    ADD CONSTRAINT FK_PAYMENTS_ON_INVOICE FOREIGN KEY (invoice_id) REFERENCES invoices (id);
 -- =============================================
 -- Table: chat_rooms
 -- =============================================
-CREATE TABLE IF NOT EXISTS `chat_rooms` (
-                                            `id` bigint NOT NULL AUTO_INCREMENT,
-                                            `name` varchar(255) NOT NULL,
-    `status` enum('PENDING','ACTIVE','CLOSED') NOT NULL,
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE chat_rooms
+(
+    id     BIGINT AUTO_INCREMENT NOT NULL,
+    name   VARCHAR(255)          NOT NULL,
+    status VARCHAR(20)           NOT NULL,
+    CONSTRAINT pk_chat_rooms PRIMARY KEY (id)
+);
 
+CREATE TABLE chatroom_members
+(
+    room_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    CONSTRAINT pk_chatroom_members PRIMARY KEY (room_id, user_id)
+);
+
+ALTER TABLE chatroom_members
+    ADD CONSTRAINT fk_chamem_on_chat_room FOREIGN KEY (room_id) REFERENCES chat_rooms (id);
+
+ALTER TABLE chatroom_members
+    ADD CONSTRAINT fk_chamem_on_user FOREIGN KEY (user_id) REFERENCES users (id);
 -- =============================================
 -- Table: chatroom_members
 -- =============================================
@@ -318,71 +349,44 @@ CREATE TABLE IF NOT EXISTS `chatroom_members` (
 -- =============================================
 -- Table: chat_messages
 -- =============================================
-CREATE TABLE IF NOT EXISTS `chat_messages` (
-                                               `id` bigint NOT NULL AUTO_INCREMENT,
-                                               `room_id` bigint NOT NULL,
-                                               `sender_id` bigint NOT NULL,
-                                               `content` text NOT NULL,
-                                               `timestamp` datetime(6) NOT NULL,
-    `status` enum('SENT','READ') NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FKhalwepod3944695ji0suwoqb9` (`room_id`),
-    KEY `FKgiqeap8ays4lf684x7m0r2729` (`sender_id`),
-    CONSTRAINT `FKgiqeap8ays4lf684x7m0r2729` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`),
-    CONSTRAINT `FKhalwepod3944695ji0suwoqb9` FOREIGN KEY (`room_id`) REFERENCES `chat_rooms` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE chat_messages
+(
+    id        BIGINT AUTO_INCREMENT NOT NULL,
+    sender_id BIGINT                NOT NULL,
+    room_id   BIGINT                NOT NULL,
+    content   TEXT                  NOT NULL,
+    timestamp datetime              NOT NULL,
+    status    VARCHAR(10)           NOT NULL,
+    CONSTRAINT pk_chat_messages PRIMARY KEY (id)
+);
 
+ALTER TABLE chat_messages
+    ADD CONSTRAINT FK_CHAT_MESSAGES_ON_ROOM FOREIGN KEY (room_id) REFERENCES chat_rooms (id);
+
+ALTER TABLE chat_messages
+    ADD CONSTRAINT FK_CHAT_MESSAGES_ON_SENDER FOREIGN KEY (sender_id) REFERENCES users (id);
 -- =============================================
 -- Table: email_records
 -- =============================================
-CREATE TABLE IF NOT EXISTS `email_records` (
-                                               `id` bigint NOT NULL AUTO_INCREMENT,
-                                               `email` varchar(255) NOT NULL,
-    `type` enum('PAYMENT','APPOINTMENT_DATE','KM') NOT NULL,
-    `appointment_id` bigint DEFAULT NULL,
-    `payment_id` bigint DEFAULT NULL,
-    `vehicle_id` bigint DEFAULT NULL,
-    `current_km` int DEFAULT NULL,
-    `payment_status` enum('Success','Not_Success') DEFAULT NULL,
-    `sent_time` datetime(6) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+CREATE TABLE email_records
+(
+    id             BIGINT AUTO_INCREMENT NOT NULL,
+    email          VARCHAR(255)          NOT NULL,
+    type           VARCHAR(255)          NOT NULL,
+    sent_time      datetime              NULL,
+    current_km     INT                   NULL,
+    appointment_id BIGINT                NULL,
+    payment_id     BIGINT                NULL,
+    vehicle_id     BIGINT                NULL,
+    payment_status VARCHAR(255)          NULL,
+    CONSTRAINT pk_email_records PRIMARY KEY (id)
+);
 -- =============================================
 -- Table: invalidated_token
 -- =============================================
-CREATE TABLE IF NOT EXISTS `invalidated_token` (
-                                                   `id` varchar(255) NOT NULL,
-    `expiry_time` datetime(6) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- =============================================
--- Table: roles (unused but exists in schema)
--- =============================================
-CREATE TABLE IF NOT EXISTS `roles` (
-                                       `id` bigint NOT NULL AUTO_INCREMENT,
-                                       `name` varchar(255) NOT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `UKofx66keruapi6vyqpv6f2or37` (`name`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- =============================================
--- Table: part_categories (unused but exists in schema)
--- =============================================
-CREATE TABLE IF NOT EXISTS `part_categories` (
-                                                 `id` bigint NOT NULL AUTO_INCREMENT,
-                                                 `code` varchar(255) DEFAULT NULL,
-    `name` varchar(255) DEFAULT NULL,
-    `description` varchar(255) DEFAULT NULL,
-    `create_at` timestamp NULL DEFAULT NULL,
-    `update_at` timestamp NULL DEFAULT NULL,
-    `created_by` varchar(255) DEFAULT NULL,
-    `updated_by` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+CREATE TABLE invalidated_token
+(
+    id          VARCHAR(255) NOT NULL,
+    expiry_time datetime     NULL,
+    CONSTRAINT pk_invalidatedtoken PRIMARY KEY (id)
+);
