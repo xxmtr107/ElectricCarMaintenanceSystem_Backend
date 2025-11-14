@@ -1,7 +1,9 @@
 package com.group02.ev_maintenancesystem.service;
 
+import com.group02.ev_maintenancesystem.dto.request.ForgotPasswordRequest;
 import com.group02.ev_maintenancesystem.dto.request.LoginRequest;
 import com.group02.ev_maintenancesystem.dto.request.LogoutRequest;
+import com.group02.ev_maintenancesystem.dto.request.ResetPasswordRequest;
 import com.group02.ev_maintenancesystem.dto.response.AuthenticationResponse;
 import com.group02.ev_maintenancesystem.entity.InvalidatedToken;
 import com.group02.ev_maintenancesystem.entity.User;
@@ -10,16 +12,19 @@ import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.InvalidatedRepository;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +36,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     JwtService jwtService;
     InvalidatedRepository InvalidatedRepository;
     UserRepository userRepository;
+    EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AuthenticationResponse login(LoginRequest request) {
@@ -85,5 +92,51 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .refreshToken(newRefreshToken)
                 .authenticated(true)
                 .build();
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+
+        // 2. Tạo token reset
+        String resetToken = jwtService.generatePasswordResetToken(user);
+
+        // 3. Gửi email
+        emailService.sendPasswordResetEmail(user, resetToken);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) throws ParseException, JOSEException {
+        if (!Objects.equals(request.getNewPassword(), request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_MISMATCH);
+        }
+
+        // 2. Xác thực token (kiểm tra chữ ký, hạn, đã bị logout/sử dụng chưa)
+        SignedJWT signedJWT = jwtService.verifyToken(request.getToken(), false);
+
+        // 3. (Rất quan trọng) Kiểm tra xem đây có đúng là token RESET không
+        String scope = (String) signedJWT.getJWTClaimsSet().getClaim("scope");
+        if (!"PASSWORD_RESET".equals(scope)) {
+            throw new AppException(ErrorCode.INVALID_RESET_TOKEN);
+        }
+
+        // 4. Lấy username từ token
+        String username = signedJWT.getJWTClaimsSet().getSubject();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // 5. Cập nhật mật khẩu mới (đã mã hóa)
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        // 6. Vô hiệu hóa token này để không thể dùng lại
+        String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        InvalidatedToken invalidToken = InvalidatedToken.builder()
+                .id(jwtId)
+                .expiryTime(expiryTime)
+                .build();
+        InvalidatedRepository.save(invalidToken);
     }
 }

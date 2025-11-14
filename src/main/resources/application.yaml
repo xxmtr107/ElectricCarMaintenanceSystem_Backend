@@ -35,6 +35,7 @@ vnpay:
   secret-key: "9LKB82N3Z8HEIIACANJHCWIFDLF8HB9A"
   api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
 
+
 springdoc:
   api-docs:
     path: /v3/api-docs

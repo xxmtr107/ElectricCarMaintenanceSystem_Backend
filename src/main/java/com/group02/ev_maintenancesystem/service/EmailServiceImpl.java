@@ -422,6 +422,42 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public void sendPasswordResetEmail(User user, String token) {
+        if (user == null || user.getEmail() == null || token == null) {
+            log.warn("sendPasswordResetEmail called with invalid data. Skipping.");
+            return;
+        }
+
+        // Tạo URL reset (trỏ về frontend của bạn)
+        // Lấy URL này từ application.yaml hoặc hardcode
+        String frontendBaseUrl = "https://electric-car-maintenance.vercel.app"; // Lấy từ file HTML của bạn
+        String resetUrl = frontendBaseUrl + "/reset-password?token=" + token;
+
+        try {
+            Context context = new Context();
+            context.setVariable("name", user.getFullName());
+            context.setVariable("url", resetUrl); // Đường link chứa token
+
+            String htmlContent = templateEngine.process("mailForPasswordReset", context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+            helper.setTo(user.getEmail());
+            helper.setSubject("EV Maintenance System - Yêu cầu Đặt lại Mật khẩu");
+            helper.setText(htmlContent, true);
+            FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+            helper.addInline("logo", res);
+            mailSender.send(message);
+
+            // Ghi lại email đã gửi (Tùy chọn, nhưng nên có)
+            saveEmail(user.getEmail(), EmailType.PASSWORD_RESET_REQUEST, null, null, null, null, user.getId(), null, null);
+            log.info("Sent password reset email to {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send password reset email to {}: {}", user.getEmail(), e.getMessage());
+        }
+    }
+
     private void saveEmail(String email, EmailType emailType,Integer currentKm,Long vehicleID,Long appointmentID,Long paymentID,Long customerID,Long technicianID,EmailRecord.MailPaymentStatus status) {
         EmailRecord mail = EmailRecord.builder().
                 email(email).
