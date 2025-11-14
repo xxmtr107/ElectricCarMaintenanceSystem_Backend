@@ -1,15 +1,14 @@
 package com.group02.ev_maintenancesystem.controller;
 
-import com.group02.ev_maintenancesystem.dto.request.IntrospectRequest;
-import com.group02.ev_maintenancesystem.dto.request.LoginRequest;
-import com.group02.ev_maintenancesystem.dto.request.LogoutRequest;
-import com.group02.ev_maintenancesystem.dto.request.RefreshTokenRequest;
+import com.group02.ev_maintenancesystem.dto.request.*;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.AuthenticationResponse;
 import com.group02.ev_maintenancesystem.dto.response.IntrospectResponse;
+import com.group02.ev_maintenancesystem.dto.response.PasswordResetResponse;
 import com.group02.ev_maintenancesystem.service.AuthenticationService;
 import com.group02.ev_maintenancesystem.service.JwtService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +57,23 @@ public class AuthenticationController {
         return ApiResponse.<AuthenticationResponse>builder()
                 .message("Token refreshed successfully")
                 .result(authenticationService.refreshToken(request.getRefreshToken()))
+                .build();
+    }
+    @PostMapping("/forgot-password")
+    public ApiResponse<PasswordResetResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authenticationService.forgotPassword(request);
+        return ApiResponse.<PasswordResetResponse>builder()
+                .message("Password reset link has been sent to your email.")
+                .result(PasswordResetResponse.builder().success(true).build())
+                .build();
+    }
+    @PostMapping("/reset-password")
+    public ApiResponse<PasswordResetResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.resetPassword(request);
+        return ApiResponse.<PasswordResetResponse>builder()
+                .message("Password has been reset successfully.")
+                .result(PasswordResetResponse.builder().success(true).build())
                 .build();
     }
 

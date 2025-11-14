@@ -23,6 +23,18 @@ spring:
   flyway:
     enabled: true
 
+  thymeleaf:
+    prefix: classpath:/Templates/
+
+  mail:
+    host: "smtp.gmail.com"
+    port: 587
+    username: ${EMAIL_USERNAME} # Đọc từ biến Railway
+    password: ${EMAIL_PASSWORD} # Đọc từ biến Railway
+    properties:
+        mail.smtp.auth: true
+        mail.smtp.starttls.enable: true
+
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
 
@@ -34,6 +46,17 @@ vnpay:
   tmn-code: "9NN5ES27"
   secret-key: "9LKB82N3Z8HEIIACANJHCWIFDLF8HB9A"
   api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
+
+mail:
+  host: "smtp.gmail.com"
+  port: 587
+  username: ${EMAIL_USERNAME} # Sẽ đọc từ biến môi trường Railway
+  password: ${EMAIL_PASSWORD} # Sẽ đọc từ biến môi trường Railway (Mật khẩu ứng dụng 16 chữ)
+  properties:
+    mail.smtp.auth: true
+    mail.smtp.starttls.enable: true
+    mail.smtp.starttls.required: true
+    mail.debug: true
 
 springdoc:
   api-docs:
