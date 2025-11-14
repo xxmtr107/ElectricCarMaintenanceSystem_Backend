@@ -136,7 +136,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        emailService.sendAppointmentConfirmation(savedAppointment);
+        appointmentRepository.flush();
+        log.info("Saving customer success, now sending email...");
+        try {
+            log.info(">>> SENDING EMAIL...");
+            emailService.sendAppointmentConfirmation(savedAppointment);
+            log.info(">>> EMAIL SENT SUCCESS");
+        } catch (Exception e) {
+            log.error(">>> EMAIL SEND FAILED: {}", e.getMessage(), e);
+        }
+
         AppointmentResponse response = mapSingleAppointmentToResponse(savedAppointment);
         log.info("Successfully created appointment ID {} for vehicle ID {} at milestone {}km.", savedAppointment.getId(), vehicle.getId(), recommendedMilestoneKm);
         return response;
@@ -222,6 +231,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             statusChanged = true;
         }
         Appointment savedAppointment = appointmentRepository.save(appointment);
+        appointmentRepository.flush();
 
         // Chỉ gửi email xác nhận 1 LẦN DUY NHẤT tại đây
         if (statusChanged) {

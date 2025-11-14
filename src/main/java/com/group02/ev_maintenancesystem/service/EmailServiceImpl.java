@@ -14,16 +14,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
+import org.springframework.core.io.FileSystemResource;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects; // THÊM MỚI
+import java.util.*;
 
 @Service
 @Slf4j // THÊM MỚI
@@ -90,6 +90,8 @@ public class EmailServiceImpl implements EmailService {
                 helper.setTo(email);
                 helper.setSubject("EV Maintenance System - Service Reminder");
                 helper.setText(htmlContent, true);
+                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+                helper.addInline("logo", res);
                 mailSender.send(message);
 
                 // 5. Lưu lại email đã gửi
@@ -103,12 +105,18 @@ public class EmailServiceImpl implements EmailService {
 
     public List<ServiceCenter> getServiceCenters(Long vehicleId) {
         List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
-        List<ServiceCenter> list = new ArrayList<>();
+        Map<Long, ServiceCenter> map = new LinkedHashMap<>();
+
         for (Appointment appointment : appointments) {
-            list.add(serviceCenterRepository.findServiceCenterByAppointments_Id(appointment.getId()));
+            ServiceCenter sc = serviceCenterRepository.findServiceCenterByAppointments_Id(appointment.getId());
+            if (sc != null) {
+                map.putIfAbsent(sc.getId(), sc);
+            }
         }
-        return list;
+
+        return new ArrayList<>(map.values());
     }
+
 
     @Override
     @Scheduled(cron = "0 0 8 * * ?")
@@ -144,6 +152,8 @@ public class EmailServiceImpl implements EmailService {
             helper.setTo(email);
             helper.setSubject("EV Maintenance System - Appointment Reminder");
             helper.setText(htmlContent, true);
+            FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+            helper.addInline("logo", res);
             mailSender.send(message);
             saveEmail(email, EmailType.APPOINTMENT_REMINDER,null,null,appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
             receivers.add(appointment.getCustomerUser().getEmail());
@@ -183,6 +193,8 @@ public class EmailServiceImpl implements EmailService {
                 helper.setTo(email);
                 helper.setSubject("EV Maintenance System - Checkout Reminder");
                 helper.setText(htmlContent, true);
+                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+                helper.addInline("logo", res);
                 mailSender.send(message);
                 saveEmail(email, EmailType.PAYMENT_REMINDER,null,null,null, payment.getId(), payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Not_Success);
                 receivers.add(payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail());
@@ -196,10 +208,11 @@ public class EmailServiceImpl implements EmailService {
      * Chuyển thành hàm public void, được gọi trực tiếp từ AppointmentServiceImpl.
      * Chỉ gửi mail nếu lịch hẹn ở trạng thái CONFIRMED và chưa được gửi.
      */
-    @Transactional
-    public void sendAppointmentConfirmation(Appointment appointment) {
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendAppointmentConfirmation(Appointment appointment){
         // Kiểm tra đầu vào
-        if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+        if (appointment == null || appointment.getStatus() != AppointmentStatus.PENDING) {
             log.warn("sendAppointmentConfirmation called with invalid status or null appointment. Skipping.");
             return;
         }
@@ -230,6 +243,8 @@ public class EmailServiceImpl implements EmailService {
                 helper.setTo(appointment.getCustomerUser().getEmail());
                 helper.setSubject("EV Maintenance System - Appointment Confirmation");
                 helper.setText(htmlContent, true);
+                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+                helper.addInline("logo", res);
                 mailSender.send(message);
 
                 // Ghi lại email đã gửi
@@ -247,7 +262,8 @@ public class EmailServiceImpl implements EmailService {
      * Chuyển thành hàm public void, được gọi trực tiếp từ VNPayServiceImpl.
      * Chỉ gửi mail nếu Hóa đơn ở trạng thái PAID và chưa được gửi.
      */
-    @Transactional
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendPaymentConfirmation(Invoice invoice) {
         // Kiểm tra đầu vào
         if (invoice == null || !"PAID".equals(invoice.getStatus())) {
@@ -300,6 +316,8 @@ public class EmailServiceImpl implements EmailService {
                 helper.setTo(email);
                 helper.setSubject("EV Maintenance System - Payment Confirmation");
                 helper.setText(htmlContent, true);
+                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+                helper.addInline("logo", res);
                 mailSender.send(message);
 
                 // Ghi lại email đã gửi
@@ -312,7 +330,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendAccountCreationEmail(User user, String rawPassword) {
         if (user == null || user.getEmail() == null) {
             log.warn("sendAccountCreationEmail called with invalid user data. Skipping.");
@@ -332,6 +350,8 @@ public class EmailServiceImpl implements EmailService {
             helper.setTo(user.getEmail());
             helper.setSubject("EV Maintenance System - Account Created Successfully");
             helper.setText(htmlContent, true);
+            FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+            helper.addInline("logo", res);
             mailSender.send(message);
 
             saveEmail(user.getEmail(), EmailType.ACCOUNT_CREATION, null, null, null, null, user.getId(), null, null);
@@ -341,8 +361,9 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    @Transactional
-    public void sendConfirmAndAssignAppointment(Appointment appointment) {
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendConfirmAndAssignAppointment(Appointment appointment){
         if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED ) {
             log.warn("sendConfirmAndAssignAppointment called with invalid status or null appointment. Skipping.");
             return;
@@ -384,6 +405,8 @@ public class EmailServiceImpl implements EmailService {
                 helper.setTo(appointment.getCustomerUser().getEmail());
                 helper.setSubject("EV Maintenance System - Appointment Confirmed & Technician Assigned");
                 helper.setText(htmlContent, true);
+                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
+                helper.addInline("logo", res);
                 mailSender.send(message);
 
                 // Lưu lại record email gửi thành công
