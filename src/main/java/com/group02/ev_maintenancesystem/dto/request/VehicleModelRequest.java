@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VehicleModelRequest {
     @NotBlank(message = "NOT_BLANK")
-    @Pattern(regexp = "^VF[e]?\\d{1,2}$", message = "MODEL_NAME_INVALID")
     private String name;
 
     @NotBlank(message="NOT_BLANK")
