@@ -333,6 +333,7 @@ public class VNPayServiceImpl implements  VNPayService {
             Invoice invoice = payment.getInvoice();
             invoice.setStatus("PAID");
             invoiceRepository.save(invoice);
+            invoiceRepository.flush();
             // --- GỌI EMAIL SERVICE (SAU KHI INVOICE ĐÃ PAID) ---
             try {
                 emailService.sendPaymentConfirmation(invoice);

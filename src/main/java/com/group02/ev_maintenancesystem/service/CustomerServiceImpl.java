@@ -37,6 +37,8 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setRole(Role.CUSTOMER);
         try {
             customer = userRepository.save(customer);
+            userRepository.flush();
+            log.info("Saving customer success, now sending email...");
             emailService.sendAccountCreationEmail(customer, request.getPassword());
         } catch (DataIntegrityViolationException e) {
             String message = e.getMostSpecificCause().getMessage();

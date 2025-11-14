@@ -65,7 +65,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <img src="/Logo.png" alt="Brand Logo" style="width:300px; height:300px;" >
+        <img src="cid:logo" alt="Brand Logo" style="width:120px; height:auto;">
         <h1>Vehicle Maintenance Reminder</h1>
     </div>
 
@@ -81,43 +81,31 @@
             <strong>Current Odometer:</strong> <span th:text="${currentKm}"></span><br>
             <strong>Recommended Service Interval:</strong> <span th:text="${serviceKm}"></span><br>
         </p>
-        <div th:if="${stations != null and stations.size() > 0}">
+
+        <div th:if="${stations != null and !#lists.isEmpty(stations)}">
             <h2>Nearby Service Centers</h2>
             <ul>
                 <li th:each="s : ${stations}">
-                    <strong th:text="${s.name}">Station Name</strong> —
-                    <span th:text="${s.address}">Address</span>
+                    <strong th:text="${s.name}">Station Name</strong> — <span th:text="${s.address}">Address</span><br>
+                    📞 <span th:text="${s.phone}">1900 23 23 89</span>
                 </li>
             </ul>
+        </div>
+
+        <div th:if="${stations == null or #lists.isEmpty(stations)}">
+            <p>📞 1900 23 23 89</p>
         </div>
 
         <p>To maintain optimal vehicle performance and safety, please schedule your maintenance service as soon as
             possible.</p>
 
         <a href="https://electric-car-maintenance.vercel.app" class="button" style="color:white">Book Maintenance Now</a>
-
-        <p style="margin-top: 20px;">
-            If you have any questions or need assistance, please contact us:<br>
-        </p>
-        <div th:if="${stations != null and stations.size()>0}">
-            <div th:each="s : ${stations}">
-                <div>
-                    📞 <span th:text="${s.phone}">1900 23 23 89</span><br>
-                </div>
-            </div>
-        </div>
-
-
-        <div th:if="${stations == null or #lists.isEmpty(stations)}">
-            <div>
-                📞 <span>1900 23 23 89</span><br>
-            </div>
-        </div>
     </div>
+
 
     <div class="footer">
         <p>Thank you for choosing NTNTB.<br>
-            <span>NTNTB – Clean Energy for Every Journey.</span>
+        NTNTB – Clean Energy for Every Journey.
         </p>
     </div>
 </div>
