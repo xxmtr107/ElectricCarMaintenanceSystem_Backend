@@ -14,4 +14,5 @@ public interface JwtService {
     SignedJWT verifyToken(String token, boolean isRefreshToken) throws ParseException, JOSEException;
     SignedJWT verifyToken(String token) throws ParseException, JOSEException;
     IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException;
+    String generatePasswordResetToken(User user);
 }
