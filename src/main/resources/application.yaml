@@ -22,6 +22,10 @@ spring:
 
   flyway:
     enabled: true
+
+  thymeleaf:
+    prefix: classpath:/Templates/
+
   mail:
     host: "smtp.gmail.com"
     port: 587
