@@ -23,17 +23,24 @@ spring:
   flyway:
     enabled: true
 
-  thymeleaf:
-    prefix: classpath:/Templates/
+#  thymeleaf:
+#    prefix: classpath:/Templates/
 
   mail:
     host: "smtp.gmail.com"
     port: 587
-    username: ${EMAIL_USERNAME} # Đọc từ biến Railway
-    password: ${EMAIL_PASSWORD} # Đọc từ biến Railway
+    username: ${EMAIL_USERNAME}   # Biến môi trường
+    password: ${EMAIL_PASSWORD}   # Mật khẩu ứng dụng 16 ký tự
+
     properties:
-        mail.smtp.auth: true
-        mail.smtp.starttls.enable: true
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+    debug: true
 
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"

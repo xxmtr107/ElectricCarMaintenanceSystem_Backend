@@ -6,10 +6,12 @@ import com.group02.ev_maintenancesystem.enums.AppointmentStatus; // THÊM MỚI
 import com.group02.ev_maintenancesystem.enums.EmailType;
 import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import com.group02.ev_maintenancesystem.repository.*;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j; // THÊM MỚI
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +32,12 @@ import java.util.*;
 @Slf4j // THÊM MỚI
 public class EmailServiceImpl implements EmailService {
 
+    @Value("${spring.mail.username}")
+    private String mailUsername;
+
+    @Value("${spring.mail.password}")
+    private String mailPassword;
+
     @Autowired
     private JavaMailSender mailSender;
     @Autowired
@@ -48,7 +56,15 @@ public class EmailServiceImpl implements EmailService {
     private MaintenanceService maintenanceService;
 
     @Autowired
-    private InvoiceRepository invoiceRepository; // <-- THÊM MỚI
+    private InvoiceRepository invoiceRepository;
+
+    @PostConstruct
+    public void init() {
+        log.info("=== EMAIL CONFIGURATION DEBUG ===");
+        log.info("Mail username: {}", mailUsername);
+        log.info("Mail password length: {}", mailPassword != null ? mailPassword.length() : 0);
+        log.info("Mail password first 4 chars: {}", mailPassword != null && mailPassword.length() >= 4 ? mailPassword.substring(0, 4) : "null");
+    }// <-- THÊM MỚI
 
     @Override
     @Scheduled(cron = "0 0 8 * * ?")
