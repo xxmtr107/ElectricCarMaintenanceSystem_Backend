@@ -27,7 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
-    EmailServiceImpl emailService;
+    EmailService emailService;
 
     @Override
     public UserResponse registerCustomer(UserRegistrationRequest request) {
