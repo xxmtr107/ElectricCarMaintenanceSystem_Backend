@@ -233,6 +233,7 @@ public class EmailServiceImpl implements EmailService {
                 context.setVariable("dateTime", appointment.getAppointmentDate().format(formatter));
                 context.setVariable("center", appointment.getServiceCenter().getName());
                 context.setVariable("address", appointment.getServiceCenter().getAddress());
+                context.setVariable("vin", appointment.getVehicle().getVin());
                 context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
                 context.setVariable("phone", appointment.getServiceCenter().getPhone());
 
@@ -385,6 +386,7 @@ public class EmailServiceImpl implements EmailService {
                 context.setVariable("dateTime", appointment.getAppointmentDate().format(formatter));
                 context.setVariable("center", appointment.getServiceCenter().getName());
                 context.setVariable("address", appointment.getServiceCenter().getAddress());
+                context.setVariable("vin", appointment.getVehicle().getVin());
                 context.setVariable("phone", appointment.getServiceCenter().getPhone());
                 context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
 

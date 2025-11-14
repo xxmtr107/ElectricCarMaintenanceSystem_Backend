@@ -7,6 +7,7 @@ import com.group02.ev_maintenancesystem.dto.response.SparePartResponse;
 import com.group02.ev_maintenancesystem.entity.SparePart;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
+import com.group02.ev_maintenancesystem.repository.ModelPackageItemRepository;
 import com.group02.ev_maintenancesystem.repository.SparePartRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SparePartServiceImpl implements  SparePartService {
@@ -27,6 +30,9 @@ public class SparePartServiceImpl implements  SparePartService {
 
     @Autowired
     ModelMapper modelMapper;
+
+    @Autowired
+    ModelPackageItemRepository modelPackageItemRepository;
 
     //Lấy tất cả phụ tùng theo trang
     @Override
@@ -139,5 +145,14 @@ public class SparePartServiceImpl implements  SparePartService {
         return modelMapper.map(updateSparePart, SparePartResponse.class);
     }
 
+    @Override
+    public List<SparePartResponse> getSparePartsByModelId(Long modelId) {
+        // Gọi Query DISTINCT đã viết trong Repository
+        List<SparePart> parts = modelPackageItemRepository.findDistinctSparePartsByModelId(modelId);
+
+        return parts.stream()
+                .map(part -> modelMapper.map(part, SparePartResponse.class))
+                .collect(Collectors.toList());
+    }
 
 }

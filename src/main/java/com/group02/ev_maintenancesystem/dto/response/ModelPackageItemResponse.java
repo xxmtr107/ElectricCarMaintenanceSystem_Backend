@@ -27,6 +27,11 @@ public class ModelPackageItemResponse {
 
     MaintenanceActionType actionType;
 
+    Long includedSparePartId;
+    String includedSparePartName;
+    String includedSparePartNumber;
+    Integer includedQuantity;
+
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

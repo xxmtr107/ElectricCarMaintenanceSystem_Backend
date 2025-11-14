@@ -24,9 +24,14 @@ public interface MaintenanceRecordMapper {
 
     @Mapping(target = "servicePackageName", source = "appointment.servicePackageName")
 
+    @Mapping(target = "serviceCenterName", source = "appointment.serviceCenter.name")
+    @Mapping(target = "totalPrice", source = "invoice.totalAmount")
+
     @Mapping(target = "serviceItems", ignore = true)
 
     @Mapping(target = "partUsages", source = "partUsages")
+
+
 
     MaintenanceRecordResponse toMaintenanceRecordResponse(MaintenanceRecord maintenanceRecord);
 }

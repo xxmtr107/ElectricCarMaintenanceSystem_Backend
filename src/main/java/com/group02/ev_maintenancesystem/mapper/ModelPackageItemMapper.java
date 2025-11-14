@@ -23,6 +23,11 @@ public interface ModelPackageItemMapper {
     @Mapping(target = "serviceItemId", source = "serviceItem.id")
     @Mapping(target = "serviceItemName", source = "serviceItem.name")
     @Mapping(target = "actionType", source = "actionType")
+
+    @Mapping(target = "includedSparePartId", source = "includedSparePart.id")
+    @Mapping(target = "includedSparePartName", source = "includedSparePart.name")
+    @Mapping(target = "includedSparePartNumber", source = "includedSparePart.partNumber")
+    @Mapping(target = "includedQuantity", source = "includedQuantity")
     ModelPackageItemResponse toModelPackageItemResponse(ModelPackageItem modelPackageItem);
 
     void updateModelPackageItem(@MappingTarget ModelPackageItem modelPackageItem, ModelPackageItemRequest request); // Đảo vị trí tham số theo convention
