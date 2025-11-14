@@ -1,13 +1,10 @@
 package com.group02.ev_maintenancesystem.controller;
-
-import com.group02.ev_maintenancesystem.dto.ChatMessageDTO;
 import com.group02.ev_maintenancesystem.dto.ChatRoomDTO;
 import com.group02.ev_maintenancesystem.dto.RoomMessageDTO;
 import com.group02.ev_maintenancesystem.dto.request.CreateRoomRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
