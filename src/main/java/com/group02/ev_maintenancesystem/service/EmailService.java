@@ -17,4 +17,5 @@ public interface EmailService {
     void sendPaymentConfirmation(Invoice invoice);
     void sendAccountCreationEmail(User user, String rawPassword);
     void sendConfirmAndAssignAppointment(Appointment appointment);
+    void sendPasswordResetEmail(User user, String token);
 }
