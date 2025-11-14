@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.springframework.core.io.FileSystemResource;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -134,7 +135,7 @@ public class EmailServiceImpl implements EmailService {
 
             String email = appointment.getCustomerUser().getEmail();
             if (alreadySentRecently(email, EmailType.APPOINTMENT_REMINDER, 1)) continue;
-            int count = emailRepository.countByEmailAndTypeAndAppointmentID(email, EmailType.APPOINTMENT_REMINDER,appointment.getId());
+            int count = emailRepository.countByEmailAndTypeAndAppointmentID(email, EmailType.APPOINTMENT_REMINDER, appointment.getId());
             // để >=2 vì sẽ gửi 1 lần confirmAppointment
             if (count >= 2) continue;
 
@@ -155,7 +156,7 @@ public class EmailServiceImpl implements EmailService {
             FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
             helper.addInline("logo", res);
             mailSender.send(message);
-            saveEmail(email, EmailType.APPOINTMENT_REMINDER,null,null,appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
+            saveEmail(email, EmailType.APPOINTMENT_REMINDER, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
             receivers.add(appointment.getCustomerUser().getEmail());
         }
         return receivers;
@@ -175,8 +176,8 @@ public class EmailServiceImpl implements EmailService {
                     payment.getStatus().equals(PaymentStatus.FAILED)) {
 
                 String email = payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail();
-                int count=emailRepository.countByEmailAndTypeAndPaymentIDAndStatus(email,EmailType.PAYMENT_REMINDER,payment.getId(), EmailRecord.MailPaymentStatus.Not_Success);
-                if(count >= 1) continue;
+                int count = emailRepository.countByEmailAndTypeAndPaymentIDAndStatus(email, EmailType.PAYMENT_REMINDER, payment.getId(), EmailRecord.MailPaymentStatus.Not_Success);
+                if (count >= 1) continue;
 
                 Context context = new Context();
                 context.setVariable("name", payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getFullName());
@@ -196,7 +197,7 @@ public class EmailServiceImpl implements EmailService {
                 FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
                 helper.addInline("logo", res);
                 mailSender.send(message);
-                saveEmail(email, EmailType.PAYMENT_REMINDER,null,null,null, payment.getId(), payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Not_Success);
+                saveEmail(email, EmailType.PAYMENT_REMINDER, null, null, null, payment.getId(), payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Not_Success);
                 receivers.add(payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail());
             }
         }
@@ -209,8 +210,9 @@ public class EmailServiceImpl implements EmailService {
      * Chỉ gửi mail nếu lịch hẹn ở trạng thái CONFIRMED và chưa được gửi.
      */
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendAppointmentConfirmation(Appointment appointment){
+    public void sendAppointmentConfirmation(Appointment appointment) {
         // Kiểm tra đầu vào
         if (appointment == null || appointment.getStatus() != AppointmentStatus.PENDING) {
             log.warn("sendAppointmentConfirmation called with invalid status or null appointment. Skipping.");
@@ -264,6 +266,7 @@ public class EmailServiceImpl implements EmailService {
      * Chỉ gửi mail nếu Hóa đơn ở trạng thái PAID và chưa được gửi.
      */
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendPaymentConfirmation(Invoice invoice) {
         // Kiểm tra đầu vào
@@ -331,6 +334,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendAccountCreationEmail(User user, String rawPassword) {
         if (user == null || user.getEmail() == null) {
@@ -363,9 +367,10 @@ public class EmailServiceImpl implements EmailService {
     }
 
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendConfirmAndAssignAppointment(Appointment appointment){
-        if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED ) {
+    public void sendConfirmAndAssignAppointment(Appointment appointment) {
+        if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED) {
             log.warn("sendConfirmAndAssignAppointment called with invalid status or null appointment. Skipping.");
             return;
         }
