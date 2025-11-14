@@ -27,11 +27,10 @@ spring:
 #    prefix: classpath:/Templates/
 
   mail:
-    host: "smtp.gmail.com"
+    host: smtp.gmail.com
     port: 587
-    username: ${EMAIL_USERNAME}   # Biến môi trường
-    password: ${EMAIL_PASSWORD}   # Mật khẩu ứng dụng 16 ký tự
-
+    username: ${EMAIL_USERNAME:trungtamxedienntntb@gmail.com}  # Fallback cho local
+    password: ${EMAIL_PASSWORD:ycxrqwytcqfvlzbw}              # Fallback cho local
     properties:
       mail:
         smtp:
@@ -39,8 +38,7 @@ spring:
           starttls:
             enable: true
             required: true
-
-    debug: true
+          debug: true
 
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
@@ -54,16 +52,7 @@ vnpay:
   secret-key: "9LKB82N3Z8HEIIACANJHCWIFDLF8HB9A"
   api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
 
-mail:
-  host: "smtp.gmail.com"
-  port: 587
-  username: ${EMAIL_USERNAME} # Sẽ đọc từ biến môi trường Railway
-  password: ${EMAIL_PASSWORD} # Sẽ đọc từ biến môi trường Railway (Mật khẩu ứng dụng 16 chữ)
-  properties:
-    mail.smtp.auth: true
-    mail.smtp.starttls.enable: true
-    mail.smtp.starttls.required: true
-    mail.debug: true
+
 
 springdoc:
   api-docs:
