@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://gondola.proxy.rlwy.net:41052/railway"
+    url: "jdbc:mysql://yamanote.proxy.rlwy.net:17394/railway"
     username: "root"
-    password: "yhnLlvlxzUMQmvdtFUKGwyxfxrHDzJtm"
+    password: "pBFiAbPDwRRmuTYpgIVevpzSnNihMUGI"
   jpa:
     hibernate:
         ddl-auto: validate
@@ -27,13 +27,14 @@ spring:
 #    prefix: classpath:/Templates/
 
   mail:
-    host: smtp.gmail.com
+    host: smtp-relay.brevo.com
     port: 587
     username: ${EMAIL_USERNAME:trungtamxedienntntb@gmail.com}  # Fallback cho local
     password: ${EMAIL_PASSWORD:ycxrqwytcqfvlzbw}              # Fallback cho local
     properties:
       mail:
         smtp:
+          ssl: true
           auth: true
           starttls:
             enable: true
