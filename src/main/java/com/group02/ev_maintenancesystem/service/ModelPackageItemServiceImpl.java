@@ -29,8 +29,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
 
     ModelPackageItemRepository modelPackageItemRepository;
     VehicleModelRepository vehicleModelRepository;
-    // Bỏ ServicePackageRepository nếu không còn dùng ở đây
-    // ServicePackageRepository servicePackageRepository;
+    SparePartRepository sparePartRepository;
     ServiceItemRepository serviceItemRepository;
     ModelPackageItemMapper modelPackageItemMapper;
 
@@ -135,7 +134,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         ServiceItem serviceItem = serviceItemRepository.findById(request.getServiceItemId())
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
 
-        // Kiểm tra trùng lặp nếu có sự thay đổi về model, milestone, item
+        // Kiểm tra trùng lặp nếu có sự thay đổi về key
         boolean changedKey = !modelPackageItem.getVehicleModel().getId().equals(request.getVehicleModelId()) ||
                 !modelPackageItem.getMilestoneKm().equals(request.getMilestoneKm()) ||
                 !modelPackageItem.getServiceItem().getId().equals(request.getServiceItemId());
@@ -144,13 +143,34 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
             throw new AppException(ErrorCode.MODEL_PACKAGE_ITEM_EXISTED);
         }
 
-        // Sử dụng mapper để cập nhật các trường từ request
-        modelPackageItemMapper.updateModelPackageItem(modelPackageItem, request); // Gọi hàm update của mapper
+        // --- BẮT ĐẦU CẬP NHẬT LOGIC ---
 
-        // Set lại các đối tượng liên kết (vì mapper ignore)
+        // 1. Sử dụng mapper để cập nhật các trường đơn giản (price, milestoneKm, actionType, includedQuantity)
+        modelPackageItemMapper.updateModelPackageItem(modelPackageItem, request);
+
+        // 2. Xử lý các entity liên kết (ServiceCenter và ServiceItem)
         modelPackageItem.setVehicleModel(vehicleModel);
         modelPackageItem.setServiceItem(serviceItem);
-        // Không set servicePackage
+
+        // 3. Xử lý logic cho phụ tùng đi kèm (SparePart)
+        if (request.getIncludedSparePartId() != null) {
+            SparePart sparePart = sparePartRepository.findById(request.getIncludedSparePartId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
+            modelPackageItem.setIncludedSparePart(sparePart);
+
+            // Nếu quantity không được cung cấp, đặt mặc định là 1 khi có phụ tùng
+            if (request.getIncludedQuantity() == null) {
+                modelPackageItem.setIncludedQuantity(1);
+            }
+        } else {
+            // Nếu không có ID phụ tùng, set là null và số lượng là 0
+            modelPackageItem.setIncludedSparePart(null);
+            modelPackageItem.setIncludedQuantity(0);
+        }
+
+        // (Nếu request.getIncludedQuantity() != null, mapper đã set giá trị đó rồi)
+
+        // --- KẾT THÚC CẬP NHẬT LOGIC ---
 
         ModelPackageItem updatedItem = modelPackageItemRepository.save(modelPackageItem);
         return modelPackageItemMapper.toModelPackageItemResponse(updatedItem);

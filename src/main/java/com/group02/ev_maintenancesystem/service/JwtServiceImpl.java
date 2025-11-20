@@ -129,5 +129,33 @@ public class JwtServiceImpl implements JwtService {
                 .build();
     }
 
+    @Override
+    public String generatePasswordResetToken(User user) {
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        Date issueTime = new Date();
+        // Token reset chỉ có hiệu lực 15 PHÚT
+        Date expiredTime = Date.from(issueTime.toInstant().plus(15, ChronoUnit.MINUTES));
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getUsername()) // Lưu username để biết reset cho ai
+                .issueTime(issueTime)
+                .expirationTime(expiredTime)
+                .jwtID(UUID.randomUUID().toString())
+                .claim("scope", "PASSWORD_RESET") // Đánh dấu đây là token reset
+                .claim("userId", user.getId())
+                .build();
+
+        Payload payload = new Payload(claimsSet.toJSONObject());
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(signerKey));
+        } catch (JOSEException e) {
+            throw new AppException(ErrorCode.CANT_CREATE_NEW_PASSWORD);
+        }
+        return jwsObject.serialize();
+    }
+
 
 }

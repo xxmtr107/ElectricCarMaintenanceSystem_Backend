@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.request;
 
+import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -26,4 +27,11 @@ public class ModelPackageItemRequest {
     @NotNull(message = "NOT_BLANK")
     @DecimalMin(value = "0.01", message = "PRICE_INVALID")
     BigDecimal price;
+
+    @NotNull(message = "NOT_BLANK")
+    MaintenanceActionType actionType; // Thêm trường actionType
+
+    Long includedSparePartId; // Thêm ID phụ tùng (có thể null)
+
+    Integer includedQuantity; // Thêm số lượng (nên đặt giá trị mặc định)
 }

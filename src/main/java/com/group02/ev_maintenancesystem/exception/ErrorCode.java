@@ -128,7 +128,13 @@ public enum ErrorCode {
     // ========================= ROOM CHAT ERRORS (1500 - 1599) =========================
     ROOM_CHAT_NOT_FOUND(1500, "Room chat not found", HttpStatus.NOT_FOUND),
     MEMBER_NOT_FOUND(1501, "Member not found", HttpStatus.NOT_FOUND),
-    ROOM_INVALID(1502, "Room is recieved", HttpStatus.BAD_REQUEST);
+    ROOM_INVALID(1502, "Room is recieved", HttpStatus.BAD_REQUEST),
+
+    // ========================= PASSWORD RESET (1600 - 1699) =========================
+    EMAIL_NOT_FOUND(1600, "Email not found in the system", HttpStatus.NOT_FOUND),
+    PASSWORD_MISMATCH(1601, "New password and confirm password do not match", HttpStatus.BAD_REQUEST),
+    INVALID_RESET_TOKEN(1602, "Invalid or expired password reset token", HttpStatus.BAD_REQUEST),
+    CANT_CREATE_NEW_PASSWORD(1603, "Cant create the new password", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;
