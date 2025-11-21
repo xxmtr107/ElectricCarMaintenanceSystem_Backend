@@ -26,15 +26,14 @@ public class ChatRoom {
     @Column(length = 20, nullable = false)
     private ChatRoomStatus status;
 
-    @ManyToMany
-    @JoinTable(
-            name = "chatroom_members",
-            joinColumns = @JoinColumn(name = "room_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @JsonIgnore
-    private Set<User> members = new HashSet<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_id", nullable = false)
+    User customer;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "staff_id", nullable = false)
+    User staff;
+
+
 
 }

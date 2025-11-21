@@ -11,5 +11,8 @@ public class ChatRoomDTO {
     Long id;
     String name;
     String status;
-    Set<UserDTO> members;
+    Long customerId;
+    String customerName;
+    Long staffId;
+    String staffName;
 }

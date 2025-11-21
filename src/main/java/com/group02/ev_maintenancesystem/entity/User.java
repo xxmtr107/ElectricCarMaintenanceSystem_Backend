@@ -68,12 +68,6 @@ public class User extends BaseEntity implements UserDetails {
     @JoinColumn(name = "center_id")
     ServiceCenter serviceCenter;
 
-    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @JsonIgnore
-    private Set<ChatRoom> chatRooms = new HashSet<>();
-
     public boolean isCustomer() {
         return role == Role.CUSTOMER; // CẬP NHẬT
     }
