@@ -9,5 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+    //Tìm phòng bởi status của phòng chat
     List<ChatRoom> findByStatus(ChatRoomStatus status);
+    //Tìm phòng cho dù là staff hay customer
+    List<ChatRoom> findByCustomerIdOrStaffId(Long customerId, Long staffId);
 }
