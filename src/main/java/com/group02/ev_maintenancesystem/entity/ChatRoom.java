@@ -31,7 +31,7 @@ public class ChatRoom {
     User customer;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "staff_id", nullable = false)
+    @JoinColumn(name = "staff_id")
     User staff;
 
 

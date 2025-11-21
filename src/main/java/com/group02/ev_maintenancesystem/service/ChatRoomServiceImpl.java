@@ -140,7 +140,7 @@ public class ChatRoomServiceImpl implements  ChatRoomService {
         return messages.stream()
                 .map(msg -> {
                             RoomMessageDTO dto = modelMapper.map(msg, RoomMessageDTO.class);
-                            if (dto.getSenderId() != null){
+                            if (msg.getSender() != null){
                                 dto.setSenderId(msg.getSender().getId());
                             dto.setSenderName(msg.getSender().getFullName() != null ? msg.getSender().getFullName() : msg.getSender().getUsername());
                         }else{
