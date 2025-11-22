@@ -33,7 +33,7 @@ public class PartUsage extends BaseEntity {
     @JoinColumn(name = "spare_part_id", nullable = false)
     SparePart sparePart;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "record_id", nullable = false)
     MaintenanceRecord maintenanceRecord;
 

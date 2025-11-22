@@ -41,7 +41,7 @@ public class Vehicle extends BaseEntity{
     @JoinColumn(name = "model_id", nullable = false)
     VehicleModel model;
 
-    @OneToMany(mappedBy = "vehicle")
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<Appointment> appointments = new ArrayList<>();
 
 

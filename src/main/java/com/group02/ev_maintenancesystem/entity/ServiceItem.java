@@ -30,7 +30,7 @@ public class ServiceItem extends BaseEntity {
     String description;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "serviceItem")
+    @OneToMany(mappedBy = "serviceItem", fetch = FetchType.LAZY)
     List<ModelPackageItem> modelPackageItems = new ArrayList<>();
 
 

@@ -31,13 +31,13 @@ public class ServiceCenter extends BaseEntity {
 
     String phone;
 
-    @OneToMany(mappedBy = "serviceCenter")
+    @OneToMany(mappedBy = "serviceCenter", fetch = FetchType.LAZY)
     List<User> users;
 
-    @OneToMany(mappedBy = "serviceCenter")
+    @OneToMany(mappedBy = "serviceCenter", fetch = FetchType.LAZY)
     @JsonIgnore
     List<Appointment> appointments;
 
-    @OneToMany(mappedBy = "serviceCenter")
+    @OneToMany(mappedBy = "serviceCenter", fetch = FetchType.LAZY)
     List<Invoice> invoices;
 }

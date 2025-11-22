@@ -22,10 +22,10 @@ public class VehicleModel extends  BaseEntity {
     @Column(name = "model_year")
     String modelYear;
 
-    @OneToMany (mappedBy = "model")
+    @OneToMany (mappedBy = "model", fetch = FetchType.LAZY)
     List<Vehicle> vehicles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "vehicleModel")
+    @OneToMany(mappedBy = "vehicleModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<ModelPackageItem> modelPackageItems = new ArrayList<>();
 
 }

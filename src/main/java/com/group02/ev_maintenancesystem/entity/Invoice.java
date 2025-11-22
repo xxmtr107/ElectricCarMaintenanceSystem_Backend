@@ -28,7 +28,7 @@ public class Invoice extends BaseEntity {
     @JoinColumn(name = "record_id")
     MaintenanceRecord maintenanceRecord;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<Payment> payments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)

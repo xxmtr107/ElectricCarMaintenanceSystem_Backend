@@ -32,7 +32,7 @@ public class Payment extends BaseEntity{
     String transactionCode;
 
     // Relationships
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
 

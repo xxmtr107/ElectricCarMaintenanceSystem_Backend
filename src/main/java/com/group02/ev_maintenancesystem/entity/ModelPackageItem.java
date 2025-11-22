@@ -36,7 +36,7 @@ public class ModelPackageItem extends BaseEntity {
     MaintenanceActionType actionType;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "included_spare_part_id") // Thêm cột này vào CSDL
     SparePart includedSparePart;
 
