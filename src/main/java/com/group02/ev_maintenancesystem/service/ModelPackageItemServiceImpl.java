@@ -65,10 +65,24 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         ModelPackageItem modelPackageItem = modelPackageItemMapper.toModelPackageItem(request);
         modelPackageItem.setVehicleModel(vehicleModel);
         modelPackageItem.setServiceItem(serviceItem);
-        // Không set servicePackage nữa
-        // modelPackageItem.setMilestoneKm(request.getMilestoneKm()); // Mapper đã làm
-        // modelPackageItem.setActionType(request.getActionType()); // Mapper đã làm
-        // modelPackageItem.setPrice(request.getPrice()); // Mapper đã làm
+        // --- ADD THIS LOGIC ---
+        if (request.getIncludedSparePartId() != null) {
+            SparePart sparePart = sparePartRepository.findById(request.getIncludedSparePartId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
+            modelPackageItem.setIncludedSparePart(sparePart);
+
+            // Set quantity to 1 by default if it wasn't provided
+            if (request.getIncludedQuantity() == null) {
+                modelPackageItem.setIncludedQuantity(1);
+            }
+            // If quantity WAS provided, the mapper already set it
+
+        } else {
+            // Ensure these are null/0 if no ID is sent
+            modelPackageItem.setIncludedSparePart(null);
+            modelPackageItem.setIncludedQuantity(0);
+        }
+        // --- END OF ADDED LOGIC ---
 
         ModelPackageItem savedItem = modelPackageItemRepository.save(modelPackageItem);
         return modelPackageItemMapper.toModelPackageItemResponse(savedItem);

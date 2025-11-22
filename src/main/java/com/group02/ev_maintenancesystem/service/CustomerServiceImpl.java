@@ -33,11 +33,14 @@ public class CustomerServiceImpl implements CustomerService {
     public UserResponse registerCustomer(UserRegistrationRequest request) {
         User customer = userMapper.toUser(request);
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        log.info("1");
         customer.setRole(Role.CUSTOMER);
+        log.info("2");
         try {
             customer = userRepository.save(customer);
-            userRepository.flush();
+            if(userRepository.existsByEmail(customer.getEmail())) {
+                log.info("Tao thanh cong");
+            }
             log.info("Saving customer success, now sending email...");
             emailService.sendAccountCreationEmail(customer, request.getPassword());
         } catch (DataIntegrityViolationException e) {

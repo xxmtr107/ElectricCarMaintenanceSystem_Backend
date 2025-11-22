@@ -141,7 +141,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             log.info(">>> SENDING EMAIL...");
             emailService.sendAppointmentConfirmation(savedAppointment);
-            log.info(">>> EMAIL SENT SUCCESS");
         } catch (Exception e) {
             log.error(">>> EMAIL SEND FAILED: {}", e.getMessage(), e);
         }

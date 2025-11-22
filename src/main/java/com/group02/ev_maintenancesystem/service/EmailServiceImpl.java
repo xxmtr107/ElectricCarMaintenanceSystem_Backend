@@ -6,10 +6,12 @@ import com.group02.ev_maintenancesystem.enums.AppointmentStatus; // THÊM MỚI
 import com.group02.ev_maintenancesystem.enums.EmailType;
 import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import com.group02.ev_maintenancesystem.repository.*;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j; // THÊM MỚI
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,8 +28,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-@Slf4j // THÊM MỚI
+@Slf4j
 public class EmailServiceImpl implements EmailService {
+
+    @Value("${spring.mail.username}")
+    private String mailUsername;
+
+    @Value("${spring.mail.password}")
+    private String mailPassword;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -47,7 +55,16 @@ public class EmailServiceImpl implements EmailService {
     private MaintenanceService maintenanceService;
 
     @Autowired
-    private InvoiceRepository invoiceRepository; // <-- THÊM MỚI
+    private InvoiceRepository invoiceRepository;
+
+    /// kiểm tra cấu hình email đúng chưa
+    @PostConstruct
+    public void init() {
+        log.info("=== EMAIL CONFIGURATION DEBUG ===");
+        log.info("Mail username: {}", mailUsername);
+        log.info("Mail password length: {}", mailPassword != null ? mailPassword.length() : 0);
+        log.info("Mail password first 4 chars: {}", mailPassword != null && mailPassword.length() >= 4 ? mailPassword.substring(0, 4) : "null");
+    }// <-- THÊM MỚI
 
     @Override
     @Scheduled(cron = "0 0 8 * * ?")
@@ -84,12 +101,14 @@ public class EmailServiceImpl implements EmailService {
                 List<ServiceCenter> stations = getServiceCenters(vehicle.getId());
                 context.setVariable("stations", stations);
 
-                String htmlContent = templateEngine.process("mailForReminderKm", context);
-                MimeMessage message = mailSender.createMimeMessage();
+                String htmlContent = templateEngine.process("mailForReminderKm", context);//đọc file html
+                MimeMessage message = mailSender.createMimeMessage();//hỗ trợ các tệp/ảnh
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+                //true là hỗ trợ nhiều phần như html,ảnh,tệp và utf-8 để cho phép tiếng việt và special characters
                 helper.setTo(email);
                 helper.setSubject("EV Maintenance System - Service Reminder");
                 helper.setText(htmlContent, true);
+                //cho email biết đây là HTML, kh phải plain text.
                 FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
                 helper.addInline("logo", res);
                 mailSender.send(message);
@@ -123,9 +142,11 @@ public class EmailServiceImpl implements EmailService {
     public List<String> upcomingAppointment() throws MessagingException {
         List<String> receivers = new ArrayList<>();
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();//22-11-2025 8:00
         LocalDateTime tomorrow = now.plusDays(1).toLocalDate().atStartOfDay();
+        // 23-11-2025 00:00,atStartOfDay sẽ lấy value là 00:00:00 của ngày hôm đó,tức đúng 0h sáng
         LocalDateTime endOfTomorrow = tomorrow.withHour(23).withMinute(59).withSecond(59).withNano(999_999_999);
+        // 23-11-2025 23:59:59.999999999 tức cuối 23-11-2025)
         List<Appointment> appointments = appointmentRepository.findByAppointmentDateBetween(tomorrow, endOfTomorrow);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
@@ -135,8 +156,7 @@ public class EmailServiceImpl implements EmailService {
             String email = appointment.getCustomerUser().getEmail();
             if (alreadySentRecently(email, EmailType.APPOINTMENT_REMINDER, 1)) continue;
             int count = emailRepository.countByEmailAndTypeAndAppointmentID(email, EmailType.APPOINTMENT_REMINDER,appointment.getId());
-            // để >=2 vì sẽ gửi 1 lần confirmAppointment
-            if (count >= 2) continue;
+            if (count >= 1) continue;
 
             Context context = new Context();
             context.setVariable("name", appointment.getCustomerUser().getFullName());
@@ -209,7 +229,7 @@ public class EmailServiceImpl implements EmailService {
      * Chỉ gửi mail nếu lịch hẹn ở trạng thái CONFIRMED và chưa được gửi.
      */
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
     public void sendAppointmentConfirmation(Appointment appointment){
         // Kiểm tra đầu vào
         if (appointment == null || appointment.getStatus() != AppointmentStatus.PENDING) {
@@ -264,7 +284,7 @@ public class EmailServiceImpl implements EmailService {
      * Chỉ gửi mail nếu Hóa đơn ở trạng thái PAID và chưa được gửi.
      */
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
     public void sendPaymentConfirmation(Invoice invoice) {
         // Kiểm tra đầu vào
         if (invoice == null || !"PAID".equals(invoice.getStatus())) {
@@ -331,7 +351,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
     public void sendAccountCreationEmail(User user, String rawPassword) {
         if (user == null || user.getEmail() == null) {
             log.warn("sendAccountCreationEmail called with invalid user data. Skipping.");
@@ -363,7 +383,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
     public void sendConfirmAndAssignAppointment(Appointment appointment){
         if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED ) {
             log.warn("sendConfirmAndAssignAppointment called with invalid status or null appointment. Skipping.");

@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://gondola.proxy.rlwy.net:41052/railway"
+    url: "jdbc:mysql://yamanote.proxy.rlwy.net:17394/railway"
     username: "root"
-    password: "yhnLlvlxzUMQmvdtFUKGwyxfxrHDzJtm"
+    password: "pBFiAbPDwRRmuTYpgIVevpzSnNihMUGI"
   jpa:
     hibernate:
         ddl-auto: validate
@@ -23,6 +23,24 @@ spring:
   flyway:
     enabled: true
 
+#  thymeleaf:
+#    prefix: classpath:/Templates/
+
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: ${EMAIL_USERNAME:trungtamxedienntntb@gmail.com}  # Fallback cho local
+    password: ${EMAIL_PASSWORD:ycxrqwytcqfvlzbw}              # Fallback cho local
+    properties:
+      mail:
+        smtp:
+          ssl: true
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          debug: true
+
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
 
@@ -34,6 +52,7 @@ vnpay:
   tmn-code: "9NN5ES27"
   secret-key: "9LKB82N3Z8HEIIACANJHCWIFDLF8HB9A"
   api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
+
 
 
 springdoc:

@@ -11,6 +11,10 @@ import org.mapstruct.*;
 public interface ModelPackageItemMapper {
 
     // --- Cần bỏ qua servicePackage khi map từ Request ---
+    @Mapping(target = "actionType", source = "actionType")   // ⭐ FIX QUAN TRỌNG
+    @Mapping(target = "vehicleModel", ignore = true)
+    @Mapping(target = "serviceItem", ignore = true)
+    @Mapping(target = "includedSparePart", ignore = true)
     ModelPackageItem toModelPackageItem(ModelPackageItemRequest request);
 
     // --- Map milestoneKm và bỏ qua servicePackageId/Name trong Response ---
