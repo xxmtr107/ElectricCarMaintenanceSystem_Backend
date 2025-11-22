@@ -43,73 +43,6 @@
                     .build();
         }
 
-//        @GetMapping("/return")
-//        public ApiResponse<Boolean> handleVNPayCallBack(@RequestParam Map<String, String> params){
-//            return ApiResponse.<Boolean>builder()
-//                    .message("VNPay callback handled")
-//                    .result(service.vnpayCallBack(params))
-//                    .build();
-//        }
-
-//        @GetMapping("/return")
-//        public void handleVNPayReturn(@RequestParam Map<String, String> params, HttpServletResponse response) throws IOException {
-//            // Lấy URL frontend từ config
-//            String frontendReturnUrl = vnPayConfig.getVnp_ReturnUrl();
-//
-//            // Tạo chuỗi query string từ các tham số VNPay trả về
-//            String queryString = params.entrySet().stream()
-//                    .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
-//                    .collect(Collectors.joining("&"));
-//
-//            // Redirect về frontend
-//            response.sendRedirect(frontendReturnUrl + "?" + queryString);
-//        }
-//        @GetMapping("/ipn")
-//        public ResponseEntity<Map<String, String>> handleVNPayIpn(@RequestParam Map<String, String> params) {
-//            log.info("Received IPN call from VNPay Server: {}", params);
-//            Map<String, String> response = new HashMap<>();
-//
-//            try {
-//                // TÁI SỬ DỤNG logic: xác thực, cập nhật DB
-//                boolean paymentSuccess = service.vnpayCallBack(params);
-//
-//                if (paymentSuccess) {
-//                    response.put("RspCode", "00");
-//                    response.put("Message", "Confirm Success");
-//                } else {
-//                    response.put("RspCode", "99"); // Lỗi chung
-//                    response.put("Message", "Transaction failed or cancelled");
-//                }
-//            } catch (AppException e) {
-//                log.error("IPN Error (AppException): {}", e.getMessage());
-//                if (e.getErrorCode() == ErrorCode.SIGNATURE_INVALID) {
-//                    response.put("RspCode", "97");
-//                    response.put("Message", "Invalid Checksum");
-//                } else if (e.getErrorCode() == ErrorCode.PAYMENT_NOT_FOUND) {
-//                    response.put("RspCode", "01");
-//                    response.put("Message", "Order not Found");
-//                } else {
-//                    response.put("RspCode", "99");
-//                    response.put("Message", "Unknown error");
-//                }
-//            } catch (Exception e) {
-//                log.error("IPN Error (General Exception): {}", e.getMessage(), e);
-//                response.put("RspCode", "99");
-//                response.put("Message", "Unknown error");
-//            }
-//
-//            log.info("IPN Response: {}", response);
-//            return response.; // Trả về JSON cho server VNPay
-//        }
-
-
-//        @GetMapping("/status/{transactionCode}")
-//        public ApiResponse<PaymentStatus> getPaymentStatus(@PathVariable String transactionCode) {
-//            return ApiResponse.<PaymentStatus>builder()
-//                    .message("Payment status fetched")
-//                    .result(service.getPaymentStatusByTransactionCode(transactionCode))
-//                    .build();
-//        }
 
 
         @GetMapping("/return")
@@ -123,7 +56,7 @@
 
             // 2. Chuyển hướng về frontend
             // (Đây là ví dụ, bạn nên lấy URL frontend từ config)
-            String frontendUrl = vnPayConfig.getVnp_PayUrl();
+            String frontendUrl = vnPayConfig.getVnp_ReturnUrl();
 
             String redirectUrl;
             if (paymentSuccess){
