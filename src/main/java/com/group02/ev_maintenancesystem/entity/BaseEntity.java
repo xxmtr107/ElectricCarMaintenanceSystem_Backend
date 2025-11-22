@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.*;
 import jakarta.persistence.MappedSuperclass;
@@ -37,6 +38,10 @@ public abstract class BaseEntity {
     @CreatedBy // Automatically set the user who created the entity
     @Column(name = "created_by", updatable = false)
     private String createdBy;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "record_status", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'ACTIVE'")
+    private GeneralStatus recordStatus = GeneralStatus.ACTIVE;
 
     @JsonIgnore
     @LastModifiedBy // Automatically set the user who last modified the entity
