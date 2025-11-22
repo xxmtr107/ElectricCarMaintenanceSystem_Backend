@@ -19,4 +19,5 @@ public class AppointmentServiceItemDetailResponse {
     BigDecimal price; // Giá thực tế
     Boolean customerApproved; // Khách hàng/Staff đã duyệt chưa
     String technicianNotes; // Ghi chú của KTV
+
 }

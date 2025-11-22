@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class ServiceItemResponse {
     private String name;
     private BigDecimal price;
     private String description;
+    GeneralStatus recordStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

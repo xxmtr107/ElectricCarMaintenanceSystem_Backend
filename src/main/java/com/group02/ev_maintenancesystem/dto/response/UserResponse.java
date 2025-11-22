@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
 import com.group02.ev_maintenancesystem.enums.Gender;
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,6 +23,7 @@ public class UserResponse {
     String role;
     Long serviceCenterId;
     String serviceCenterName;
+    GeneralStatus recordStatus;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

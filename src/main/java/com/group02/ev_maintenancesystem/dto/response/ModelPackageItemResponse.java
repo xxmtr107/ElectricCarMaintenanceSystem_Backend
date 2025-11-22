@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,7 +32,7 @@ public class ModelPackageItemResponse {
     String includedSparePartName;
     String includedSparePartNumber;
     Integer includedQuantity;
-
+    GeneralStatus recordStatus;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

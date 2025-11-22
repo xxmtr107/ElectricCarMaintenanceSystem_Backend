@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class ServiceCenterResponse {
     private String district;
     private String city;
     private String phone;
+    GeneralStatus recordStatus;
     private LocalDateTime createdAt;
     private String createdBy;
     private LocalDateTime updatedAt;

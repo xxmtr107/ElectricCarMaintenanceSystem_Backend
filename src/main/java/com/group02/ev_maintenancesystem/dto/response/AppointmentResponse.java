@@ -5,6 +5,7 @@ import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import jakarta.persistence.Column;
 import lombok.*;
@@ -50,6 +51,7 @@ public class AppointmentResponse {
     Integer milestoneKm;
     List<ModelPackageItemDTO> serviceItems;
 
+    GeneralStatus recordStatus;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

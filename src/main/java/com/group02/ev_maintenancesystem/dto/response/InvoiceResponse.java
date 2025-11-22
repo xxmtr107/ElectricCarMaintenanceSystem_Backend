@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,7 +19,7 @@ public class InvoiceResponse {
     Long maintenanceRecordId;
     Long serviceCenterId;
     String serviceCenterName;
-
+    GeneralStatus recordStatus;
     // Chi tiết đầy đủ của Maintenance Record (bao gồm dịch vụ và phụ tùng)
     MaintenanceRecordResponse maintenanceRecord;
 

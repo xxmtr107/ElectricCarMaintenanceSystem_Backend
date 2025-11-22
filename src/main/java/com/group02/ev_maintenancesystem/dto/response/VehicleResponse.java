@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class VehicleResponse {
     LocalDate purchaseYear;
     Long modelId;
     Long customerId;
+    GeneralStatus recordStatus;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

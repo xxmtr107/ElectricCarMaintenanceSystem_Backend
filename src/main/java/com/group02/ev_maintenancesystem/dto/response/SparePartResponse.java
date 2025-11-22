@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.dto.response;
 
+import com.group02.ev_maintenancesystem.enums.GeneralStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,6 +20,7 @@ public class SparePartResponse {
     Integer minimumStockLevel;
     String categoryName;
     String categoryCode;
+    GeneralStatus recordStatus;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;
