@@ -5,12 +5,12 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://yamanote.proxy.rlwy.net:17394/railway"
+    url: "jdbc:mysql://interchange.proxy.rlwy.net:59917/railway"
     username: "root"
-    password: "pBFiAbPDwRRmuTYpgIVevpzSnNihMUGI"
+    password: "LqlgUrmKyhsgyYFcQEWEfuyjMmAUNvgH"
   jpa:
     hibernate:
-        ddl-auto: update
+        ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
