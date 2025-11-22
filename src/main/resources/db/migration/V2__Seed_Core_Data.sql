@@ -66,21 +66,6 @@ VALUES
     ('Vin3S Showroom 314 Nguyen Anh Thu - Hiep Thanh', '314A Nguyen Anh Thu Street, Hiep Thanh Ward', 'District 12', 'Ho Chi Minh City', '0796621621'),
     ('Vin3S Showroom Nha Be', '2250 Huynh Tan Phat Street, Phu Xuan Commune', 'Nha Be District', 'Ho Chi Minh City', '0946143939'),
     ('Vin3S Showroom Cu Chi Center', '158 TL8, Cu Chi Town', 'Cu Chi District', 'Ho Chi Minh City', '0904404692'),
-    ('Vin3S Showroom 217A Ben Van Don', '217A Ben Van Don Street, Ward 2', 'District 4', 'Ho Chi Minh City', '0938362217'),
-    ('Vin3S Showroom 57 Pham Ngoc Thach', '57 Pham Ngoc Thach Street, Ward 6', 'District 3', 'Ho Chi Minh City', '0938399843'),
-    ('Vin3S Showroom Le Quang Dinh', '486 Le Quang Dinh Street, Ward 11', 'Binh Thanh District', 'Ho Chi Minh City', '0796553553'),
-    ('Vin3S Showroom Nguyen Thi Tu', '212 Nguyen Thi Tu Street, Quarter 2, Binh Hung Hoa B Ward', 'Binh Tan District', 'Ho Chi Minh City', '0973565179'),
-    ('Vin3S Showroom 677 Au Co', '677 Au Co Street, Tan Thanh Ward', 'Tan Phu District', 'Ho Chi Minh City', '0971971010'),
-    ('Vin3S Showroom 594 Le Van Quoi', '594 Le Van Quoi Street, Binh Hung Hoa A Ward', 'Binh Tan District', 'Ho Chi Minh City', '0867036536'),
-    ('Vin3S Showroom 307 Lac Long Quan', '305-307-309 Lac Long Quan Street, Ward 3', 'District 11', 'Ho Chi Minh City', '0979905353'),
-    ('Vin3S Showroom 255 Hiep Binh Phuoc', '255 National Highway 13, Hiep Binh Phuoc Ward', 'Thu Duc City', 'Ho Chi Minh City', '0964100808'),
-    ('Vin3S Showroom 460 Nguyen Van Luong', '460 Nguyen Van Luong Street, Ward 12', 'District 6', 'Ho Chi Minh City', '0971801010'),
-    ('Vin3S Showroom 337 Do Xuan Hop', '337 Do Xuan Hop Street, Phuoc Long B Ward', 'Thu Duc City', 'Ho Chi Minh City', '0768420420'),
-    ('Vin3S Showroom Binh Chanh', 'C8/1 Pham Hung Street, Binh Hung Commune', 'Binh Chanh District', 'Ho Chi Minh City', '0963764839'),
-    ('Authorized 3S Distributor VinFast Thuan Nhan', '447-447A-447B Cong Hoa Street, Ward 15', 'Tan Binh District', 'Ho Chi Minh City', '0965201018'),
-    ('Authorized 3S Distributor VinFast Skytt', '214 Nguyen Oanh Street, Ward 17', 'Go Vap District', 'Ho Chi Minh City', '02873032689'),
-    ('VinFast Le Van Viet', '1st Floor, Vincom Plaza Le Van Viet, 50 Le Van Viet Street, Hiep Phu Ward', 'District 9', 'Ho Chi Minh City', '0981335517'),
-    ('VinFast Thao Dien', 'L1 Floor, Vincom Mega Mall Thao Dien, 159 Xa Lo Ha Noi, Thao Dien Ward', 'District 2', 'Ho Chi Minh City', '0981335514');
 
        INSERT IGNORE INTO spare_parts
 (part_number, name, unit_price, quantity_in_stock, minimum_stock_level, category_name, category_code, create_at, created_by, update_at, updated_by)

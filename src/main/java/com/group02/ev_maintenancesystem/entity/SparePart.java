@@ -40,7 +40,7 @@ public class SparePart extends  BaseEntity {
     @Column(name = "category_code")
     String categoryCode;
     // Relationships
-    @OneToMany(mappedBy = "sparePart", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sparePart")
     List<PartUsage> partUsages = new ArrayList<>();
 
 }

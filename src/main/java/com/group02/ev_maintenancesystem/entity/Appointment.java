@@ -49,7 +49,7 @@ public class Appointment extends BaseEntity {
     @Column(name = "service_package_name")
     String servicePackageName;
 
-    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "appointment", orphanRemoval = true)
     @Builder.Default
     List<AppointmentServiceItemDetail> serviceDetails = new ArrayList<>();
 

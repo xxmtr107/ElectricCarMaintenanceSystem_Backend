@@ -55,13 +55,13 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     Role role;
 
-    @OneToMany(mappedBy = "customerUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerUser")
     List<Vehicle> vehicles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customerUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerUser")
     List<Appointment> customerAppointments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "technicianUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "technicianUser")
     List<Appointment> technicianAppointments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)

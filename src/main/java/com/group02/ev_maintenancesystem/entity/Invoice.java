@@ -24,7 +24,7 @@ public class Invoice extends BaseEntity {
     String status;
 
     // Relationships
-    @OneToOne(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "record_id")
     MaintenanceRecord maintenanceRecord;
 

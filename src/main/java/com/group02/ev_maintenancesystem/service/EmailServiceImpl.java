@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -208,6 +209,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendAppointmentConfirmation(Appointment appointment) {
         if (appointment == null || appointment.getStatus() != AppointmentStatus.PENDING) return;
@@ -236,6 +238,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendPaymentConfirmation(Invoice invoice) {
         if (invoice == null || !"PAID".equals(invoice.getStatus())) return;
@@ -268,6 +271,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendAccountCreationEmail(User user, String rawPassword) {
         if (user == null || user.getEmail() == null) return;
@@ -286,6 +290,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendConfirmAndAssignAppointment(Appointment appointment) {
         if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED) return;
@@ -322,6 +327,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendPasswordResetEmail(User user, String token) {
         if (user == null || user.getEmail() == null || token == null) return;
 
