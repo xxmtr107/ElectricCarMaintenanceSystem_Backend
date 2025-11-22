@@ -41,6 +41,10 @@ spring:
             required: true
           debug: true
 
+resend:
+  api-key: "re_QQ6NwnAm_4nRY1fPh1bNj6HsW3EVpNWg8"
+  from-email: "trietpm.ce190589@gmail.com"
+
 jwt:
   signerKey: "QnH/fRs+uwNd2FoCyreG4O1xAd0v3/lEX6pTTRTQzHea9YtyVYrpuTOj31XK9Y2D"
 

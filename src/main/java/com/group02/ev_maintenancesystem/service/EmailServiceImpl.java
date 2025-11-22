@@ -2,116 +2,134 @@ package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.MaintenanceRecommendationDTO;
 import com.group02.ev_maintenancesystem.entity.*;
-import com.group02.ev_maintenancesystem.enums.AppointmentStatus; // THÊM MỚI
+import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import com.group02.ev_maintenancesystem.enums.EmailType;
 import com.group02.ev_maintenancesystem.enums.PaymentStatus;
 import com.group02.ev_maintenancesystem.repository.*;
 import jakarta.annotation.PostConstruct;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import lombok.extern.slf4j.Slf4j; // THÊM MỚI
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.springframework.core.io.FileSystemResource;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-@Slf4j // THÊM MỚI
+@Slf4j
+@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    @Value("${spring.mail.username}")
-    private String mailUsername;
+    // private final Resend resend; // <-- XÓA DÒNG NÀY
+    private final RestTemplate restTemplate = new RestTemplate(); // Khởi tạo trực tiếp hoặc Inject nếu đã có Bean
 
-    @Value("${spring.mail.password}")
-    private String mailPassword;
+    private final TemplateEngine templateEngine;
+    private final VehicleRepository vehicleRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final ServiceCenterRepository serviceCenterRepository;
+    private final PaymentRepository paymentRepository;
+    private final EmailRepository emailRepository;
+    private final MaintenanceService maintenanceService;
 
-    @Autowired
-    private JavaMailSender mailSender;
-    @Autowired
-    private TemplateEngine templateEngine;
-    @Autowired
-    VehicleRepository vehicleRepository;
-    @Autowired
-    AppointmentRepository appointmentRepository;
-    @Autowired
-    ServiceCenterRepository serviceCenterRepository;
-    @Autowired
-    PaymentRepository paymentRepository;
-    @Autowired
-    EmailRepository emailRepository;
-    @Autowired
-    private MaintenanceService maintenanceService;
+    @Value("${resend.api-key}")
+    private String apiKey; // Lấy API Key từ file config
 
-    @Autowired
-    private InvoiceRepository invoiceRepository;
+    @Value("${resend.from-email}")
+    private String fromEmail;
 
     @PostConstruct
     public void init() {
-        log.info("=== EMAIL CONFIGURATION DEBUG ===");
-        log.info("Mail username: {}", mailUsername);
-        log.info("Mail password length: {}", mailPassword != null ? mailPassword.length() : 0);
-        log.info("Mail password first 4 chars: {}", mailPassword != null && mailPassword.length() >= 4 ? mailPassword.substring(0, 4) : "null");
-    }// <-- THÊM MỚI
+        log.info("=== EMAIL SERVICE INITIALIZED (USING REST TEMPLATE) ===");
+    }
+
+    // --- HÀM GỬI MAIL MỚI DÙNG REST TEMPLATE ---
+    private void sendEmailViaResend(String to, String subject, String htmlContent) {
+        String url = "https://api.resend.com/emails";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
+
+        // --- CẤU HÌNH CHÍNH THỨC (PRODUCTION) ---
+        Map<String, Object> body = new HashMap<>();
+
+        // 1. From: Lấy từ config (đã verify domain)
+        // Ví dụ: "NTNTB System <no-reply@yourdomain.com>"
+        body.put("from", "NTNTB System <" + fromEmail + ">");
+
+        // 2. To: Gửi trực tiếp cho khách hàng (tham số 'to')
+        body.put("to", Collections.singletonList(to));
+
+        // 3. Subject & Content: Giữ nguyên
+        body.put("subject", subject);
+        body.put("html", htmlContent);
+        // -----------------------------------------
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Email sent successfully to [{}]. ID: {}", to, response.getBody());
+            } else {
+                log.error("Failed to send email to [{}]. Status: {}, Body: {}", to, response.getStatusCode(), response.getBody());
+            }
+        } catch (RestClientException e) {
+            log.error("Exception when calling Resend API for [{}]: {}", to, e.getMessage());
+        }
+    }
+
+    // =========================================================================
+    // CÁC HÀM LOGIC NGHIỆP VỤ BÊN DƯỚI GIỮ NGUYÊN
+    // (Chỉ cần đảm bảo chúng gọi hàm sendEmailViaResend ở trên)
+    // =========================================================================
 
     @Override
     @Scheduled(cron = "0 0 8 * * ?")
-    public List<String> reminderMaintenance() throws MessagingException {
-
+    public List<String> reminderMaintenance() {
         List<Vehicle> vehicles = vehicleRepository.findAll();
         List<String> receivers = new ArrayList<>();
 
         for (Vehicle vehicle : vehicles) {
-            // 1. Gọi service "thông minh" để lấy đề xuất
             List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId());
 
-            // 2. Nếu có đề xuất (tức là xe đến hạn)
             if (recommendations != null && !recommendations.isEmpty()) {
-                MaintenanceRecommendationDTO recommendation = recommendations.get(0); // Lấy đề xuất đầu tiên
+                MaintenanceRecommendationDTO recommendation = recommendations.get(0);
                 int currentKm = vehicle.getCurrentKm();
                 int serviceKm = recommendation.getMilestoneKm();
                 String email = vehicle.getCustomerUser().getEmail();
 
-                // 3. Kiểm tra xem đã gửi email cho mốc này với số km này chưa
-                // (Tránh spam nếu xe không được cập nhật km và chạy cron mỗi ngày)
                 int count = emailRepository.countByEmailAndTypeAndCurrentKmAndVehicleID(email, EmailType.KM, currentKm, vehicle.getId());
-                if (count >= 1) {
-                    continue; // Đã gửi rồi, bỏ qua
-                }
+                if (count >= 1) continue;
 
-                // 4. Gửi email
                 Context context = new Context();
                 context.setVariable("name", vehicle.getCustomerUser().getFullName());
                 context.setVariable("vin", vehicle.getVin());
                 context.setVariable("vehicle", vehicle.getModel().getName());
                 context.setVariable("currentKm", currentKm);
-                context.setVariable("serviceKm", serviceKm); // Mốc KM được đề xuất
+                context.setVariable("serviceKm", serviceKm);
                 List<ServiceCenter> stations = getServiceCenters(vehicle.getId());
                 context.setVariable("stations", stations);
 
                 String htmlContent = templateEngine.process("mailForReminderKm", context);
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-                helper.setTo(email);
-                helper.setSubject("EV Maintenance System - Service Reminder");
-                helper.setText(htmlContent, true);
-                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-                helper.addInline("logo", res);
-                mailSender.send(message);
 
-                // 5. Lưu lại email đã gửi
+                // GỌI HÀM MỚI
+                sendEmailViaResend(email, "EV Maintenance System - Service Reminder", htmlContent);
+
                 saveEmail(email, EmailType.KM, currentKm, vehicle.getId(), null, null, null, null, null);
                 receivers.add(email);
             }
@@ -119,40 +137,20 @@ public class EmailServiceImpl implements EmailService {
         return receivers;
     }
 
-
-    public List<ServiceCenter> getServiceCenters(Long vehicleId) {
-        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
-        Map<Long, ServiceCenter> map = new LinkedHashMap<>();
-
-        for (Appointment appointment : appointments) {
-            ServiceCenter sc = serviceCenterRepository.findServiceCenterByAppointments_Id(appointment.getId());
-            if (sc != null) {
-                map.putIfAbsent(sc.getId(), sc);
-            }
-        }
-
-        return new ArrayList<>(map.values());
-    }
-
-
     @Override
     @Scheduled(cron = "0 0 8 * * ?")
-    public List<String> upcomingAppointment() throws MessagingException {
+    public List<String> upcomingAppointment() {
         List<String> receivers = new ArrayList<>();
-
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime tomorrow = now.plusDays(1).toLocalDate().atStartOfDay();
         LocalDateTime endOfTomorrow = tomorrow.withHour(23).withMinute(59).withSecond(59).withNano(999_999_999);
         List<Appointment> appointments = appointmentRepository.findByAppointmentDateBetween(tomorrow, endOfTomorrow);
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
         for (Appointment appointment : appointments) {
-
             String email = appointment.getCustomerUser().getEmail();
             if (alreadySentRecently(email, EmailType.APPOINTMENT_REMINDER, 1)) continue;
             int count = emailRepository.countByEmailAndTypeAndAppointmentID(email, EmailType.APPOINTMENT_REMINDER, appointment.getId());
-            // để >=2 vì sẽ gửi 1 lần confirmAppointment
             if (count >= 2) continue;
 
             Context context = new Context();
@@ -163,17 +161,14 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("address", appointment.getServiceCenter().getAddress());
             context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
             context.setVariable("phone", appointment.getServiceCenter().getPhone());
+
             String htmlContent = templateEngine.process("mailForReminderSchedule", context);
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setTo(email);
-            helper.setSubject("EV Maintenance System - Appointment Reminder");
-            helper.setText(htmlContent, true);
-            FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-            helper.addInline("logo", res);
-            mailSender.send(message);
+
+            // GỌI HÀM MỚI
+            sendEmailViaResend(email, "EV Maintenance System - Appointment Reminder", htmlContent);
+
             saveEmail(email, EmailType.APPOINTMENT_REMINDER, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
-            receivers.add(appointment.getCustomerUser().getEmail());
+            receivers.add(email);
         }
         return receivers;
     }
@@ -181,16 +176,13 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Scheduled(cron = "0 0 8 * * ?")
     @Transactional
-    public List<String> remindPayment() throws MessagingException {
+    public List<String> remindPayment() {
         List<String> receivers = new ArrayList<>();
         List<Payment> list = paymentRepository.findAll();
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
         for (Payment payment : list) {
-            if (payment.getStatus().equals(PaymentStatus.UN_PAID) ||
-                    payment.getStatus().equals(PaymentStatus.FAILED)) {
-
+            if (payment.getStatus().equals(PaymentStatus.UN_PAID) || payment.getStatus().equals(PaymentStatus.FAILED)) {
                 String email = payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail();
                 int count = emailRepository.countByEmailAndTypeAndPaymentIDAndStatus(email, EmailType.PAYMENT_REMINDER, payment.getId(), EmailRecord.MailPaymentStatus.Not_Success);
                 if (count >= 1) continue;
@@ -201,297 +193,177 @@ public class EmailServiceImpl implements EmailService {
                 context.setVariable("vehicle", payment.getInvoice().getMaintenanceRecord().getAppointment().getVehicle().getModel().getName());
                 context.setVariable("invoiceNo", payment.getInvoice().getId());
                 context.setVariable("amount", payment.getInvoice().getTotalAmount());
-                // DUE DATE IS APPOINTMENT DATE
                 context.setVariable("dueDate", payment.getInvoice().getMaintenanceRecord().getAppointment().getAppointmentDate().format(formatter));
 
                 String htmlContent = templateEngine.process("mailForReminderPayment", context);
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-                helper.setTo(email);
-                helper.setSubject("EV Maintenance System - Checkout Reminder");
-                helper.setText(htmlContent, true);
-                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-                helper.addInline("logo", res);
-                mailSender.send(message);
+
+                // GỌI HÀM MỚI
+                sendEmailViaResend(email, "EV Maintenance System - Checkout Reminder", htmlContent);
+
                 saveEmail(email, EmailType.PAYMENT_REMINDER, null, null, null, payment.getId(), payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Not_Success);
-                receivers.add(payment.getInvoice().getMaintenanceRecord().getAppointment().getCustomerUser().getEmail());
+                receivers.add(email);
             }
         }
         return receivers;
     }
 
-    /**
-     * ĐÃ CẬP NHẬT LOGIC:
-     * Chuyển thành hàm public void, được gọi trực tiếp từ AppointmentServiceImpl.
-     * Chỉ gửi mail nếu lịch hẹn ở trạng thái CONFIRMED và chưa được gửi.
-     */
-
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendAppointmentConfirmation(Appointment appointment) {
-        // Kiểm tra đầu vào
-        if (appointment == null || appointment.getStatus() != AppointmentStatus.PENDING) {
-            log.warn("sendAppointmentConfirmation called with invalid status or null appointment. Skipping.");
-            return;
-        }
+        if (appointment == null || appointment.getStatus() != AppointmentStatus.PENDING) return;
 
-        // Kiểm tra xem đã từng gửi mail CONFIRM cho lịch này CHƯA
         boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentID(
-                appointment.getCustomerUser().getEmail(),
-                EmailType.APPOINTMENT_CONFIRMATION,
-                appointment.getId()
-        );
+                appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMATION, appointment.getId());
 
         if (!alreadySent) {
-            try {
-                Context context = new Context();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+            Context context = new Context();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+            context.setVariable("name", appointment.getCustomerUser().getFullName());
+            context.setVariable("dateTime", appointment.getAppointmentDate().format(formatter));
+            context.setVariable("center", appointment.getServiceCenter().getName());
+            context.setVariable("address", appointment.getServiceCenter().getAddress());
+            context.setVariable("vin", appointment.getVehicle().getVin());
+            context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
+            context.setVariable("phone", appointment.getServiceCenter().getPhone());
 
-                context.setVariable("name", appointment.getCustomerUser().getFullName());
-                context.setVariable("dateTime", appointment.getAppointmentDate().format(formatter));
-                context.setVariable("center", appointment.getServiceCenter().getName());
-                context.setVariable("address", appointment.getServiceCenter().getAddress());
-                context.setVariable("vin", appointment.getVehicle().getVin());
-                context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
-                context.setVariable("phone", appointment.getServiceCenter().getPhone());
+            String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context);
 
-                String htmlContent = templateEngine.process("mailForAppointmentConfirmation", context);
+            // GỌI HÀM MỚI
+            sendEmailViaResend(appointment.getCustomerUser().getEmail(), "EV Maintenance System - Appointment Confirmation", htmlContent);
 
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-                helper.setTo(appointment.getCustomerUser().getEmail());
-                helper.setSubject("EV Maintenance System - Appointment Confirmation");
-                helper.setText(htmlContent, true);
-                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-                helper.addInline("logo", res);
-                mailSender.send(message);
-
-                // Ghi lại email đã gửi
-                saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMATION, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
-                log.info("Sent appointment confirmation email for appointment ID: {}", appointment.getId());
-            } catch (Exception e) {
-                log.error("Failed to send appointment confirmation email for ID {}: {}", appointment.getId(), e.getMessage());
-            }
+            saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMATION, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), null, null);
         }
     }
-
-
-    /**
-     * ĐÃ CẬP NHẬT LOGIC:
-     * Chuyển thành hàm public void, được gọi trực tiếp từ VNPayServiceImpl.
-     * Chỉ gửi mail nếu Hóa đơn ở trạng thái PAID và chưa được gửi.
-     */
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendPaymentConfirmation(Invoice invoice) {
-        // Kiểm tra đầu vào
-        if (invoice == null || !"PAID".equals(invoice.getStatus())) {
-            log.warn("sendPaymentConfirmation called with invalid status or null invoice. Skipping.");
-            return;
-        }
+        if (invoice == null || !"PAID".equals(invoice.getStatus())) return;
 
-        String email = invoice
-                .getMaintenanceRecord()
-                .getAppointment()
-                .getCustomerUser()
-                .getEmail();
-
-        // Tìm Payment ID tương ứng để ghi log
-        Payment payment = invoice.getPayments().stream()
-                .filter(p -> p.getStatus() == PaymentStatus.PAID)
-                .findFirst() // Lấy payment PAID đầu tiên
-                .orElse(null);
-
-        if (payment == null) {
-            log.warn("Invoice {} is PAID but has no corresponding PAID Payment entity. Skipping email.", invoice.getId());
-            return;
-        }
+        String email = invoice.getMaintenanceRecord().getAppointment().getCustomerUser().getEmail();
+        Payment payment = invoice.getPayments().stream().filter(p -> p.getStatus() == PaymentStatus.PAID).findFirst().orElse(null);
+        if (payment == null) return;
 
         Long paymentId = payment.getId();
-
-        boolean alreadySent = emailRepository.existsByEmailAndTypeAndPaymentIDAndStatus(
-                email,
-                EmailType.PAYMENT_CONFIRMATION,
-                paymentId,
-                EmailRecord.MailPaymentStatus.Success
-        );
+        boolean alreadySent = emailRepository.existsByEmailAndTypeAndPaymentIDAndStatus(email, EmailType.PAYMENT_CONFIRMATION, paymentId, EmailRecord.MailPaymentStatus.Success);
 
         if (!alreadySent) {
-            try {
-                Context context = new Context();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+            Context context = new Context();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+            context.setVariable("name", invoice.getMaintenanceRecord().getAppointment().getCustomerUser().getFullName());
+            context.setVariable("vin", invoice.getMaintenanceRecord().getAppointment().getVehicle().getVin());
+            context.setVariable("vehicle", invoice.getMaintenanceRecord().getAppointment().getVehicle().getModel().getName());
+            context.setVariable("invoiceNo", invoice.getId());
+            context.setVariable("amount", invoice.getTotalAmount());
+            context.setVariable("paidDate", LocalDateTime.now().format(formatter));
 
-                context.setVariable("name", invoice.getMaintenanceRecord().getAppointment().getCustomerUser().getFullName());
-                context.setVariable("vin", invoice.getMaintenanceRecord().getAppointment().getVehicle().getVin());
-                context.setVariable("vehicle", invoice.getMaintenanceRecord().getAppointment().getVehicle().getModel().getName());
-                context.setVariable("invoiceNo", invoice.getId());
-                context.setVariable("amount", invoice.getTotalAmount());
-                context.setVariable("paidDate", LocalDateTime.now().format(formatter));
+            String htmlContent = templateEngine.process("mailForPaymentConfirmation", context);
 
-                String htmlContent = templateEngine.process("mailForPaymentConfirmation", context);
+            // GỌI HÀM MỚI
+            sendEmailViaResend(email, "EV Maintenance System - Payment Confirmation", htmlContent);
 
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-                helper.setTo(email);
-                helper.setSubject("EV Maintenance System - Payment Confirmation");
-                helper.setText(htmlContent, true);
-                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-                helper.addInline("logo", res);
-                mailSender.send(message);
-
-                // Ghi lại email đã gửi
-                saveEmail(email, EmailType.PAYMENT_CONFIRMATION, null, null, invoice.getMaintenanceRecord().getAppointment().getId(), paymentId,
-                        invoice.getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Success);
-                log.info("Sent payment confirmation email for invoice ID: {}", invoice.getId());
-            } catch (Exception e) {
-                log.error("Failed to send payment confirmation email for invoice ID {}: {}", invoice.getId(), e.getMessage());
-            }
+            saveEmail(email, EmailType.PAYMENT_CONFIRMATION, null, null, invoice.getMaintenanceRecord().getAppointment().getId(), paymentId,
+                    invoice.getMaintenanceRecord().getAppointment().getCustomerUser().getId(), null, EmailRecord.MailPaymentStatus.Success);
         }
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendAccountCreationEmail(User user, String rawPassword) {
-        if (user == null || user.getEmail() == null) {
-            log.warn("sendAccountCreationEmail called with invalid user data. Skipping.");
-            return;
-        }
+        if (user == null || user.getEmail() == null) return;
 
-        try {
-            Context context = new Context();
-            context.setVariable("name", user.getFullName());
-            context.setVariable("username", user.getUsername());
-            context.setVariable("password", rawPassword);
+        Context context = new Context();
+        context.setVariable("name", user.getFullName());
+        context.setVariable("username", user.getUsername());
+        context.setVariable("password", rawPassword);
 
-            String htmlContent = templateEngine.process("mailForAccountCreation", context);
+        String htmlContent = templateEngine.process("mailForAccountCreation", context);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setTo(user.getEmail());
-            helper.setSubject("EV Maintenance System - Account Created Successfully");
-            helper.setText(htmlContent, true);
-            FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-            helper.addInline("logo", res);
-            mailSender.send(message);
+        // GỌI HÀM MỚI
+        sendEmailViaResend(user.getEmail(), "EV Maintenance System - Account Created Successfully", htmlContent);
 
-            saveEmail(user.getEmail(), EmailType.ACCOUNT_CREATION, null, null, null, null, user.getId(), null, null);
-            log.info("Sent account creation email to {}", user.getEmail());
-        } catch (Exception e) {
-            log.error("Failed to send account creation email to {}: {}", user.getEmail(), e.getMessage());
-        }
+        saveEmail(user.getEmail(), EmailType.ACCOUNT_CREATION, null, null, null, null, user.getId(), null, null);
     }
-
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendConfirmAndAssignAppointment(Appointment appointment) {
-        if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED) {
-            log.warn("sendConfirmAndAssignAppointment called with invalid status or null appointment. Skipping.");
-            return;
-        }
+        if (appointment == null || appointment.getStatus() != AppointmentStatus.CONFIRMED) return;
 
         boolean alreadySent = emailRepository.existsByEmailAndTypeAndAppointmentIDAndTechnicianID(
-                appointment.getCustomerUser().getEmail(),
-                EmailType.APPOINTMENT_CONFIRMED_AND_ASSIGNED_SUCCESS,
-                appointment.getId(),
-                appointment.getTechnicianUser().getId()
-        );
+                appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMED_AND_ASSIGNED_SUCCESS, appointment.getId(), appointment.getTechnicianUser().getId());
+
         if (!alreadySent) {
-            try {
-                Context context = new Context();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+            Context context = new Context();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+            context.setVariable("name", appointment.getCustomerUser().getFullName());
+            context.setVariable("dateTime", appointment.getAppointmentDate().format(formatter));
+            context.setVariable("center", appointment.getServiceCenter().getName());
+            context.setVariable("address", appointment.getServiceCenter().getAddress());
+            context.setVariable("vin", appointment.getVehicle().getVin());
+            context.setVariable("phone", appointment.getServiceCenter().getPhone());
+            context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
 
-                // Gán các biến vào context
-                context.setVariable("name", appointment.getCustomerUser().getFullName());
-                context.setVariable("dateTime", appointment.getAppointmentDate().format(formatter));
-                context.setVariable("center", appointment.getServiceCenter().getName());
-                context.setVariable("address", appointment.getServiceCenter().getAddress());
-                context.setVariable("vin", appointment.getVehicle().getVin());
-                context.setVariable("phone", appointment.getServiceCenter().getPhone());
-                context.setVariable("vehicle", appointment.getVehicle().getModel().getName());
-
-                // Nếu có technician
-                if (appointment.getTechnicianUser() != null) {
-                    context.setVariable("technicianName", appointment.getTechnicianUser().getFullName());
-                    context.setVariable("technicianPhone", appointment.getTechnicianUser().getPhone());
-                } else {
-                    context.setVariable("technicianName", "To be assigned");
-                    context.setVariable("technicianPhone", "N/A");
-                }
-
-                // Render HTML email template
-                String htmlContent = templateEngine.process("mailForConfirmAndAssignAppointment", context);
-
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-                helper.setTo(appointment.getCustomerUser().getEmail());
-                helper.setSubject("EV Maintenance System - Appointment Confirmed & Technician Assigned");
-                helper.setText(htmlContent, true);
-                FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-                helper.addInline("logo", res);
-                mailSender.send(message);
-
-                // Lưu lại record email gửi thành công
-                saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMED_AND_ASSIGNED_SUCCESS, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), appointment.getTechnicianUser().getId(), null);
-                log.info("Sent appointment confirm & technician assign email for appointment ID: {}", appointment.getId());
-            } catch (Exception e) {
-                log.error("Failed to send confirm & assign email for appointment ID {}: {}", appointment.getId(), e.getMessage());
+            if (appointment.getTechnicianUser() != null) {
+                context.setVariable("technicianName", appointment.getTechnicianUser().getFullName());
+                context.setVariable("technicianPhone", appointment.getTechnicianUser().getPhone());
+            } else {
+                context.setVariable("technicianName", "To be assigned");
+                context.setVariable("technicianPhone", "N/A");
             }
-        } else {
-            log.info("Confirm & assign email already sent for appointment ID: {}", appointment.getId());
+
+            String htmlContent = templateEngine.process("mailForConfirmAndAssignAppointment", context);
+
+            // GỌI HÀM MỚI
+            sendEmailViaResend(appointment.getCustomerUser().getEmail(), "EV Maintenance System - Appointment Confirmed & Technician Assigned", htmlContent);
+
+            saveEmail(appointment.getCustomerUser().getEmail(), EmailType.APPOINTMENT_CONFIRMED_AND_ASSIGNED_SUCCESS, null, null, appointment.getId(), null, appointment.getCustomerUser().getId(), appointment.getTechnicianUser().getId(), null);
         }
     }
 
     @Override
     public void sendPasswordResetEmail(User user, String token) {
-        if (user == null || user.getEmail() == null || token == null) {
-            log.warn("sendPasswordResetEmail called with invalid data. Skipping.");
-            return;
-        }
+        if (user == null || user.getEmail() == null || token == null) return;
 
-        // Tạo URL reset (trỏ về frontend của bạn)
-        // Lấy URL này từ application.yaml hoặc hardcode
-        String frontendBaseUrl = "https://electric-car-maintenance.vercel.app"; // Lấy từ file HTML của bạn
+        String frontendBaseUrl = "https://electric-car-maintenance.vercel.app";
         String resetUrl = frontendBaseUrl + "/reset-password?token=" + token;
 
-        try {
-            Context context = new Context();
-            context.setVariable("name", user.getFullName());
-            context.setVariable("url", resetUrl); // Đường link chứa token
+        Context context = new Context();
+        context.setVariable("name", user.getFullName());
+        context.setVariable("url", resetUrl);
 
-            String htmlContent = templateEngine.process("mailForPasswordReset", context);
+        String htmlContent = templateEngine.process("mailForPasswordReset", context);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setTo(user.getEmail());
-            helper.setSubject("EV Maintenance System - Yêu cầu Đặt lại Mật khẩu");
-            helper.setText(htmlContent, true);
-            FileSystemResource res = new FileSystemResource(new File("src/main/resources/static/Logo.png"));
-            helper.addInline("logo", res);
-            mailSender.send(message);
+        // GỌI HÀM MỚI
+        sendEmailViaResend(user.getEmail(), "EV Maintenance System - Yêu cầu Đặt lại Mật khẩu", htmlContent);
 
-            // Ghi lại email đã gửi (Tùy chọn, nhưng nên có)
-            saveEmail(user.getEmail(), EmailType.PASSWORD_RESET_REQUEST, null, null, null, null, user.getId(), null, null);
-            log.info("Sent password reset email to {}", user.getEmail());
-        } catch (Exception e) {
-            log.error("Failed to send password reset email to {}: {}", user.getEmail(), e.getMessage());
-        }
+        saveEmail(user.getEmail(), EmailType.PASSWORD_RESET_REQUEST, null, null, null, null, user.getId(), null, null);
     }
 
-    private void saveEmail(String email, EmailType emailType,Integer currentKm,Long vehicleID,Long appointmentID,Long paymentID,Long customerID,Long technicianID,EmailRecord.MailPaymentStatus status) {
-        EmailRecord mail = EmailRecord.builder().
-                email(email).
-                type(emailType).
-                sentTime(LocalDateTime.now()).
-                vehicleID(vehicleID).
-                appointmentID(appointmentID).
-                currentKm(currentKm).
-                paymentID(paymentID).
-                customerID(customerID).
-                technicianID(technicianID).
-                status(status).
-                build();
+    // Giữ nguyên các hàm helper
+    public List<ServiceCenter> getServiceCenters(Long vehicleId) {
+        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
+        Map<Long, ServiceCenter> map = new LinkedHashMap<>();
+        for (Appointment appointment : appointments) {
+            ServiceCenter sc = serviceCenterRepository.findServiceCenterByAppointments_Id(appointment.getId());
+            if (sc != null) map.putIfAbsent(sc.getId(), sc);
+        }
+        return new ArrayList<>(map.values());
+    }
+
+    private void saveEmail(String email, EmailType emailType, Integer currentKm, Long vehicleID, Long appointmentID, Long paymentID, Long customerID, Long technicianID, EmailRecord.MailPaymentStatus status) {
+        EmailRecord mail = EmailRecord.builder()
+                .email(email)
+                .type(emailType)
+                .sentTime(LocalDateTime.now())
+                .vehicleID(vehicleID)
+                .appointmentID(appointmentID)
+                .currentKm(currentKm)
+                .paymentID(paymentID)
+                .customerID(customerID)
+                .technicianID(technicianID)
+                .status(status)
+                .build();
         emailRepository.save(mail);
     }
 
