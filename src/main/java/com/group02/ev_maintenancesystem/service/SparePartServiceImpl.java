@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,7 @@ public class SparePartServiceImpl implements  SparePartService {
     //Lấy tất cả phụ tùng theo trang
     @Override
     public Page<SparePartResponse> getAllSparePart(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<SparePart> sparePartPage = sparePartRepository.findAll(pageable);
         if(sparePartPage.isEmpty()) {
             throw new AppException(ErrorCode.SPARE_PART_NOT_FOUND);

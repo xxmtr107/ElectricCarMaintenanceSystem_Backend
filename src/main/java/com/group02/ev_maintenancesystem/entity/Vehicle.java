@@ -11,6 +11,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Table(name = "vehicles")
 @Getter
@@ -19,6 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class Vehicle extends BaseEntity{
 
     @Column(name = "license_plate", nullable = false, unique = true)

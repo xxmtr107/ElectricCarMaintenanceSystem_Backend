@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE service_items SET record_status = 'DELETED' WHERE id = ?")
+@SQLRestriction("record_status <> 'DELETED'")
 /**
  * Chi tiết dịch vụ
  */

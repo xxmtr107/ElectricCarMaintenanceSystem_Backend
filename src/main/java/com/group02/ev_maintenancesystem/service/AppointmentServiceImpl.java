@@ -22,6 +22,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -249,7 +250,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         User user = getAuthenticatedUser(authentication);
         List<Appointment> appointments;
         if (user.isAdmin()) {
-            appointments = appointmentRepository.findAll();
+            appointments = appointmentRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         } else if (user.isStaff() || user.isTechnician()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
             appointments = appointmentRepository.findAllByServiceCenterIdOrderByCreatedAtDesc(centerId);

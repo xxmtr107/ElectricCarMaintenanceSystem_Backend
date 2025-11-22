@@ -3,7 +3,8 @@ package com.group02.ev_maintenancesystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE spare_parts SET record_status = 'DELETED' WHERE id = ?")
+@SQLRestriction("record_status <> 'DELETED'")
 /**
  * Danh mục phụ tùng cụ thể
  */

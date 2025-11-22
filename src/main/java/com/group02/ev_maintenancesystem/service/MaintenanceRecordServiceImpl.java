@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -187,7 +188,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         List<MaintenanceRecord> maintenanceRecordList;
 
         if (user.isAdmin()) {
-            maintenanceRecordList = maintenanceRecordRepository.findAll();
+            maintenanceRecordList = maintenanceRecordRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         } else if (user.isStaff() || user.isTechnician()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
             maintenanceRecordList = maintenanceRecordRepository.findByAppointment_ServiceCenter_IdOrderByCreatedAtDesc(centerId);

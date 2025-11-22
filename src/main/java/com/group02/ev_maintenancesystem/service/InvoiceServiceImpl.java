@@ -9,6 +9,7 @@ import com.group02.ev_maintenancesystem.mapper.InvoiceMapper;
 import com.group02.ev_maintenancesystem.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -159,7 +160,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         List<Invoice> invoices;
 
         if (user.isAdmin()) {
-            invoices = invoiceRepository.findAll();
+            invoices = invoiceRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         } else if (user.isStaff()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
             // Cần tạo hàm findByServiceCenter_Id trong InvoiceRepository

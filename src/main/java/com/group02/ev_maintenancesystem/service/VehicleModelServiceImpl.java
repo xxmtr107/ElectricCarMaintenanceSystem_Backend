@@ -60,7 +60,7 @@ public class VehicleModelServiceImpl implements VehicleModelService {
 
     @Override
     public List<VehicleModelResponse> getAllVehicleModel() {
-        List<VehicleModel> vehicleModelList = vehicleModelRepository.findAll();
+        List<VehicleModel> vehicleModelList = vehicleModelRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         // Không cần kiểm tra empty vì findAll trả về list rỗng nếu không có
         // if(vehicleModelList.isEmpty()){
         //     throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);

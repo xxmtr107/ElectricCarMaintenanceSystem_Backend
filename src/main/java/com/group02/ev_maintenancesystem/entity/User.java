@@ -6,6 +6,9 @@ import com.group02.ev_maintenancesystem.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
 import org.hibernate.jdbc.Work;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +28,8 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE users SET record_status = 'DELETED' WHERE id = ?")
+@SQLRestriction("record_status <> 'DELETED'")
 public class User extends BaseEntity implements UserDetails {
 
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE service_centers SET record_status = 'DELETED' WHERE id = ?")
+@SQLRestriction("record_status <> 'DELETED'")
 public class ServiceCenter extends BaseEntity {
 
     @Column(name = "name", length = 255)

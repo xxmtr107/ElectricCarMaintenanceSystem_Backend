@@ -4,7 +4,8 @@ import com.group02.ev_maintenancesystem.enums.MaintenanceActionType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import java.math.BigDecimal;
 
 @Entity
@@ -15,6 +16,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SQLDelete(sql = "UPDATE model_package_items SET record_status = 'DELETED' WHERE id = ?")
+@SQLRestriction("record_status <> 'DELETED'")
 public class ModelPackageItem extends BaseEntity {
 
     @Column(nullable = false)

@@ -6,7 +6,6 @@ import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class Appointment extends BaseEntity {
     @Column(nullable = false, name = "appointment_date")
     LocalDateTime appointmentDate;

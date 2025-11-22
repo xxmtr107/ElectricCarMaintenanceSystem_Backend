@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
     public ServiceItemResponse createServiceItem(ServiceItemCreationRequest request) {
         //Check xem có trùng tên ko
         String serviceItemName = request.getName().trim();
-        List<ServiceItem> exitsServiceItemList = serviceItemRepository.findAll();
+        List<ServiceItem> exitsServiceItemList = serviceItemRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
         boolean exist = exitsServiceItemList.stream()
                 .anyMatch(m -> m.getName().trim().equalsIgnoreCase(serviceItemName));
         if(exist){ // có thì quăng lỗi
@@ -53,7 +54,7 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
 
     @Override
     public Page<ServiceItemResponse> getAllServiceItem(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<ServiceItem> serviceItem = serviceItemRepository.findAll(pageable);
         if(serviceItem.isEmpty()){
             throw new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND);
