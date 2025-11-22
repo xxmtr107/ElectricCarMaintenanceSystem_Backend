@@ -130,23 +130,23 @@ public class VehicleServiceImpl implements VehicleService{
 
     @Override
     public VehicleResponse updateVehicle(Long vehicleId, VehicleUpdateRequest request) {
-        //Tìm xem id của xe có tồn tại hay không
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        List<Appointment> appointment = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
-        //Nếu empty thì xóa
-        if(appointment.isEmpty()){
-            vehicle.setCurrentKm(request.getCurrentKm());
-        }
 
-        //CHỈ XÓA NHỮNG XE CÓ TRẠNG THÁI COMPLETED VÀ CANCELLED
+        List<Appointment> appointment = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
+
+        // 1. Kiểm tra xem có cuộc hẹn nào đang Active không
         boolean hasActiveAppointment = appointment.stream()
                 .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
                         && app.getStatus() != AppointmentStatus.CANCELLED);
-        if(hasActiveAppointment){
+
+        if (hasActiveAppointment) {
+            // Nếu có cuộc hẹn đang diễn ra -> Báo lỗi
             throw new AppException(ErrorCode.CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
         }
 
+        // 2. Nếu không có active appointment (dù list rỗng hay toàn completed) -> Cho phép update
+        vehicle.setCurrentKm(request.getCurrentKm());
 
         vehicleRepository.save(vehicle);
         return modelMapper.map(vehicle, VehicleResponse.class);

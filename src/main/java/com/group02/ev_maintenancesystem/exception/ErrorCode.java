@@ -63,6 +63,7 @@ public enum ErrorCode {
     SERVICE_ITEM_CANNOT_BE_REVERTED(415, "Cannot revert this service item", HttpStatus.BAD_REQUEST), // THÊM MỚI
     SERVICE_ITEM_NOT_APPROVED_YET(416, "Cannot complete appointment, pending service items are not approved", HttpStatus.BAD_REQUEST), // THÊM MỚI
     DETAIL_NOT_FOUND(417, "Appointment service detail not found", HttpStatus.NOT_FOUND), // THÊM MỚI
+    APPOINTMENT_TIME_NOT_ARRIVED(418, "Cannot process appointment before scheduled time", HttpStatus.BAD_REQUEST),
     // ========================= AUTHENTICATION & AUTHORIZATION (500 - 599) =========================
     UNAUTHENTICATED(500, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_KEY(501, "Invalid key", HttpStatus.BAD_REQUEST),

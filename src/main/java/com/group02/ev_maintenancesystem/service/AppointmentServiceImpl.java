@@ -318,6 +318,15 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
         }
 
+        if (newStatus == AppointmentStatus.COMPLETED || newStatus == AppointmentStatus.IN_PROGRESS) {
+            // Không cho phép bắt đầu hoặc hoàn thành nếu chưa đến giờ hẹn
+            // Có thể cho phép sai số nhỏ (ví dụ: đến sớm 30 phút) nếu muốn, tùy nghiệp vụ
+            if (LocalDateTime.now().isBefore(appointment.getAppointmentDate())) {
+                log.warn("Attempt to process future appointment ID {} too early.", id);
+                // Bạn nên định nghĩa thêm ErrorCode.APPOINTMENT_NOT_STARTED_YET
+                throw new AppException(ErrorCode.APPOINTMENT_TIME_NOT_ARRIVED);
+            }
+        }
         if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
             if (appointment.getStatus() != newStatus) {
                 log.warn("Attempted to change status of already {} appointment ID {}", appointment.getStatus(), id);
