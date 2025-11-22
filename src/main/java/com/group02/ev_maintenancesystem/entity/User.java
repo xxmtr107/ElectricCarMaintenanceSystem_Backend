@@ -28,8 +28,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@SQLDelete(sql = "UPDATE users SET record_status = 'DELETED' WHERE id = ?")
-@SQLRestriction("record_status <> 'DELETED'")
+
 public class User extends BaseEntity implements UserDetails {
 
 

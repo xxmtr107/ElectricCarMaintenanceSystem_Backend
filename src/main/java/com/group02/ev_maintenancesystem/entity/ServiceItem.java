@@ -18,8 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@SQLDelete(sql = "UPDATE service_items SET record_status = 'DELETED' WHERE id = ?")
-@SQLRestriction("record_status <> 'DELETED'")
+
 /**
  * Chi tiết dịch vụ
  */

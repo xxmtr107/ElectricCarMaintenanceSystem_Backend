@@ -16,8 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@SQLDelete(sql = "UPDATE model_package_items SET record_status = 'DELETED' WHERE id = ?")
-@SQLRestriction("record_status <> 'DELETED'")
+
 public class ModelPackageItem extends BaseEntity {
 
     @Column(nullable = false)
