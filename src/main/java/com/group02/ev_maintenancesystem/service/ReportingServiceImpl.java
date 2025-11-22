@@ -162,7 +162,7 @@ public class ReportingServiceImpl implements ReportingService {
             //Xác định ngày đầu tiên của tháng
             LocalDateTime startMonth = LocalDateTime.of(year, month, 1 , 0 , 0 ,0);
 
-            //Xác địng ngày cuối cùng của tháng
+            //Xác định ngày cuối cùng của tháng
             LocalDateTime endMonth = YearMonth.of(year, month).atEndOfMonth().atTime(23, 59, 59);
 
             FinancialReportDTO report = getFinancialReport(startMonth, endMonth, authentication);
