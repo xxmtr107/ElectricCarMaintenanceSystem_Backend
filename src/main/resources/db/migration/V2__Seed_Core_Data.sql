@@ -65,9 +65,9 @@ VALUES
     ('Vin3S Showroom 39A Ha Huy Giap', '39A Ha Huy Giap Street', 'District 12', 'Ho Chi Minh City', '0702721721'),
     ('Vin3S Showroom 314 Nguyen Anh Thu - Hiep Thanh', '314A Nguyen Anh Thu Street, Hiep Thanh Ward', 'District 12', 'Ho Chi Minh City', '0796621621'),
     ('Vin3S Showroom Nha Be', '2250 Huynh Tan Phat Street, Phu Xuan Commune', 'Nha Be District', 'Ho Chi Minh City', '0946143939'),
-    ('Vin3S Showroom Cu Chi Center', '158 TL8, Cu Chi Town', 'Cu Chi District', 'Ho Chi Minh City', '0904404692'),
+    ('Vin3S Showroom Cu Chi Center', '158 TL8, Cu Chi Town', 'Cu Chi District', 'Ho Chi Minh City', '0904404692');
 
-       INSERT IGNORE INTO spare_parts
+INSERT IGNORE INTO spare_parts
 (part_number, name, unit_price, quantity_in_stock, minimum_stock_level, category_name, category_code, create_at, created_by, update_at, updated_by)
 VALUES
 -- === SPARE PARTS FOR VF 3 ===
