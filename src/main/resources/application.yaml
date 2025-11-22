@@ -23,8 +23,8 @@ spring:
   flyway:
     enabled: true
 
-#  thymeleaf:
-#    prefix: classpath:/Templates/
+  thymeleaf:
+    prefix: classpath:/templates/
 
   mail:
     host: smtp-relay.brevo.com
