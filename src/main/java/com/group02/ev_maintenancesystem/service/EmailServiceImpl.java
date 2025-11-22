@@ -69,7 +69,7 @@ public class EmailServiceImpl implements EmailService {
 
         // 1. From: Lấy từ config (đã verify domain)
         // Ví dụ: "NTNTB System <no-reply@yourdomain.com>"
-        body.put("from", "NTNTB System <" + fromEmail + ">");
+        body.put("from", "ElectricCare System <" + fromEmail + ">");
 
         // 2. To: Gửi trực tiếp cho khách hàng (tham số 'to')
         body.put("to", Collections.singletonList(to));
