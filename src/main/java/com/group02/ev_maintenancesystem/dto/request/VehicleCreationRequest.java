@@ -18,7 +18,7 @@ import java.time.YearMonth;
 @Builder
 public class VehicleCreationRequest {
     @NotBlank(message = "NOT_BLANK")
-    @Pattern(regexp = "^\\d{2}[A-Z]{2}-\\d{5}$", message = "LICENSE_PLATE_INVALID")
+    @Pattern(regexp = "^\\d{2}[A-Z]{1,2}-\\d{4,5}$", message = "LICENSE_PLATE_INVALID")
     private String licensePlate;
 
     @NotBlank(message="NOT_BLANK")
