@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.controller;
 
+import com.group02.ev_maintenancesystem.dto.MonthlyRevenueDTO;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.FinancialReportDTO;
 import com.group02.ev_maintenancesystem.dto.PartUsageReportDTO;
@@ -57,6 +58,13 @@ public class ReportingController {
         return ApiResponse.<List<PartUsageReportDTO>>builder()
                 .message("Top " + limit + " used spare parts report generated successfully")
                 .result(reportingService.getTopUsedSpareParts(startDate, endDate, authentication, limit))
+                .build();
+    }
+    @GetMapping("/revenue-by-year")
+    public ApiResponse<List<MonthlyRevenueDTO>> getRevenueByYear(@RequestParam int year, Authentication authentication){
+        return ApiResponse.<List<MonthlyRevenueDTO>>builder()
+                .message("Monthly revenue report for year " + year + " generated successfully")
+                .result(reportingService.getMonthlyRevenueByYear(year, authentication))
                 .build();
     }
 }
