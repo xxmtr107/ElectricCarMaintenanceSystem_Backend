@@ -64,15 +64,15 @@ public class ServiceItemController {
     }
 
     @PutMapping("/{vehicleId}")
-    public ApiResponse<ServiceItemResponse> deleteServiceItemById(@PathVariable Long vehicleId, @RequestBody ServiceItemUpdateRequest request){
+    public ApiResponse<ServiceItemResponse> updateServiceItemById(@PathVariable Long vehicleId, @RequestBody ServiceItemUpdateRequest request){
         return ApiResponse.<ServiceItemResponse>builder()
                 .message("Update successfully")
                 .result(serviceItemService.updateServiceItemById(vehicleId,request))
                 .build();
     }
 
-    @DeleteMapping("/serviceItemId")
-    public ApiResponse<ServiceItemResponse> deleteServiceItemById(@RequestParam Long serviceItemId){
+    @DeleteMapping("/{serviceItemId}")
+    public ApiResponse<ServiceItemResponse> deleteServiceItemById(@PathVariable Long serviceItemId){
         return ApiResponse.<ServiceItemResponse>builder()
                 .message("Delete service item successfully")
                 .result(serviceItemService.deleteServiceItemById(serviceItemId))
