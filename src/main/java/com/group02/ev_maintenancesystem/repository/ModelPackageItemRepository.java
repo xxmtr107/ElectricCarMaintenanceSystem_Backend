@@ -13,21 +13,19 @@ import java.util.Optional;
 @Repository
 public interface ModelPackageItemRepository extends JpaRepository<ModelPackageItem, Long> {
 
+    List<ModelPackageItem> findByVehicleModelIdOrderByCreatedAtDesc(Long vehicleModelId);
 
-    List<ModelPackageItem> findByVehicleModelId(Long vehicleModelId);
+    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmGreaterThanOrderByCreatedAtDesc(Long vehicleModelId, Integer minKm);
 
-
-    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmGreaterThan(Long vehicleModelId, Integer minKm);
-
-    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKm(Long modelId, Integer milestoneKm);
+    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(Long modelId, Integer milestoneKm);
 
     Optional<ModelPackageItem> findByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long serviceItemId);
 
     boolean existsByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long itemId);
 
-    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmIn(Long modelId, List<Integer> milestones);
+    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmInOrderByCreatedAtDesc(Long modelId, List<Integer> milestones);
 
-    List<ModelPackageItem> findAllByVehicleModelId(Long vehicleModelId);
+    List<ModelPackageItem> findAllByVehicleModelIdOrderByCreatedAtDesc(Long vehicleModelId);
 
     @Query("SELECT DISTINCT m.includedSparePart FROM ModelPackageItem m " +
             "WHERE m.vehicleModel.id = :modelId AND m.includedSparePart IS NOT NULL")

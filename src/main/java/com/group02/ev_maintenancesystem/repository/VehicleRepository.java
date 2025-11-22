@@ -1,6 +1,5 @@
 package com.group02.ev_maintenancesystem.repository;
 
-import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.entity.Vehicle;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.stereotype.Repository;
@@ -12,7 +11,9 @@ import java.util.Optional;
 public interface VehicleRepository extends JpaRepositoryImplementation<Vehicle, Long> {
     boolean existsByVin(String vin);
     boolean existsByLicensePlate(String licensePlate);
-    List<Vehicle> findByCustomerUserId(Long userId);
-    Optional<Vehicle> findByIdAndCustomerUserId(Long id, Long customerId);
 
+    // Thêm OrderByCreatedAtDesc
+    List<Vehicle> findByCustomerUserIdOrderByCreatedAtDesc(Long userId);
+
+    Optional<Vehicle> findByIdAndCustomerUserId(Long id, Long customerId);
 }

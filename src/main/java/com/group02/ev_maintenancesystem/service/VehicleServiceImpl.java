@@ -98,7 +98,7 @@ public class VehicleServiceImpl implements VehicleService{
     public List<VehicleResponse> getVehiclesByUserId(Long userId) {
         List<Vehicle> vehicle ;
         try {
-            vehicle = vehicleRepository.findByCustomerUserId(userId);
+            vehicle = vehicleRepository.findByCustomerUserIdOrderByCreatedAtDesc(userId);
         }catch (DataAccessException e){
             throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
@@ -133,7 +133,7 @@ public class VehicleServiceImpl implements VehicleService{
         //Tìm xem id của xe có tồn tại hay không
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        List<Appointment> appointment = appointmentRepository.findByVehicleId(vehicleId);
+        List<Appointment> appointment = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
         //Nếu empty thì xóa
         if(appointment.isEmpty()){
             vehicle.setCurrentKm(request.getCurrentKm());
@@ -158,7 +158,7 @@ public class VehicleServiceImpl implements VehicleService{
     public VehicleResponse deleteVehicle(Long vehicleId) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
+        List<Appointment> appointments = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
         //Nếu empty thì xóa
         if (appointments != null && !appointments.isEmpty()) {
             for (Appointment app : appointments) {

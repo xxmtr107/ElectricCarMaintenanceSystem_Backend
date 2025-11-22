@@ -145,7 +145,7 @@ public class EmailServiceImpl implements EmailService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime tomorrow = now.plusDays(1).toLocalDate().atStartOfDay();
         LocalDateTime endOfTomorrow = tomorrow.withHour(23).withMinute(59).withSecond(59).withNano(999_999_999);
-        List<Appointment> appointments = appointmentRepository.findByAppointmentDateBetween(tomorrow, endOfTomorrow);
+        List<Appointment> appointments = appointmentRepository.findByAppointmentDateBetweenOrderByCreatedAtDesc(tomorrow, endOfTomorrow);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
         for (Appointment appointment : appointments) {
@@ -348,7 +348,7 @@ public class EmailServiceImpl implements EmailService {
 
     // Giữ nguyên các hàm helper
     public List<ServiceCenter> getServiceCenters(Long vehicleId) {
-        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
+        List<Appointment> appointments = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
         Map<Long, ServiceCenter> map = new LinkedHashMap<>();
         for (Appointment appointment : appointments) {
             ServiceCenter sc = serviceCenterRepository.findServiceCenterByAppointments_Id(appointment.getId());

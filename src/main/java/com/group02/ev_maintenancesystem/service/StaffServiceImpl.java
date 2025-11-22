@@ -81,7 +81,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public List<UserResponse> getAllStaffs() {
-        return userRepository.findAllByRole(Role.STAFF).stream()
+        return userRepository.findAllByRoleOrderByCreatedAtDesc(Role.STAFF).stream()
                 .map(userMapper::toUserResponse)
                 .toList();
     }

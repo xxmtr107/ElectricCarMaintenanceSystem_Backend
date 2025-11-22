@@ -79,7 +79,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // --- LOGIC MỚI (ĐÃ THAY THẾ): Kiểm tra xe có lịch hẹn đang "active" hay không ---
         // Lấy TẤT CẢ các lịch hẹn của xe này, không phân biệt ngày
-        List<Appointment> allAppointmentsForVehicle = appointmentRepository.findByVehicleId(request.getVehicleId());
+        List<Appointment> allAppointmentsForVehicle = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(request.getVehicleId());
 
         // Kiểm tra xem có BẤT KỲ lịch hẹn nào đang "active" (không phải CANCELLED hoặc COMPLETED)
         boolean vehicleHasActiveAppointment = allAppointmentsForVehicle.stream()
@@ -164,7 +164,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentResponse> getAppointmentByCustomerId(Long customerId) {
         userRepository.findByIdAndRole(customerId, Role.CUSTOMER)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        List<Appointment> appointments = appointmentRepository.findByCustomerUserId(customerId);
+        List<Appointment> appointments = appointmentRepository.findByCustomerUserIdOrderByCreatedAtDesc(customerId);
         return mapAppointmentListToResponse(appointments);
     }
 
@@ -172,7 +172,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentResponse> getAppointmentByVehicleId(Long vehicleId) {
         vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        List<Appointment> appointments = appointmentRepository.findByVehicleId(vehicleId);
+        List<Appointment> appointments = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
         return mapAppointmentListToResponse(appointments);
     }
 
@@ -188,10 +188,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         User user = getAuthenticatedUser(authentication);
         List<Appointment> appointments;
         if (user.isAdmin()) {
-            appointments = appointmentRepository.findByStatus(status);
+            appointments = appointmentRepository.findByStatusOrderByCreatedAtDesc(status);
         } else if (user.isStaff() || user.isTechnician()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
-            appointments = appointmentRepository.findByStatusAndServiceCenterId(status, centerId);
+            appointments = appointmentRepository.findByStatusAndServiceCenterIdOrderByCreatedAtDesc(status, centerId);
         } else {
             return Collections.emptyList();
         }
@@ -202,7 +202,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentResponse> getAppointmentByTechnicianId(Long technicianId) {
         userRepository.findByIdAndRole(technicianId, Role.TECHNICIAN)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        List<Appointment> appointments = appointmentRepository.findByTechnicianUserId(technicianId);
+        List<Appointment> appointments = appointmentRepository.findByTechnicianUserIdOrderByCreatedAtDesc(technicianId);
         return mapAppointmentListToResponse(appointments);
     }
 
@@ -252,7 +252,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointments = appointmentRepository.findAll();
         } else if (user.isStaff() || user.isTechnician()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
-            appointments = appointmentRepository.findAllByServiceCenterId(centerId);
+            appointments = appointmentRepository.findAllByServiceCenterIdOrderByCreatedAtDesc(centerId);
         } else {
             return Collections.emptyList();
         }
@@ -267,10 +267,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         User user = getAuthenticatedUser(authentication);
         List<Appointment> appointments;
         if (user.isAdmin()) {
-            appointments = appointmentRepository.findByAppointmentDateBetween(startDate, endDate);
+            appointments = appointmentRepository.findByAppointmentDateBetweenOrderByCreatedAtDesc(startDate, endDate);
         } else if (user.isStaff() || user.isTechnician()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
-            appointments = appointmentRepository.findByAppointmentDateBetweenAndServiceCenterId(startDate, endDate, centerId);
+            appointments = appointmentRepository.findByAppointmentDateBetweenAndServiceCenterIdOrderByCreatedAtDesc(startDate, endDate, centerId);
         } else {
             return Collections.emptyList();
         }
@@ -404,7 +404,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Lấy danh sách giá nâng cấp (REPLACE) một lần
         List<ModelPackageItem> replacePriceDefinitions = modelPackageItemRepository
-                .findAllByVehicleModelId(appointment.getVehicle().getModel().getId())
+                .findAllByVehicleModelIdOrderByCreatedAtDesc(appointment.getVehicle().getModel().getId())
                 .stream()
                 .filter(item -> item.getActionType() == MaintenanceActionType.REPLACE)
                 .toList();

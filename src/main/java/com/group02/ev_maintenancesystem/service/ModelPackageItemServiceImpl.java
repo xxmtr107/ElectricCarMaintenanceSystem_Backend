@@ -107,7 +107,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         if (!vehicleModelRepository.existsById(vehicleModelId)) {
             throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
         }
-        return modelPackageItemRepository.findByVehicleModelIdAndMilestoneKmGreaterThan(vehicleModelId, 1000).stream()
+        return modelPackageItemRepository.findByVehicleModelIdAndMilestoneKmGreaterThanOrderByCreatedAtDesc(vehicleModelId, 1000).stream()
                 .map(modelPackageItemMapper::toModelPackageItemResponse)
                 .collect(Collectors.toList());
     }
@@ -127,7 +127,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         // Có thể kiểm tra milestoneKm hợp lệ nếu cần
 
         return modelPackageItemRepository
-                .findByVehicleModelIdAndMilestoneKm(vehicleModelId, milestoneKm).stream()
+                .findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(vehicleModelId, milestoneKm).stream()
                 .map(modelPackageItemMapper::toModelPackageItemResponse)
                 .collect(Collectors.toList());
     }
@@ -210,7 +210,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         // Kiểm tra milestoneKm hợp lệ
 
         List<ModelPackageItem> items = modelPackageItemRepository
-                .findByVehicleModelIdAndMilestoneKm(vehicleModelId, milestoneKm);
+                .findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(vehicleModelId, milestoneKm);
 
         return items.stream()
                 .map(ModelPackageItem::getPrice)
@@ -235,7 +235,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
 
         // 2. Kiểm tra xem model đích đã có cấu hình chưa (RẤT QUAN TRỌNG)
-        List<ModelPackageItem> existingItems = modelPackageItemRepository.findByVehicleModelId(targetModelId);
+        List<ModelPackageItem> existingItems = modelPackageItemRepository.findByVehicleModelIdOrderByCreatedAtDesc(targetModelId);
         if (existingItems != null && !existingItems.isEmpty()) {
             log.warn("Model đích {} đã có {} hạng mục. Không thể sao chép.", targetModelId, existingItems.size());
             // Bạn nên tạo một ErrorCode mới, ví dụ: MODEL_CONFIG_ALREADY_EXISTS
@@ -243,7 +243,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         }
 
         // 3. Lấy tất cả cấu hình của model nguồn
-        List<ModelPackageItem> sourceItems = modelPackageItemRepository.findByVehicleModelId(sourceModelId);
+        List<ModelPackageItem> sourceItems = modelPackageItemRepository.findByVehicleModelIdOrderByCreatedAtDesc(sourceModelId);
         if (sourceItems == null || sourceItems.isEmpty()) {
             log.warn("Model nguồn {} không có cấu hình nào để sao chép.", sourceModelId);
             return; // Không có gì để làm

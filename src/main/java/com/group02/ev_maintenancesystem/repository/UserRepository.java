@@ -15,8 +15,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
-    List<User> findAllByRole(Role role);
+
+    List<User> findAllByRoleOrderByCreatedAtDesc(Role role);
+
     Optional<User> findByIdAndRole(Long id, Role role);
 
-    Collection<Object> findAllByRoleAndServiceCenterId(Role role, Long centerId);
+    // Chỉnh lại kiểu trả về là List<User> cho đồng nhất nếu cần
+    List<User> findAllByRoleAndServiceCenterIdOrderByCreatedAtDesc(Role role, Long centerId);
 }

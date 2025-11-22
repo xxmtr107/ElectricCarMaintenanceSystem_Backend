@@ -87,7 +87,7 @@ public class TechnicianServiceImpl implements TechnicianService {
 
         if (currentUser.isAdmin()) {
             // 1. ADMIN: Lấy tất cả KTV
-            return userRepository.findAllByRole(Role.TECHNICIAN).stream()
+            return userRepository.findAllByRoleOrderByCreatedAtDesc(Role.TECHNICIAN).stream()
                     .map(userMapper::toUserResponse)
                     .toList();
         }
@@ -99,7 +99,7 @@ public class TechnicianServiceImpl implements TechnicianService {
                 return Collections.emptyList(); // Staff không có trung tâm
             }
             Long centerId = center.getId();
-            return userRepository.findAllByRoleAndServiceCenterId(Role.TECHNICIAN, centerId)
+            return userRepository.findAllByRoleAndServiceCenterIdOrderByCreatedAtDesc(Role.TECHNICIAN, centerId)
                     .stream()
                     .map(obj -> userMapper.toUserResponse((User) obj))
                     .toList();

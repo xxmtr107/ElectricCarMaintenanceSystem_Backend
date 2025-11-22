@@ -52,10 +52,10 @@ public class ReportingServiceImpl implements ReportingService {
         List<Appointment> appointments;
 
         if (user.isAdmin()) {
-            appointments = appointmentRepository.findByAppointmentDateBetween(start, end);
+            appointments = appointmentRepository.findByAppointmentDateBetweenOrderByCreatedAtDesc(start, end);
         } else if (user.isStaff()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
-            appointments = appointmentRepository.findByAppointmentDateBetweenAndServiceCenterId(start, end, centerId);
+            appointments = appointmentRepository.findByAppointmentDateBetweenAndServiceCenterIdOrderByCreatedAtDesc(start, end, centerId);
         } else {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }

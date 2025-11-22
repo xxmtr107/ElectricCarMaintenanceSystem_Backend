@@ -190,7 +190,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             maintenanceRecordList = maintenanceRecordRepository.findAll();
         } else if (user.isStaff() || user.isTechnician()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
-            maintenanceRecordList = maintenanceRecordRepository.findByAppointment_ServiceCenter_Id(centerId);
+            maintenanceRecordList = maintenanceRecordRepository.findByAppointment_ServiceCenter_IdOrderByCreatedAtDesc(centerId);
         } else {
             maintenanceRecordList = Collections.emptyList();
         }
@@ -201,7 +201,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     public List<MaintenanceRecordResponse> findByCustomerId(long customerId) {
         userRepository.findById(customerId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        List<MaintenanceRecord> records = maintenanceRecordRepository.findByAppointment_CustomerUser_Id(customerId);
+        List<MaintenanceRecord> records = maintenanceRecordRepository.findByAppointment_CustomerUser_IdOrderByCreatedAtDesc(customerId);
         return records.stream()
                 .map(this::mapRecordToResponse)
                 .toList();
@@ -211,7 +211,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     public List<MaintenanceRecordResponse> findMaintenanceRecordsByVehicleId(long vehicleId) {
         vehicleRepository.findById(vehicleId).
                 orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
-        List<MaintenanceRecord> VehicleList = maintenanceRecordRepository.findByAppointment_Vehicle_Id(vehicleId);
+        List<MaintenanceRecord> VehicleList = maintenanceRecordRepository.findByAppointment_Vehicle_IdOrderByCreatedAtDesc(vehicleId);
         return VehicleList.stream().
                 map(this::mapRecordToResponse).
                 toList();
@@ -221,7 +221,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
     public List<MaintenanceRecordResponse> findByTechnicianUserId(long technicianId) {
         userRepository.findByIdAndRole(technicianId, Role.TECHNICIAN).
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        List<MaintenanceRecord> TechnicianList = maintenanceRecordRepository.findByAppointment_TechnicianUser_Id(technicianId);
+        List<MaintenanceRecord> TechnicianList = maintenanceRecordRepository.findByAppointment_TechnicianUser_IdOrderByCreatedAtDesc(technicianId);
         return TechnicianList.stream().
                 map(this::mapRecordToResponse).
                 toList();
@@ -235,10 +235,10 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         User user = getAuthenticatedUser(authentication);
         List<MaintenanceRecord> maintenanceRecordList;
         if (user.isAdmin()) {
-            maintenanceRecordList = maintenanceRecordRepository.findByAppointment_AppointmentDateBetween(start, end);
+            maintenanceRecordList = maintenanceRecordRepository.findByAppointment_AppointmentDateBetweenOrderByCreatedAtDesc(start, end);
         } else if (user.isStaff() || user.isTechnician()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
-            maintenanceRecordList = maintenanceRecordRepository.findByAppointment_AppointmentDateBetweenAndAppointment_ServiceCenter_Id(start, end, centerId);
+            maintenanceRecordList = maintenanceRecordRepository.findByAppointment_AppointmentDateBetweenAndAppointment_ServiceCenter_IdOrderByCreatedAtDesc(start, end, centerId);
         } else {
             maintenanceRecordList = Collections.emptyList();
         }

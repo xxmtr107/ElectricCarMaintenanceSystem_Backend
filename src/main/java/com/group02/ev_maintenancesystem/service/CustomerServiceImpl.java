@@ -121,7 +121,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<UserResponse> getAllCustomers() {
-        return userRepository.findAllByRole(Role.CUSTOMER).stream()
+        return userRepository.findAllByRoleOrderByCreatedAtDesc(Role.CUSTOMER).stream()
                 .map(userMapper::toUserResponse)
                 .toList();
     }

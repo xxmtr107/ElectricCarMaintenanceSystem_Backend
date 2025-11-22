@@ -188,7 +188,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         // 5. Lấy hạng mục cho mốc đến hạn
         List<ModelPackageItem> itemEntities = modelPackageItemRepository
-                .findByVehicleModelIdAndMilestoneKm(modelId, milestoneToRecommend);
+                .findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(modelId, milestoneToRecommend);
 
         if (itemEntities.isEmpty()) {
             log.warn("No ModelPackageItem found for VehicleModel ID {} at milestone {}km. Cannot generate recommendation.", modelId, milestoneToRecommend);
@@ -213,7 +213,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
 
         // Lấy tất cả hạng mục cho các mốc liên quan
-        List<ModelPackageItem> allRelevantItems = modelPackageItemRepository.findByVehicleModelIdAndMilestoneKmIn(modelId, milestones); // Cần thêm phương thức này vào Repo
+        List<ModelPackageItem> allRelevantItems = modelPackageItemRepository.findByVehicleModelIdAndMilestoneKmInOrderByCreatedAtDesc(modelId, milestones); // Cần thêm phương thức này vào Repo
 
         // Gộp hạng mục, ưu tiên REPLACE
         Map<Long, ModelPackageItemDTO> combinedMap = new LinkedHashMap<>(); // Dùng LinkedHashMap để giữ thứ tự nếu cần

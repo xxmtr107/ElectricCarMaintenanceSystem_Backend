@@ -1,54 +1,48 @@
 package com.group02.ev_maintenancesystem.repository;
 
-
-import com.group02.ev_maintenancesystem.dto.response.AppointmentResponse;
 import com.group02.ev_maintenancesystem.entity.Appointment;
-import com.group02.ev_maintenancesystem.entity.User;
 import com.group02.ev_maintenancesystem.enums.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-
-
     // Find by customer
-    List<Appointment> findByCustomerUserId(Long customerId);
+    List<Appointment> findByCustomerUserIdOrderByCreatedAtDesc(Long customerId);
 
     // Find by technician
-    List<Appointment> findByTechnicianUserId(Long technicianId);
+    List<Appointment> findByTechnicianUserIdOrderByCreatedAtDesc(Long technicianId);
 
     // Find by vehicle
-    List<Appointment> findByVehicleId(Long vehicleId);
+    List<Appointment> findByVehicleIdOrderByCreatedAtDesc(Long vehicleId);
 
     // Find by status
-    List<Appointment> findByStatus(AppointmentStatus status);
+    List<Appointment> findByStatusOrderByCreatedAtDesc(AppointmentStatus status);
 
     // Find appointments between dates
-    List<Appointment> findByAppointmentDateBetween(LocalDateTime start, LocalDateTime end);
+    List<Appointment> findByAppointmentDateBetweenOrderByCreatedAtDesc(LocalDateTime start, LocalDateTime end);
 
-    // Check vehicle appointment conflict
-    List<Appointment>  findByVehicleIdAndAppointmentDateBetween(
+    // Check vehicle appointment conflict (Giữ nguyên hoặc thêm sort nếu cần hiển thị)
+    List<Appointment> findByVehicleIdAndAppointmentDateBetweenOrderByCreatedAtDesc(
             Long vehicleId,
             LocalDateTime startOfDay,
             LocalDateTime endOfDay
     );
 
     // Find by technician and date
-    List<Appointment> findByTechnicianUserIdAndAppointmentDate(Long technicianId, LocalDateTime scheduleDate);
+    List<Appointment> findByTechnicianUserIdAndAppointmentDateOrderByCreatedAtDesc(Long technicianId, LocalDateTime scheduleDate);
 
-    List<Appointment> deleteByVehicleId(Long vehicleId);
+    List<Appointment> deleteByVehicleId(Long vehicleId); // Delete không cần sort
 
-    List<Appointment> findByAppointmentDate(LocalDateTime date);
+    List<Appointment> findByAppointmentDateOrderByCreatedAtDesc(LocalDateTime date);
 
-    List<Appointment> findByStatusAndServiceCenterId(AppointmentStatus status, Long centerId);
+    List<Appointment> findByStatusAndServiceCenterIdOrderByCreatedAtDesc(AppointmentStatus status, Long centerId);
 
-    List<Appointment> findAllByServiceCenterId(Long centerId);
+    List<Appointment> findAllByServiceCenterIdOrderByCreatedAtDesc(Long centerId);
 
-    List<Appointment> findByAppointmentDateBetweenAndServiceCenterId(LocalDateTime startDate, LocalDateTime endDate, Long centerId);
+    List<Appointment> findByAppointmentDateBetweenAndServiceCenterIdOrderByCreatedAtDesc(LocalDateTime startDate, LocalDateTime endDate, Long centerId);
 }
-

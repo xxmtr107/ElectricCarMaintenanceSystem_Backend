@@ -144,7 +144,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         }
 
         // Lấy các record của customer, rồi tìm invoice
-        List<MaintenanceRecord> records = maintenanceRecordRepository.findByAppointment_CustomerUser_Id(customer.getId());
+        List<MaintenanceRecord> records = maintenanceRecordRepository.findByAppointment_CustomerUser_IdOrderByCreatedAtDesc(customer.getId());
 
         return records.stream()
                 .map(MaintenanceRecord::getInvoice)
@@ -163,7 +163,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         } else if (user.isStaff()) {
             Long centerId = user.getServiceCenter() != null ? user.getServiceCenter().getId() : -1L;
             // Cần tạo hàm findByServiceCenter_Id trong InvoiceRepository
-            invoices = invoiceRepository.findByServiceCenterId(centerId);
+            invoices = invoiceRepository.findByServiceCenterIdOrderByCreatedAtDesc(centerId);
         } else {
             return Collections.emptyList(); // Chỉ Admin/Staff được xem all
         }
