@@ -14,6 +14,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Getter
 @Setter
@@ -48,15 +49,17 @@ public abstract class BaseEntity {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    @PrePersist // Method to set createdAt before persisting (INSERT)
+    @PrePersist
     protected void onCreate(){
         if(this.createdAt == null){
-            this.createdAt = LocalDateTime.now().withNano(0);
+            // Ép kiểu về múi giờ Việt Nam
+            this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).withNano(0);
         }
     }
 
-    @PreUpdate // Method to set updatedAt before updating (UPDATE)
+    @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now().withNano(0);
+        // Ép kiểu về múi giờ Việt Nam
+        this.updatedAt = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).withNano(0);
     }
 }

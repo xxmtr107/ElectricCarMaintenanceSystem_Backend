@@ -20,26 +20,16 @@ spring:
       mode: never
       continue-on-error: false  # Dừng nếu có lỗi
 
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    locale: vi_VN
+
   flyway:
     enabled: true
 
   thymeleaf:
     prefix: classpath:/templates/
 
-  mail:
-    host: smtp-relay.brevo.com
-    port: 587
-    username: ${EMAIL_USERNAME:trungtamxedienntntb@gmail.com}  # Fallback cho local
-    password: ${EMAIL_PASSWORD:ycxrqwytcqfvlzbw}              # Fallback cho local
-    properties:
-      mail:
-        smtp:
-          ssl: true
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          debug: true
 
 resend:
   api-key: "re_QQ6NwnAm_4nRY1fPh1bNj6HsW3EVpNWg8"
