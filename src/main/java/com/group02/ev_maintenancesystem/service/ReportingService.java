@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.FinancialReportDTO;
+import com.group02.ev_maintenancesystem.dto.MonthlyRevenueDTO;
 import com.group02.ev_maintenancesystem.dto.PartUsageReportDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceUsageDTO;
 import org.springframework.security.core.Authentication;
@@ -15,4 +16,6 @@ public interface ReportingService {
     List<ServiceUsageDTO> getTopUsedServices(LocalDateTime start, LocalDateTime end, Authentication authentication, int limit);
 
     List<PartUsageReportDTO> getTopUsedSpareParts(LocalDateTime start, LocalDateTime end, Authentication authentication, int limit);
+
+    List<MonthlyRevenueDTO> getMonthlyRevenueByYear(int year, Authentication authentication);
 }

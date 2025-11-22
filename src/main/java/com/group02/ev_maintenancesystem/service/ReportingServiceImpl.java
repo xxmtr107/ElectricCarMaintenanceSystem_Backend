@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.service;
 
 import com.group02.ev_maintenancesystem.dto.FinancialReportDTO;
+import com.group02.ev_maintenancesystem.dto.MonthlyRevenueDTO;
 import com.group02.ev_maintenancesystem.dto.PartUsageReportDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceUsageDTO;
 import com.group02.ev_maintenancesystem.entity.*;
@@ -16,11 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.thymeleaf.util.DateUtils.month;
 
 @Service
 @RequiredArgsConstructor
@@ -147,5 +152,31 @@ public class ReportingServiceImpl implements ReportingService {
                 .sorted((dto1, dto2) -> dto2.getTotalQuantityUsed().compareTo(dto1.getTotalQuantityUsed())) // Sắp xếp giảm dần
                 .limit(limit)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MonthlyRevenueDTO> getMonthlyRevenueByYear(int year, Authentication authentication) {
+        List<MonthlyRevenueDTO> result = new ArrayList<>();
+
+        for(int month = 1; month <=12; month++){
+            //Xác định ngày đầu tiên của tháng
+            LocalDateTime startMonth = LocalDateTime.of(year, month, 1 , 0 , 0 ,0);
+
+            //Xác địng ngày cuối cùng của tháng
+            LocalDateTime endMonth = YearMonth.of(year, month).atEndOfMonth().atTime(23, 59, 59);
+
+            FinancialReportDTO report = getFinancialReport(startMonth, endMonth, authentication);
+
+            BigDecimal revenueMonth = report.getTotalRevenue();
+            if(revenueMonth == null){
+                revenueMonth = BigDecimal.ZERO;
+            }
+
+            result.add(MonthlyRevenueDTO.builder()
+                    .month(month)
+                    .totalRevenue(revenueMonth)
+                    .build());
+        }
+        return result;
     }
 }
