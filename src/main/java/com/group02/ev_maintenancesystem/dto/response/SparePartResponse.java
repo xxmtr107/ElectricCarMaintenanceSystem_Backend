@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,10 +17,9 @@ public class SparePartResponse {
     String partNumber;
     String name;
     BigDecimal unitPrice;
-    Integer quantityInStock;
-    Integer minimumStockLevel;
     String categoryName;
     String categoryCode;
+    // Đã xóa quantityInStock và minimumStockLevel
     GeneralStatus recordStatus;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

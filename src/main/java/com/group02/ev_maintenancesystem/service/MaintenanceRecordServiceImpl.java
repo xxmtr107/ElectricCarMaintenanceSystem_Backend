@@ -3,7 +3,6 @@ package com.group02.ev_maintenancesystem.service;
 import com.group02.ev_maintenancesystem.dto.ModelPackageItemDTO;
 import com.group02.ev_maintenancesystem.dto.ServiceItemDTO;
 import com.group02.ev_maintenancesystem.dto.request.PartUsageRequest;
-import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.MaintenanceRecordResponse;
 import com.group02.ev_maintenancesystem.dto.response.PartUsageDetailResponse;
 import com.group02.ev_maintenancesystem.dto.response.PartUsageResponse;
@@ -40,14 +39,15 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
 
     MaintenanceRecordRepository maintenanceRecordRepository;
     UserRepository userRepository;
-    AppointmentRepository appointmentRepository;
     MaintenanceRecordMapper maintenanceRecordMapper;
     VehicleRepository vehicleRepository;
     PartUsageRepository partUsageRepository;
     SparePartRepository sparePartRepository;
-    SparePartService sparePartService;
     PartUsageMapper partUsageMapper;
     ModelPackageItemRepository modelPackageItemRepository;
+    ServiceCenterSparePartRepository inventoryRepository; // Inject Repository mới
+    InventoryService inventoryService; // Inject Service mới
+
 
     private User getAuthenticatedUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -65,11 +65,9 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             throw new AppException(ErrorCode.APPOINTMENT_NOT_FOUND);
         }
         if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
-            log.warn("Skipping MaintenanceRecord creation for appointment {}", appointment.getId());
             return;
         }
         if (maintenanceRecordRepository.findByAppointment_Id(appointment.getId()) != null) {
-            log.warn("MaintenanceRecord already exists for appointment {}", appointment.getId());
             return;
         }
         if (appointment.getVehicle() == null) {
@@ -83,97 +81,49 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                 .build();
 
         maintenanceRecordRepository.save(maintenanceRecord);
-        log.info("Created MaintenanceRecord {} for Appointment ID {}", maintenanceRecord.getId(), appointment.getId());
-
-        // --- LOGIC TỰ ĐỘNG TRỪ KHO (MỚI) ---
         autoDeductIncludedParts(appointment);
-        // --- KẾT THÚC LOGIC TRỪ KHO ---
     }
 
-    /**
-     * Helper tự động trừ kho các phụ tùng đi kèm trong dịch vụ trọn gói
-     */
     private void autoDeductIncludedParts(Appointment appointment) {
-        log.info("Auto-deducting parts for appointment {}", appointment.getId());
-        // Lấy các dịch vụ đã được duyệt (gói gốc + gói nâng cấp đã duyệt)
+        Long centerId = appointment.getServiceCenter().getId();
+
         List<AppointmentServiceItemDetail> approvedDetails = appointment.getServiceDetails().stream()
                 .filter(AppointmentServiceItemDetail::getCustomerApproved)
                 .toList();
 
         for (AppointmentServiceItemDetail detail : approvedDetails) {
-
-            // --- BẮT ĐẦU THAY ĐỔI ---
-
             ModelPackageItem itemDefinition = null;
             Long modelId = appointment.getVehicle().getModel().getId();
             Long serviceItemId = detail.getServiceItem().getId();
             MaintenanceActionType actionType = detail.getActionType();
 
-            // Chỉ trừ kho nếu là REPLACE
             if (actionType == MaintenanceActionType.REPLACE) {
-                // Ưu tiên tìm định nghĩa REPLACE ở mốc KM của lịch hẹn (ví dụ: Lọc gió 12000km)
                 itemDefinition = modelPackageItemRepository
                         .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
-                                modelId,
-                                appointment.getMilestoneKm(),
-                                serviceItemId
-                        )
+                                modelId, appointment.getMilestoneKm(), serviceItemId)
                         .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
                         .orElse(null);
 
                 if (itemDefinition == null) {
-                    // Nếu không tìm thấy (vì nó là 1 CHECK được nâng cấp),
-                    // hãy tìm định nghĩa REPLACE "nâng cấp" (theo quy ước là ở mốc 1km)
                     itemDefinition = modelPackageItemRepository
-                            .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
-                                    modelId,
-                                    1, // Mốc 1km cho các định nghĩa nâng cấp
-                                    serviceItemId
-                            )
+                            .findByVehicleModelIdAndMilestoneKmAndServiceItemId(modelId, 1, serviceItemId)
                             .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
                             .orElse(null);
                 }
             }
-            // Nếu actionType là CHECK, itemDefinition sẽ là null và không trừ kho (đúng)
-
-            // --- KẾT THÚC THAY ĐỔI ---
-
 
             if (itemDefinition != null && itemDefinition.getIncludedSparePart() != null) {
-                // Dịch vụ này có định nghĩa 1 phụ tùng đi kèm
-                SparePart partToDeduct = itemDefinition.getIncludedSparePart();
+                SparePart part = itemDefinition.getIncludedSparePart();
                 int quantityToDeduct = itemDefinition.getIncludedQuantity();
 
-                if (partToDeduct == null) {
-                    log.warn("Service item {} definition is missing 'includedSparePart' link.", detail.getServiceItem().getName());
-                    continue;
-                }
-
-                log.info("Deducting {}x {} for service {}",
-                        quantityToDeduct, partToDeduct.getPartNumber(), detail.getServiceItem().getName());
-
-                // 1. Trừ kho
-                StockUpdateRequest stockRequest = StockUpdateRequest.builder()
-                        .changeQuantity(-quantityToDeduct)
-                        .reason("Included in service for Appt ID " + appointment.getId())
-                        .build();
-
-                try {
-                    sparePartService.updateStock(partToDeduct.getId(), stockRequest);
-
-                    // 2. (Tùy chọn) Ghi PartUsage với giá 0 để lưu vết
-                    // Bỏ qua, vì PartUsage chỉ dành cho PHÁT SINH NGOÀI
-
-                } catch (AppException e) {
-                    // Lỗi nghiêm trọng: Không đủ hàng trong kho
-                    log.error("CRITICAL: Failed to auto-deduct part {} for appointment {}. Error: {}",
-                            partToDeduct.getPartNumber(), appointment.getId(), e.getMessage());
-                    // TODO: Xử lý nghiệp vụ (ví dụ: báo lỗi cho Staff)
-                }
+                // [MỚI] Gọi InventoryService để trừ kho
+                // Hàm này sẽ tự check số lượng và throw Exception nếu thiếu
+                inventoryService.deductStock(centerId, part.getId(), quantityToDeduct);
             }
         }
     }
 
+    // ... (Giữ nguyên các hàm get/find khác) ...
 
     @Override
     public MaintenanceRecordResponse getByMaintenanceRecordId(long MaintenanceRecordId) {
@@ -203,29 +153,21 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         userRepository.findById(customerId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<MaintenanceRecord> records = maintenanceRecordRepository.findByAppointment_CustomerUser_IdOrderByCreatedAtDesc(customerId);
-        return records.stream()
-                .map(this::mapRecordToResponse)
-                .toList();
+        return records.stream().map(this::mapRecordToResponse).toList();
     }
 
     @Override
     public List<MaintenanceRecordResponse> findMaintenanceRecordsByVehicleId(long vehicleId) {
-        vehicleRepository.findById(vehicleId).
-                orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+        vehicleRepository.findById(vehicleId).orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
         List<MaintenanceRecord> VehicleList = maintenanceRecordRepository.findByAppointment_Vehicle_IdOrderByCreatedAtDesc(vehicleId);
-        return VehicleList.stream().
-                map(this::mapRecordToResponse).
-                toList();
+        return VehicleList.stream().map(this::mapRecordToResponse).toList();
     }
 
     @Override
     public List<MaintenanceRecordResponse> findByTechnicianUserId(long technicianId) {
-        userRepository.findByIdAndRole(technicianId, Role.TECHNICIAN).
-                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        userRepository.findByIdAndRole(technicianId, Role.TECHNICIAN).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<MaintenanceRecord> TechnicianList = maintenanceRecordRepository.findByAppointment_TechnicianUser_IdOrderByCreatedAtDesc(technicianId);
-        return TechnicianList.stream().
-                map(this::mapRecordToResponse).
-                toList();
+        return TechnicianList.stream().map(this::mapRecordToResponse).toList();
     }
 
     @Override
@@ -243,9 +185,7 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         } else {
             maintenanceRecordList = Collections.emptyList();
         }
-        return maintenanceRecordList.stream().
-                map(this::mapRecordToResponse).
-                toList();
+        return maintenanceRecordList.stream().map(this::mapRecordToResponse).toList();
     }
 
     @Override
@@ -255,7 +195,13 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         MaintenanceRecord record = maintenanceRecordRepository.findById(recordId)
                 .orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
 
-        if (record.getAppointment() == null || record.getAppointment().getTechnicianUser() == null ||
+        // Kiểm tra quyền và lấy Center ID
+        if (record.getAppointment() == null || record.getAppointment().getServiceCenter() == null) {
+            throw new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND);
+        }
+        Long centerId = record.getAppointment().getServiceCenter().getId();
+
+        if (record.getAppointment().getTechnicianUser() == null ||
                 !record.getAppointment().getTechnicianUser().getId().equals(technician.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
@@ -263,43 +209,31 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
         SparePart sparePart = sparePartRepository.findById(request.getSparePartId())
                 .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
 
+        // [MỚI] Gọi InventoryService để trừ kho
         int quantityNeeded = request.getQuantityUsed();
-        if (sparePart.getQuantityInStock() < quantityNeeded) {
-            throw new AppException(ErrorCode.INSUFFICIENT_STOCK);
-        }
+        inventoryService.deductStock(centerId, sparePart.getId(), quantityNeeded);
 
-        // Trừ kho
-        StockUpdateRequest stockRequest = StockUpdateRequest.builder()
-                .changeQuantity(-quantityNeeded)
-                .reason("Used in maintenance record " + recordId + " (Extra part)")
-                .build();
-        sparePartService.updateStock(sparePart.getId(), stockRequest);
-
-        // Tạo PartUsage (với logic tính tiền GỐC)
+        // Tạo PartUsage
         PartUsage partUsage = PartUsage.builder()
                 .maintenanceRecord(record)
                 .sparePart(sparePart)
                 .quantityUsed(quantityNeeded)
-                // KHÔNG SET "isIncludedInService" (vì nó là false)
                 .build();
 
-        partUsage.caculateTotalPrice(); // Tính giá (sẽ là giá vật tư * số lượng)
+        partUsage.caculateTotalPrice();
         PartUsage savedPartUsage = partUsageRepository.save(partUsage);
 
         return partUsageMapper.toPartUsageResponse(savedPartUsage);
     }
 
+    // ... (Giữ nguyên mapRecordToResponse và getAllPartUsagesForRecord) ...
+
     private MaintenanceRecordResponse mapRecordToResponse(MaintenanceRecord record) {
-        if (record == null) {
-            return null;
-        }
+        if (record == null) return null;
         MaintenanceRecordResponse response = maintenanceRecordMapper.toMaintenanceRecordResponse(record);
         Appointment appointment = record.getAppointment();
-        if (appointment == null) {
-            return response;
-        }
+        if (appointment == null) return response;
 
-        // Map Dịch vụ trọn gói (từ Appointment)
         List<ModelPackageItemDTO> itemDTOs = new ArrayList<>();
         List<AppointmentServiceItemDetail> serviceDetails = appointment.getServiceDetails();
         if (serviceDetails != null) {
@@ -322,31 +256,34 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             }
         }
         response.setServiceItems(itemDTOs);
-
-        // Map Phụ tùng phát sinh (từ Record)
         List<PartUsageResponse> partUsageResponses = record.getPartUsages().stream()
                 .map(partUsageMapper::toPartUsageResponse)
                 .collect(Collectors.toList());
         response.setPartUsages(partUsageResponses);
-
         return response;
     }
+
     @Override
     public List<PartUsageDetailResponse> getAllPartUsagesForRecord(Long recordId, Authentication authentication) {
-        // 1. Xác thực và lấy Record
         User user = getAuthenticatedUser(authentication);
         MaintenanceRecord record = maintenanceRecordRepository.findById(recordId)
                 .orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_RECORD_NOT_FOUND));
 
-        // 2. Kiểm tra quyền truy cập (Admin, Staff, Tech, hoặc chủ xe)
-        checkRecordAccess(user, record);
+        // (Logic checkRecordAccess giữ nguyên)
+        if (!user.isAdmin()) {
+            Appointment appt = record.getAppointment();
+            if (appt == null) throw new AppException(ErrorCode.UNAUTHORIZED);
+            boolean isCenterStaff = (user.isStaff() || user.isTechnician()) && user.getServiceCenter() != null
+                    && appt.getServiceCenter() != null && user.getServiceCenter().getId().equals(appt.getServiceCenter().getId());
+            boolean isOwner = user.isCustomer() && appt.getCustomerUser() != null && appt.getCustomerUser().getId().equals(user.getId());
+            if (!isCenterStaff && !isOwner) throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
 
         List<PartUsageDetailResponse> allParts = new ArrayList<>();
-
-        // 3. Lấy Phụ tùng phát sinh (EXTRA)
+        // Extra parts
         List<PartUsageDetailResponse> extraParts = record.getPartUsages().stream()
                 .map(pu -> PartUsageDetailResponse.builder()
-                        .id(pu.getId()) // Có ID thật
+                        .id(pu.getId())
                         .quantityUsed(pu.getQuantityUsed())
                         .totalPrice(pu.getTotalPrice())
                         .sparePartId(pu.getSparePart().getId())
@@ -354,104 +291,49 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
                         .sparePartNumber(pu.getSparePart().getPartNumber())
                         .maintenanceRecordId(pu.getMaintenanceRecord().getId())
                         .createdAt(pu.getCreatedAt())
-                        .usageType("EXTRA") // Loại phát sinh
+                        .usageType("EXTRA")
                         .build())
                 .collect(Collectors.toList());
         allParts.addAll(extraParts);
 
-        // 4. Lấy Phụ tùng trọn gói (INCLUDED)
+        // Included parts (Logic giữ nguyên như cũ)
         Appointment appointment = record.getAppointment();
-        if (appointment == null || appointment.getVehicle() == null || appointment.getVehicle().getModel() == null) {
-            return allParts; // Trả về nếu thiếu thông tin
-        }
-        Long modelId = appointment.getVehicle().getModel().getId();
+        if (appointment != null && appointment.getVehicle() != null && appointment.getVehicle().getModel() != null) {
+            Long modelId = appointment.getVehicle().getModel().getId();
+            List<AppointmentServiceItemDetail> approvedReplaces = appointment.getServiceDetails().stream()
+                    .filter(d -> d.getCustomerApproved() && d.getActionType() == MaintenanceActionType.REPLACE)
+                    .toList();
 
-        // Lấy các dịch vụ 'REPLACE' đã được duyệt
-        List<AppointmentServiceItemDetail> approvedReplaces = appointment.getServiceDetails().stream()
-                .filter(d -> d.getCustomerApproved() && d.getActionType() == MaintenanceActionType.REPLACE)
-                .toList();
+            for (AppointmentServiceItemDetail detail : approvedReplaces) {
+                // (Logic tìm definition giữ nguyên)
+                ModelPackageItem itemDefinition = modelPackageItemRepository
+                        .findByVehicleModelIdAndMilestoneKmAndServiceItemId(modelId, appointment.getMilestoneKm(), detail.getServiceItem().getId())
+                        .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
+                        .orElse(null);
+                if (itemDefinition == null) {
+                    itemDefinition = modelPackageItemRepository
+                            .findByVehicleModelIdAndMilestoneKmAndServiceItemId(modelId, 1, detail.getServiceItem().getId())
+                            .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
+                            .orElse(null);
+                }
 
-        for (AppointmentServiceItemDetail detail : approvedReplaces) {
-            // Tìm định nghĩa phụ tùng đi kèm
-            ModelPackageItem itemDefinition = findItemDefinition(
-                    modelId,
-                    appointment.getMilestoneKm(),
-                    detail.getServiceItem().getId()
-            );
-
-            if (itemDefinition != null && itemDefinition.getIncludedSparePart() != null) {
-                SparePart includedPart = itemDefinition.getIncludedSparePart();
-
-                // Xây dựng response ảo
-                PartUsageDetailResponse includedPartResponse = PartUsageDetailResponse.builder()
-                        .id(null) // Không có ID PartUsage
-                        .quantityUsed(itemDefinition.getIncludedQuantity())
-                        .totalPrice(BigDecimal.ZERO) // Giá 0 vì đã bao gồm
-                        .sparePartId(includedPart.getId())
-                        .sparePartName(includedPart.getName())
-                        .sparePartNumber(includedPart.getPartNumber())
-                        .maintenanceRecordId(recordId)
-                        .createdAt(detail.getCreatedAt()) // Lấy thời gian của record
-                        .usageType("INCLUDED") // Loại trọn gói
-                        .build();
-
-                allParts.add(includedPartResponse);
+                if (itemDefinition != null && itemDefinition.getIncludedSparePart() != null) {
+                    SparePart includedPart = itemDefinition.getIncludedSparePart();
+                    PartUsageDetailResponse includedPartResponse = PartUsageDetailResponse.builder()
+                            .id(null)
+                            .quantityUsed(itemDefinition.getIncludedQuantity())
+                            .totalPrice(BigDecimal.ZERO)
+                            .sparePartId(includedPart.getId())
+                            .sparePartName(includedPart.getName())
+                            .sparePartNumber(includedPart.getPartNumber())
+                            .maintenanceRecordId(recordId)
+                            .createdAt(detail.getCreatedAt())
+                            .usageType("INCLUDED")
+                            .build();
+                    allParts.add(includedPartResponse);
+                }
             }
         }
-
         return allParts;
     }
-    /**
-     * Helper: Tìm định nghĩa ModelPackageItem cho một dịch vụ REPLACE
-     */
-    private ModelPackageItem findItemDefinition(Long modelId, Integer appointmentMilestoneKm, Long serviceItemId) {
-        // 1. Tìm ở mốc KM của lịch hẹn
-        ModelPackageItem itemDefinition = modelPackageItemRepository
-                .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
-                        modelId,
-                        appointmentMilestoneKm,
-                        serviceItemId
-                )
-                .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
-                .orElse(null);
-
-        // 2. Nếu không thấy (ví dụ: đó là 1 CHECK được nâng cấp), tìm ở mốc 1km (quy ước)
-        if (itemDefinition == null) {
-            itemDefinition = modelPackageItemRepository
-                    .findByVehicleModelIdAndMilestoneKmAndServiceItemId(
-                            modelId,
-                            1, // Mốc 1km cho các định nghĩa nâng cấp
-                            serviceItemId
-                    )
-                    .filter(def -> def.getActionType() == MaintenanceActionType.REPLACE)
-                    .orElse(null);
-        }
-        return itemDefinition;
-    }
-
-    /**
-     * Helper: Kiểm tra quyền truy cập vào một MaintenanceRecord
-     */
-    private void checkRecordAccess(User user, MaintenanceRecord record) {
-        if (user.isAdmin()) return; // Admin có toàn quyền
-
-        Appointment appointment = record.getAppointment();
-        if (appointment == null) throw new AppException(ErrorCode.UNAUTHORIZED);
-
-        // Staff/Technician của trung tâm
-        if ((user.isStaff() || user.isTechnician()) && user.getServiceCenter() != null &&
-                appointment.getServiceCenter() != null &&
-                user.getServiceCenter().getId().equals(appointment.getServiceCenter().getId())) {
-            return;
-        }
-
-        // Chủ sở hữu xe
-        if (user.isCustomer() && appointment.getCustomerUser() != null &&
-                appointment.getCustomerUser().getId().equals(user.getId())) {
-            return;
-        }
-
-        throw new AppException(ErrorCode.UNAUTHORIZED);
-    }
-    // --- KẾT THÚC THÊM MỚI ---
 }

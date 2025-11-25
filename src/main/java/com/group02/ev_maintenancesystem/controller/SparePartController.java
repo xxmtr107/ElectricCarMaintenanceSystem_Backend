@@ -61,13 +61,6 @@ public class SparePartController {
                 .build();
     }
 
-    @PatchMapping("/{id}/stock")
-    public ApiResponse<SparePartResponse> updateStock(@PathVariable Long id, @RequestBody StockUpdateRequest request){
-        return ApiResponse.<SparePartResponse>builder()
-                .message("Update spare part stock successfully")
-                .result(sparePartService.updateStock(id, request))
-                .build();
-    }
 
     @GetMapping("/model/{modelId}")
     public ApiResponse<List<SparePartResponse>> getSparePartsByModel(@PathVariable Long modelId){

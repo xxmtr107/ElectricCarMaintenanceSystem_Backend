@@ -4,7 +4,6 @@ import com.group02.ev_maintenancesystem.dto.request.SparePartCreateRequest;
 import com.group02.ev_maintenancesystem.dto.request.SparePartUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.SparePartResponse;
-import com.group02.ev_maintenancesystem.entity.SparePart;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,6 +14,5 @@ public interface SparePartService {
     SparePartResponse createSparePart(SparePartCreateRequest sparePart);
     SparePartResponse deleteSparePartById(Long id);
     SparePartResponse updateSparePart(Long id, SparePartUpdateRequest request);
-    SparePartResponse updateStock(Long id, StockUpdateRequest request);
     List<SparePartResponse> getSparePartsByModelId(Long modelId);
 }

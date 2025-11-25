@@ -25,18 +25,10 @@ public class SparePartCreateRequest {
     @DecimalMin(value = "0.0", inclusive = false, message = "SPARE_PART_PRICE_MUST_BE_POSITIVE")
     BigDecimal unitPrice;
 
-
-    @NotNull(message = "NOT_BLANK")
-    @Min(value = 0, message = "SPARE_PART_MIN_STOCK_CANNOT_BE_NEGATIVE")
-    Integer quantityInStock;
-
-    @NotNull(message = "NOT_BLANK")
-    @Min(value = 0, message = "SPARE_PART_STOCK_CANNOT_BE_NEGATIVE")
-    Integer minimumStockLevel;
-
     @NotBlank(message = "NOT_BLANK")
     String categoryName;
 
     @NotBlank(message = "NOT_BLANK")
     String categoryCode;
+
 }

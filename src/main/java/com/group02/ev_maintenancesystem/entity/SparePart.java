@@ -30,12 +30,6 @@ public class SparePart extends  BaseEntity {
     @Column(name = "unit_price", nullable = false,precision = 10, scale = 2)
     BigDecimal unitPrice;
 
-    @Column(name = "quantity_in_stock", nullable = false)
-    Integer quantityInStock; // Số lượng trong kho
-
-    @Column(name = "minimum_stock_level", nullable = false, columnDefinition = "int default 10") // Mức tồn kho tối thiểu, không null, giá trị mặc định là 10
-    Integer minimumStockLevel;
-
     @Column(name = "category_name")
     String categoryName;
 
