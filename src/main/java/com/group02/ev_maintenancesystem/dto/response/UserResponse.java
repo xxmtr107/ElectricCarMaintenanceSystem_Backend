@@ -23,7 +23,7 @@ public class UserResponse {
     String role;
     Long serviceCenterId;
     String serviceCenterName;
-    GeneralStatus recordStatus;
+    Boolean active;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

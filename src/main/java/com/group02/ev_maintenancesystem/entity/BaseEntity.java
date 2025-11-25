@@ -40,9 +40,10 @@ public abstract class BaseEntity {
     @Column(name = "created_by", updatable = false)
     private String createdBy;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "record_status", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'ACTIVE'")
-    private GeneralStatus recordStatus = GeneralStatus.ACTIVE;
+    // --- THAY ĐỔI Ở ĐÂY ---
+    // Mặc định là TRUE (Hoạt động) khi tạo mới
+    @Column(name = "is_active", nullable = false, columnDefinition = "BIT(1) DEFAULT 1")
+    private Boolean active = true;
 
     @JsonIgnore
     @LastModifiedBy // Automatically set the user who last modified the entity

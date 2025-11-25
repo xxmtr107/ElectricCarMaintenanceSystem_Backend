@@ -18,6 +18,7 @@ public class InventoryResponse {
     String partNumber;
     String partName;
 
+    Boolean active;
     Integer quantity;
     Integer minStock;
 }

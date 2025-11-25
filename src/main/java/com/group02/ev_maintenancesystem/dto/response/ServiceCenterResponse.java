@@ -19,7 +19,7 @@ public class ServiceCenterResponse {
     private String district;
     private String city;
     private String phone;
-    GeneralStatus recordStatus;
+    Boolean active;
     private LocalDateTime createdAt;
     private String createdBy;
     private LocalDateTime updatedAt;

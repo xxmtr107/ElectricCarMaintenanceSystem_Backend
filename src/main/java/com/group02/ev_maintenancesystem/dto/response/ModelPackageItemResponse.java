@@ -32,7 +32,7 @@ public class ModelPackageItemResponse {
     String includedSparePartName;
     String includedSparePartNumber;
     Integer includedQuantity;
-    GeneralStatus recordStatus;
+    Boolean active;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

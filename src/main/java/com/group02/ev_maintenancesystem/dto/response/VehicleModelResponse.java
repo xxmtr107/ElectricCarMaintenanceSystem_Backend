@@ -16,7 +16,7 @@ public class VehicleModelResponse {
     Long id;
     String name;
     String modelYear;
-    GeneralStatus recordStatus;
+    Boolean active;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

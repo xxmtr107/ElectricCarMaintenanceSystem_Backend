@@ -20,6 +20,5 @@ public class PartUsageResponse {
     String sparePartName;
     String sparePartNumber;
     Long maintenanceRecordId;
-    GeneralStatus recordStatus;
     LocalDateTime createdAt;
 }

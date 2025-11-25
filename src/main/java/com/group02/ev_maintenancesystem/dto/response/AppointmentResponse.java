@@ -51,7 +51,7 @@ public class AppointmentResponse {
     Integer milestoneKm;
     List<ModelPackageItemDTO> serviceItems;
 
-    GeneralStatus recordStatus;
+    Boolean active;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

@@ -22,7 +22,7 @@ public class VehicleResponse {
     LocalDate purchaseYear;
     Long modelId;
     Long customerId;
-    GeneralStatus recordStatus;
+    Boolean active;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;

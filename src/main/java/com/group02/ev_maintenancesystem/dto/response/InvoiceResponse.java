@@ -19,7 +19,7 @@ public class InvoiceResponse {
     Long maintenanceRecordId;
     Long serviceCenterId;
     String serviceCenterName;
-    GeneralStatus recordStatus;
+    Boolean active;
     // Chi tiết đầy đủ của Maintenance Record (bao gồm dịch vụ và phụ tùng)
     MaintenanceRecordResponse maintenanceRecord;
 

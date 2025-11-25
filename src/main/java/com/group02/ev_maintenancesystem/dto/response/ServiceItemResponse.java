@@ -17,7 +17,7 @@ public class ServiceItemResponse {
     private String name;
     private BigDecimal price;
     private String description;
-    GeneralStatus recordStatus;
+    Boolean active;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String createdBy;

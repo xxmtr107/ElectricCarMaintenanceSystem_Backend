@@ -42,7 +42,7 @@ public class MaintenanceRecordResponse {
 
     String serviceCenterName;
     BigDecimal totalPrice;
-
+    Boolean active;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

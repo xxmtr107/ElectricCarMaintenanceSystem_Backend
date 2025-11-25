@@ -20,7 +20,7 @@ public class SparePartResponse {
     String categoryName;
     String categoryCode;
     // Đã xóa quantityInStock và minimumStockLevel
-    GeneralStatus recordStatus;
+    Boolean active;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     String createdBy;
