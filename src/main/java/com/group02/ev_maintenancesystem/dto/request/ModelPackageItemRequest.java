@@ -23,14 +23,14 @@ public class ModelPackageItemRequest {
 
     Integer milestoneMonth;
 
-    @NotNull(message = "NOT_BLANK")
+
     Long serviceItemId;
 
-    @NotNull(message = "NOT_BLANK")
+
     @DecimalMin(value = "0.01", message = "PRICE_INVALID")
     BigDecimal price;
 
-    @NotNull(message = "NOT_BLANK")
+
     MaintenanceActionType actionType; // Thêm trường actionType
 
     Long includedSparePartId; // Thêm ID phụ tùng (có thể null)
