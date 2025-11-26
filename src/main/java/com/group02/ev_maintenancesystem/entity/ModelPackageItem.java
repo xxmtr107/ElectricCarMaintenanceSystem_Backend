@@ -29,6 +29,9 @@ public class ModelPackageItem extends BaseEntity {
     @Column(name = "milestone_km", nullable = false)
     Integer milestoneKm;
 
+    @Column(name = "milestone_month")
+    Integer milestoneMonth;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "service_item_id")
     ServiceItem serviceItem;

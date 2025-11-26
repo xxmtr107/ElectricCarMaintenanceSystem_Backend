@@ -21,6 +21,8 @@ public class ModelPackageItemRequest {
     @NotNull(message = "NOT_BLANK")
     Integer milestoneKm;
 
+    Integer milestoneMonth;
+
     @NotNull(message = "NOT_BLANK")
     Long serviceItemId;
 

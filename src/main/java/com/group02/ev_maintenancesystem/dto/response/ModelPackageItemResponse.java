@@ -22,6 +22,7 @@ public class ModelPackageItemResponse {
     String vehicleModelName;
 
     Integer milestoneKm;
+    Integer milestoneMonth;
 
     Long serviceItemId;
     String serviceItemName;

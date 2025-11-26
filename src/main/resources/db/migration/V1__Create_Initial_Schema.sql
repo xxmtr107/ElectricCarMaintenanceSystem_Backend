@@ -152,6 +152,7 @@ CREATE TABLE model_package_items (
                                      price                  DECIMAL NOT NULL,
                                      vehicle_model_id       BIGINT NOT NULL,
                                      milestone_km           INT NOT NULL,
+                                     milestone_month        INT NULL,
                                      service_item_id        BIGINT NULL,
                                      action_type            VARCHAR(255) NOT NULL,
                                      included_spare_part_id BIGINT NULL,

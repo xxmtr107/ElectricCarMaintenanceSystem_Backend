@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.repository;
 
+import com.group02.ev_maintenancesystem.dto.MilestoneConfigDTO;
 import com.group02.ev_maintenancesystem.entity.ModelPackageItem;
 import com.group02.ev_maintenancesystem.entity.SparePart;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +26,11 @@ public interface ModelPackageItemRepository extends JpaRepository<ModelPackageIt
 
     List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmInOrderByCreatedAtDesc(Long modelId, List<Integer> milestones);
 
+    @Query("SELECT DISTINCT new com.group02.ev_maintenancesystem.dto.MilestoneConfigDTO(m.milestoneKm, m.milestoneMonth) " +
+            "FROM ModelPackageItem m " +
+            "WHERE m.vehicleModel.id = :modelId " +
+            "ORDER BY m.milestoneKm ASC")
+    List<MilestoneConfigDTO> findMilestoneConfigsByModelId(@Param("modelId") Long modelId);
     List<ModelPackageItem> findAllByVehicleModelIdOrderByCreatedAtDesc(Long vehicleModelId);
 
     @Query("SELECT DISTINCT m.includedSparePart FROM ModelPackageItem m " +

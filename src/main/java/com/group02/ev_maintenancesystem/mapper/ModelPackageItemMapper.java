@@ -24,6 +24,7 @@ public interface ModelPackageItemMapper {
     // @Mapping(target = "servicePackageId", source = "servicePackage.id")
     // @Mapping(target = "servicePackageName", source = "servicePackage.name")
     @Mapping(target = "milestoneKm", source = "milestoneKm") // Đảm bảo map milestoneKm
+    @Mapping(target = "milestoneMonth", source = "milestoneMonth")
     @Mapping(target = "serviceItemId", source = "serviceItem.id")
     @Mapping(target = "serviceItemName", source = "serviceItem.name")
     @Mapping(target = "actionType", source = "actionType")
