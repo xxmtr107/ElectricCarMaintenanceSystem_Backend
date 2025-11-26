@@ -126,7 +126,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     /**
      * KỊCH BẢN 2 & 3: Xe đã có lịch sử bảo dưỡng
-     * Logic: Luôn gợi ý mốc tiếp theo sau mốc đã làm gần nhất.
+     * Cập nhật: Xử lý trường hợp xe "nhảy cóc" (Ví dụ: làm 6k xong chạy tới 25k mới quay lại)
      */
     private List<MaintenanceRecommendationDTO> handleWithHistoryCase(
             Vehicle vehicle, Long modelId, int currentKm, List<MaintenanceRecord> history,
@@ -135,7 +135,6 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MaintenanceRecord lastRecord = history.get(0);
 
         // 1. Xác định mốc ĐÃ LÀM (finishedMilestone)
-        // Ưu tiên lấy từ Appointment (chính xác nhất), nếu không có thì đoán qua ODO
         int finishedMilestoneKm = 0;
         if (lastRecord.getAppointment() != null && lastRecord.getAppointment().getMilestoneKm() != null) {
             finishedMilestoneKm = lastRecord.getAppointment().getMilestoneKm();
@@ -148,34 +147,56 @@ public class MaintenanceServiceImpl implements MaintenanceService {
             }
         }
 
-        // 2. Tìm mốc KẾ TIẾP (Target)
-        MilestoneConfigDTO nextMilestone = null;
-        for (MilestoneConfigDTO m : milestones) {
-            if (m.getMilestoneKm() > finishedMilestoneKm) {
-                nextMilestone = m;
+        // 2. Tìm tất cả các mốc trong tương lai (Lớn hơn mốc đã làm)
+        int finalFinishedMilestoneKm = finishedMilestoneKm;
+        List<MilestoneConfigDTO> futureMilestones = milestones.stream()
+                .filter(m -> m.getMilestoneKm() > finalFinishedMilestoneKm)
+                .collect(Collectors.toList());
+
+        if (futureMilestones.isEmpty()) {
+            return Collections.emptyList(); // Đã làm hết các mốc
+        }
+
+        // 3. Phân loại: Tìm các mốc "Bị lỡ" (Missed/Due) dựa trên ODO hiện tại
+        List<Integer> missedMilestoneKms = new ArrayList<>();
+        MilestoneConfigDTO highestDueMilestone = null;
+        String reason = "NEXT_MILESTONE";
+
+        for (MilestoneConfigDTO m : futureMilestones) {
+            boolean isDueKm = currentKm >= m.getMilestoneKm();
+            boolean isDueTime = m.getMilestoneMonth() != null && monthsSincePurchase >= m.getMilestoneMonth();
+
+            if (isDueKm || isDueTime) {
+                // Nếu xe đã chạy qua mốc này -> Thêm vào danh sách cần làm gộp
+                missedMilestoneKms.add(m.getMilestoneKm());
+                highestDueMilestone = m;
+
+                if (isDueKm) reason = "DUE_BY_KM";
+                else reason = "DUE_BY_TIME";
+            } else {
+                // Chưa chạy tới mốc này -> Dừng kiểm tra các mốc sau
                 break;
             }
         }
 
-        if (nextMilestone == null) {
-            return Collections.emptyList(); // Đã làm hết các mốc đời xe
+        // TRƯỜNG HỢP A: Xe chạy vượt cấp (Có mốc bị lỡ)
+        // Ví dụ: Làm 6k -> Chạy tới 25k. Các mốc bị lỡ: 12k, 18k, 24k (giả sử mốc là 6k, 12k, 18k, 24k)
+        if (!missedMilestoneKms.isEmpty()) {
+            // Gộp item của 12k, 18k, 24k lại
+            List<ModelPackageItemDTO> combinedItems = getCombinedItemsForMilestones(modelId, missedMilestoneKms);
+            BigDecimal total = calculateTotal(combinedItems);
+
+            // Đề xuất mốc cao nhất (24k)
+            return List.of(buildRecommendation(highestDueMilestone.getMilestoneKm(), reason, combinedItems, total));
         }
 
-        // 3. Kiểm tra trạng thái đến hạn
-        boolean isDueKm = currentKm >= nextMilestone.getMilestoneKm();
-        boolean isDueTime = nextMilestone.getMilestoneMonth() != null && monthsSincePurchase >= nextMilestone.getMilestoneMonth();
-
-        String reason;
-        if (isDueKm && isDueTime) reason = "DUE_BY_KM_AND_TIME";
-        else if (isDueKm) reason = "DUE_BY_KM";
-        else if (isDueTime) reason = "DUE_BY_TIME";
-        else reason = "NEXT_MILESTONE"; // Chưa đến hạn nhưng vẫn hiện để khách biết
-
-        // Lấy item cho mốc kế tiếp (Không cần gộp vì các mốc trước đã làm rồi)
-        List<ModelPackageItemDTO> items = getItemsForMilestone(modelId, nextMilestone.getMilestoneKm());
+        // TRƯỜNG HỢP B: Xe chạy bình thường (Chưa đến hạn mốc kế tiếp)
+        // Ví dụ: Làm 6k -> Chạy tới 8k. Mốc kế là 12k.
+        MilestoneConfigDTO nextImmediate = futureMilestones.get(0);
+        List<ModelPackageItemDTO> items = getItemsForMilestone(modelId, nextImmediate.getMilestoneKm());
         BigDecimal total = calculateTotal(items);
 
-        return List.of(buildRecommendation(nextMilestone.getMilestoneKm(), reason, items, total));
+        return List.of(buildRecommendation(nextImmediate.getMilestoneKm(), "NEXT_MILESTONE", items, total));
     }
 
     /**
