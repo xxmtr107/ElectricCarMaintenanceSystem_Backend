@@ -58,8 +58,6 @@ public class SparePartServiceImpl implements SparePartService {
         sparePart.setPartNumber(request.getPartNumber());
         sparePart.setName(request.getName());
         sparePart.setUnitPrice(request.getUnitPrice());
-        sparePart.setCategoryName(request.getCategoryName());
-        sparePart.setCategoryCode(request.getCategoryCode());
 
         SparePart savedPart = sparePartRepository.save(sparePart);
 
@@ -89,8 +87,7 @@ public class SparePartServiceImpl implements SparePartService {
         if (request.getUnitPrice() != null && request.getUnitPrice().compareTo(BigDecimal.ZERO) > 0) {
             sparePart.setUnitPrice(request.getUnitPrice());
         }
-        if (request.getCategoryName() != null) sparePart.setCategoryName(request.getCategoryName());
-        if (request.getCategoryCode() != null) sparePart.setCategoryCode(request.getCategoryCode());
+
 
         SparePart updatedSparePart = sparePartRepository.save(sparePart);
         return modelMapper.map(updatedSparePart, SparePartResponse.class);

@@ -17,8 +17,7 @@ public class SparePartResponse {
     String partNumber;
     String name;
     BigDecimal unitPrice;
-    String categoryName;
-    String categoryCode;
+
     // Đã xóa quantityInStock và minimumStockLevel
     Boolean active;
     LocalDateTime createdAt;

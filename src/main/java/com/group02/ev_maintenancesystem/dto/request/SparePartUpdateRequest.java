@@ -23,7 +23,5 @@ public class SparePartUpdateRequest {
     @Min(value = 0, message = "SPARE_PART_STOCK_CANNOT_BE_NEGATIVE")
     int minimumStockLevel;
 
-    String categoryName;
 
-    String categoryCode;
 }

@@ -113,8 +113,6 @@ CREATE TABLE spare_parts (
                              part_number         VARCHAR(255) NOT NULL,
                              name                VARCHAR(255) NULL,
                              unit_price          DECIMAL(10, 2) NOT NULL,
-                             category_name       VARCHAR(255) NULL,
-                             category_code       VARCHAR(255) NULL,
                              CONSTRAINT pk_spare_parts PRIMARY KEY (id),
                              CONSTRAINT uc_spare_parts_part_number UNIQUE (part_number)
 );
