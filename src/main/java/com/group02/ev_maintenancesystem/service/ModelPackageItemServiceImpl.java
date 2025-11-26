@@ -58,11 +58,11 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         if (request.getServiceItemId() != null) {
             serviceItem = serviceItemRepository.findById(request.getServiceItemId())
                     .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
-        }
 
-        // Check Active cho Service [MỚI]
-        if (!Boolean.TRUE.equals(serviceItem.getActive())) {
-            throw new AppException(ErrorCode.SERVICE_ITEM_INACTIVE);
+            // MOVE THE CHECK INSIDE THIS BLOCK
+            if (!Boolean.TRUE.equals(serviceItem.getActive())) {
+                throw new AppException(ErrorCode.SERVICE_ITEM_INACTIVE);
+            }
         }
 
         // 3. Kiểm tra trùng lặp
