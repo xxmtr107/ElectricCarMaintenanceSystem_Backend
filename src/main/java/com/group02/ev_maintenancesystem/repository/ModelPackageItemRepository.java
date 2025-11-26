@@ -41,4 +41,6 @@ public interface ModelPackageItemRepository extends JpaRepository<ModelPackageIt
     // 3. [QUAN TRỌNG] Tìm items của NHIỀU mốc cùng lúc để GỘP (dùng cho trường hợp lỡ mốc)
     // Sắp xếp theo milestoneKm tăng dần để logic gộp ưu tiên cái sau đè cái trước hợp lý hơn
     List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmInOrderByMilestoneKmAsc(Long modelId, Collection<Integer> milestoneKms);
+
+    List<ModelPackageItem> findByVehicleModelIdAndMilestoneKmGreaterThanOrderByCreatedAtDesc(Long vehicleModelId, Integer minKm);
 }

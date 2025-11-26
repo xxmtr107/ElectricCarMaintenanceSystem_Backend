@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.naming.AuthenticationException;
+
 /**
  * Global Exception Handler - Xử lý tất cả exception xảy ra trong ứng dụng
  * @ControllerAdvice: Annotation này cho phép class này "lắng nghe" tất cả exception
@@ -98,5 +100,25 @@ public class GlobalExceptionHandle {
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
                         .build());
+    }
+
+    /**
+     * Xử lý lỗi liên quan đến xác thực (Login sai pass, tài khoản bị khóa...)
+     */
+    @ExceptionHandler(value = AuthenticationException.class)
+    public ResponseEntity<ApiResponse> handleAuthenticationException(AuthenticationException ex) {
+        // Mặc định dùng lỗi UNAUTHENTICATED (Code 500, HTTP 401)
+        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+
+        ApiResponse response = new ApiResponse();
+        response.setCode(errorCode.getCode());
+
+        // Lấy message chi tiết từ Exception của Spring Security
+        // Ví dụ: "Bad credentials" hoặc "User is disabled"
+        response.setMessage(ex.getMessage());
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(response);
     }
 }

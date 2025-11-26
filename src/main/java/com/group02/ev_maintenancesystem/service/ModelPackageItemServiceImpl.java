@@ -190,7 +190,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         if (!vehicleModelRepository.existsById(vehicleModelId)) {
             throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
         }
-        return modelPackageItemRepository.findByVehicleModelIdOrderByCreatedAtDesc(vehicleModelId).stream()
+        return modelPackageItemRepository.findByVehicleModelIdAndMilestoneKmGreaterThanOrderByCreatedAtDesc(vehicleModelId, 1000).stream()
                 .map(modelPackageItemMapper::toModelPackageItemResponse)
                 .collect(Collectors.toList());
     }
