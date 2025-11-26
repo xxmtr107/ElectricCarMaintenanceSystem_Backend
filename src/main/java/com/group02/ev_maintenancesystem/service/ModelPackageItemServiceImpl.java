@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional; // Thêm import
 import java.util.stream.Collectors;
 
 @Service
@@ -34,121 +33,71 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
     ServiceItemRepository serviceItemRepository;
     ModelPackageItemMapper modelPackageItemMapper;
 
-    // --- THÊM PHƯƠNG THỨC MỚI VÀO REPO (Đã làm ở bước 3d) ---
-    // Cần Repository có: findByVehicleModelIdAndMilestoneKmAndServiceItemId
-    // Cần Repository có: existsByVehicleModelIdAndMilestoneKmAndServiceItemId
-
-    // --- Cập nhật phương thức kiểm tra trùng lặp ---
+    /**
+     * Helper: Kiểm tra trùng lặp cấu hình
+     * Một dòng xe, tại một mốc Km, không được có 2 dòng cấu hình cho cùng 1 dịch vụ.
+     */
     private boolean checkDuplicate(Long modelId, Integer milestoneKm, Long itemId) {
         return modelPackageItemRepository.existsByVehicleModelIdAndMilestoneKmAndServiceItemId(modelId, milestoneKm, itemId);
     }
 
-    // --- THÊM PHƯƠNG THỨC existsBy... vào ModelPackageItemRepository ---
-    /* Trong ModelPackageItemRepository.java:
-    boolean existsByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long itemId);
-    Optional<ModelPackageItem> findByVehicleModelIdAndMilestoneKmAndServiceItemId(Long modelId, Integer milestoneKm, Long itemId); // Thêm cái này nữa
-    */
-
-
     @Override
     @Transactional
     public ModelPackageItemResponse createModelPackageItem(ModelPackageItemRequest request) {
+        // 1. Validate Vehicle Model
         VehicleModel vehicleModel = vehicleModelRepository.findById(request.getVehicleModelId())
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
-        // [THÊM VALIDATE]
+
+        // Check Active cho Model [MỚI]
         if (!Boolean.TRUE.equals(vehicleModel.getActive())) {
             throw new AppException(ErrorCode.VEHICLE_MODEL_INACTIVE);
         }
 
+        // 2. Validate Service Item
         ServiceItem serviceItem = serviceItemRepository.findById(request.getServiceItemId())
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
 
-        // [THÊM VALIDATE]
+        // Check Active cho Service [MỚI]
         if (!Boolean.TRUE.equals(serviceItem.getActive())) {
             throw new AppException(ErrorCode.SERVICE_ITEM_INACTIVE);
         }
-        // Kiểm tra trùng lặp dựa trên model, milestone và item
+
+        // 3. Kiểm tra trùng lặp
         if (checkDuplicate(request.getVehicleModelId(), request.getMilestoneKm(), request.getServiceItemId())) {
             throw new AppException(ErrorCode.MODEL_PACKAGE_ITEM_EXISTED);
         }
 
+        // 4. Map dữ liệu cơ bản
         ModelPackageItem modelPackageItem = modelPackageItemMapper.toModelPackageItem(request);
         modelPackageItem.setVehicleModel(vehicleModel);
         modelPackageItem.setServiceItem(serviceItem);
-        // --- ADD THIS LOGIC ---
+        // Map thêm trường tháng [MỚI]
+        modelPackageItem.setMilestoneMonth(request.getMilestoneMonth());
+
+        // 5. Xử lý Phụ tùng đi kèm (nếu có)
         if (request.getIncludedSparePartId() != null) {
             SparePart sparePart = sparePartRepository.findById(request.getIncludedSparePartId())
                     .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
+
+            // Check Active cho SparePart [MỚI]
             if (!Boolean.TRUE.equals(sparePart.getActive())) {
                 throw new AppException(ErrorCode.SPARE_PART_INACTIVE);
             }
+
             modelPackageItem.setIncludedSparePart(sparePart);
 
-            // Set quantity to 1 by default if it wasn't provided
+            // Default quantity là 1 nếu không nhập
             if (request.getIncludedQuantity() == null) {
                 modelPackageItem.setIncludedQuantity(1);
             }
-            // If quantity WAS provided, the mapper already set it
-
         } else {
-            // Ensure these are null/0 if no ID is sent
             modelPackageItem.setIncludedSparePart(null);
             modelPackageItem.setIncludedQuantity(0);
         }
-        // --- END OF ADDED LOGIC ---
 
         ModelPackageItem savedItem = modelPackageItemRepository.save(modelPackageItem);
         return modelPackageItemMapper.toModelPackageItemResponse(savedItem);
     }
-
-    @Override
-    public ModelPackageItemResponse getModelPackageItemById(Long id) {
-        ModelPackageItem modelPackageItem = modelPackageItemRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.MODEL_PACKAGE_ITEM_NOT_FOUND));
-        return modelPackageItemMapper.toModelPackageItemResponse(modelPackageItem);
-    }
-
-    @Override
-    public List<ModelPackageItemResponse> getAllModelPackageItems() {
-        return modelPackageItemRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
-                .map(modelPackageItemMapper::toModelPackageItemResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ModelPackageItemResponse> getByVehicleModelId(Long vehicleModelId) {
-        if (!vehicleModelRepository.existsById(vehicleModelId)) {
-            throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
-        }
-        return modelPackageItemRepository.findByVehicleModelIdAndMilestoneKmGreaterThanOrderByCreatedAtDesc(vehicleModelId, 1000).stream()
-                .map(modelPackageItemMapper::toModelPackageItemResponse)
-                .collect(Collectors.toList());
-    }
-
-    // --- Phương thức này không còn ý nghĩa nhiều, có thể bỏ hoặc sửa ---
-    // @Override
-    // public List<ModelPackageItemResponse> getByServicePackageId(Long servicePackageId) { ... }
-
-    // --- Phương thức này đổi thành getByVehicleModelAndMilestoneKm ---
-    // @Override
-    // public List<ModelPackageItemResponse> getByVehicleModelAndPackage(Long vehicleModelId, Long servicePackageId) { ... }
-    @Override
-    public List<ModelPackageItemResponse> getByVehicleModelAndMilestoneKm(Long vehicleModelId, Integer milestoneKm) {
-        if (!vehicleModelRepository.existsById(vehicleModelId)) {
-            throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
-        }
-        // Có thể kiểm tra milestoneKm hợp lệ nếu cần
-
-        return modelPackageItemRepository
-                .findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(vehicleModelId, milestoneKm).stream()
-                .map(modelPackageItemMapper::toModelPackageItemResponse)
-                .collect(Collectors.toList());
-    }
-
-
-    // --- Phương thức này có thể không cần nữa, hoặc logic khác ---
-    // @Override
-    // public List<ModelPackageItemResponse> getIndividualServicesByModel(Long vehicleModelId) { ... }
 
     @Override
     @Transactional
@@ -156,51 +105,60 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         ModelPackageItem modelPackageItem = modelPackageItemRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.MODEL_PACKAGE_ITEM_NOT_FOUND));
 
+        // 1. Validate Model & Service (nếu có thay đổi ID)
         VehicleModel vehicleModel = vehicleModelRepository.findById(request.getVehicleModelId())
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
+        if (!Boolean.TRUE.equals(vehicleModel.getActive())) throw new AppException(ErrorCode.VEHICLE_MODEL_INACTIVE);
+
         ServiceItem serviceItem = serviceItemRepository.findById(request.getServiceItemId())
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
+        if (!Boolean.TRUE.equals(serviceItem.getActive())) throw new AppException(ErrorCode.SERVICE_ITEM_INACTIVE);
 
-        // Kiểm tra trùng lặp nếu có sự thay đổi về key
-        boolean changedKey = !modelPackageItem.getVehicleModel().getId().equals(request.getVehicleModelId()) ||
+        // 2. Kiểm tra trùng lặp nếu thay đổi key (Model + Km + Service)
+        boolean isKeyChanged = !modelPackageItem.getVehicleModel().getId().equals(request.getVehicleModelId()) ||
                 !modelPackageItem.getMilestoneKm().equals(request.getMilestoneKm()) ||
                 !modelPackageItem.getServiceItem().getId().equals(request.getServiceItemId());
 
-        if (changedKey && checkDuplicate(request.getVehicleModelId(), request.getMilestoneKm(), request.getServiceItemId())) {
+        if (isKeyChanged && checkDuplicate(request.getVehicleModelId(), request.getMilestoneKm(), request.getServiceItemId())) {
             throw new AppException(ErrorCode.MODEL_PACKAGE_ITEM_EXISTED);
         }
 
-        // --- BẮT ĐẦU CẬP NHẬT LOGIC ---
-
-        // 1. Sử dụng mapper để cập nhật các trường đơn giản (price, milestoneKm, actionType, includedQuantity)
+        // 3. Cập nhật thông tin
         modelPackageItemMapper.updateModelPackageItem(modelPackageItem, request);
-
-        // 2. Xử lý các entity liên kết (ServiceCenter và ServiceItem)
         modelPackageItem.setVehicleModel(vehicleModel);
         modelPackageItem.setServiceItem(serviceItem);
+        modelPackageItem.setMilestoneMonth(request.getMilestoneMonth()); // [MỚI]
 
-        // 3. Xử lý logic cho phụ tùng đi kèm (SparePart)
+        // 4. Xử lý Phụ tùng
         if (request.getIncludedSparePartId() != null) {
             SparePart sparePart = sparePartRepository.findById(request.getIncludedSparePartId())
                     .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
-            modelPackageItem.setIncludedSparePart(sparePart);
+            if (!Boolean.TRUE.equals(sparePart.getActive())) throw new AppException(ErrorCode.SPARE_PART_INACTIVE);
 
-            // Nếu quantity không được cung cấp, đặt mặc định là 1 khi có phụ tùng
+            modelPackageItem.setIncludedSparePart(sparePart);
             if (request.getIncludedQuantity() == null) {
                 modelPackageItem.setIncludedQuantity(1);
             }
         } else {
-            // Nếu không có ID phụ tùng, set là null và số lượng là 0
             modelPackageItem.setIncludedSparePart(null);
             modelPackageItem.setIncludedQuantity(0);
         }
 
-        // (Nếu request.getIncludedQuantity() != null, mapper đã set giá trị đó rồi)
-
-        // --- KẾT THÚC CẬP NHẬT LOGIC ---
-
         ModelPackageItem updatedItem = modelPackageItemRepository.save(modelPackageItem);
         return modelPackageItemMapper.toModelPackageItemResponse(updatedItem);
+    }
+
+    @Override
+    @Transactional
+    public ModelPackageItemResponse updateStatus(Long id, Boolean isActive) {
+        ModelPackageItem item = modelPackageItemRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.MODEL_PACKAGE_ITEM_NOT_FOUND));
+
+        item.setActive(isActive); // Hàm này có được nhờ kế thừa BaseEntity
+        ModelPackageItem savedItem = modelPackageItemRepository.save(item);
+
+        log.info("Updated status of ModelPackageItem ID {} to {}", id, isActive);
+        return modelPackageItemMapper.toModelPackageItemResponse(savedItem);
     }
 
     @Override
@@ -212,20 +170,53 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         modelPackageItemRepository.deleteById(id);
     }
 
-    // --- Phương thức này đổi thành getMilestoneTotalPrice ---
-    // @Override
-    // public BigDecimal getPackageTotalPrice(Long vehicleModelId, Long servicePackageId) { ... }
+    @Override
+    public ModelPackageItemResponse getModelPackageItemById(Long id) {
+        ModelPackageItem modelPackageItem = modelPackageItemRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.MODEL_PACKAGE_ITEM_NOT_FOUND));
+        return modelPackageItemMapper.toModelPackageItemResponse(modelPackageItem);
+    }
+
+    @Override
+    public List<ModelPackageItemResponse> getAllModelPackageItems() {
+        // Admin xem tất cả, kể cả inactive
+        return modelPackageItemRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
+                .map(modelPackageItemMapper::toModelPackageItemResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ModelPackageItemResponse> getByVehicleModelId(Long vehicleModelId) {
+        if (!vehicleModelRepository.existsById(vehicleModelId)) {
+            throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
+        }
+        return modelPackageItemRepository.findByVehicleModelIdOrderByCreatedAtDesc(vehicleModelId).stream()
+                .map(modelPackageItemMapper::toModelPackageItemResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ModelPackageItemResponse> getByVehicleModelAndMilestoneKm(Long vehicleModelId, Integer milestoneKm) {
+        if (!vehicleModelRepository.existsById(vehicleModelId)) {
+            throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
+        }
+        return modelPackageItemRepository
+                .findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(vehicleModelId, milestoneKm).stream()
+                .map(modelPackageItemMapper::toModelPackageItemResponse)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public BigDecimal getMilestoneTotalPrice(Long vehicleModelId, Integer milestoneKm) {
         if (!vehicleModelRepository.existsById(vehicleModelId)) {
             throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
         }
-        // Kiểm tra milestoneKm hợp lệ
-
+        // Chỉ tính tổng tiền của những mục đang ACTIVE
         List<ModelPackageItem> items = modelPackageItemRepository
                 .findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(vehicleModelId, milestoneKm);
 
         return items.stream()
+                .filter(item -> Boolean.TRUE.equals(item.getActive())) // [MỚI] Lọc Active
                 .map(ModelPackageItem::getPrice)
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -234,54 +225,49 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
     @Override
     @Transactional
     public void cloneConfiguration(Long sourceModelId, Long targetModelId) {
-        log.info("Bắt đầu yêu cầu sao chép cấu hình từ model {} sang model {}", sourceModelId, targetModelId);
+        log.info("Cloning configuration from model {} to model {}", sourceModelId, targetModelId);
 
-        // 1. Validate
         if (sourceModelId.equals(targetModelId)) {
-            throw new AppException(ErrorCode.CANNOT_DELETE_SERVICE_CENTER); // Tạm dùng lỗi này, nên tạo lỗi mới
+            throw new AppException(ErrorCode.UNCATEGORIZED); // Không clone chính nó
         }
 
         VehicleModel sourceModel = vehicleModelRepository.findById(sourceModelId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
+        if (!Boolean.TRUE.equals(sourceModel.getActive())) throw new AppException(ErrorCode.VEHICLE_MODEL_INACTIVE);
 
         VehicleModel targetModel = vehicleModelRepository.findById(targetModelId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
+        if (!Boolean.TRUE.equals(targetModel.getActive())) throw new AppException(ErrorCode.VEHICLE_MODEL_INACTIVE);
 
-        // 2. Kiểm tra xem model đích đã có cấu hình chưa (RẤT QUAN TRỌNG)
+        // Kiểm tra xem đích đã có cấu hình chưa
         List<ModelPackageItem> existingItems = modelPackageItemRepository.findByVehicleModelIdOrderByCreatedAtDesc(targetModelId);
         if (existingItems != null && !existingItems.isEmpty()) {
-            log.warn("Model đích {} đã có {} hạng mục. Không thể sao chép.", targetModelId, existingItems.size());
-            // Bạn nên tạo một ErrorCode mới, ví dụ: MODEL_CONFIG_ALREADY_EXISTS
-            throw new AppException(ErrorCode.MODEL_PACKAGE_ITEM_EXISTED);
+            throw new AppException(ErrorCode.MODEL_PACKAGE_ITEM_EXISTED); // Đã có cấu hình, không ghi đè
         }
 
-        // 3. Lấy tất cả cấu hình của model nguồn
+        // Lấy nguồn
         List<ModelPackageItem> sourceItems = modelPackageItemRepository.findByVehicleModelIdOrderByCreatedAtDesc(sourceModelId);
-        if (sourceItems == null || sourceItems.isEmpty()) {
-            log.warn("Model nguồn {} không có cấu hình nào để sao chép.", sourceModelId);
-            return; // Không có gì để làm
-        }
+        if (sourceItems.isEmpty()) return;
 
-        // 4. Tạo danh sách các bản sao mới
         List<ModelPackageItem> newItems = new ArrayList<>();
         for (ModelPackageItem sourceItem : sourceItems) {
+            // Chỉ clone những item đang Active
+            if (!Boolean.TRUE.equals(sourceItem.getActive())) continue;
+
             ModelPackageItem newItem = ModelPackageItem.builder()
-                    .vehicleModel(targetModel) // Gán cho model ĐÍCH
+                    .vehicleModel(targetModel)
                     .milestoneKm(sourceItem.getMilestoneKm())
-                    .serviceItem(sourceItem.getServiceItem()) // Giữ nguyên tham chiếu ServiceItem
+                    .milestoneMonth(sourceItem.getMilestoneMonth()) // [MỚI] Clone cả tháng
+                    .serviceItem(sourceItem.getServiceItem())
                     .actionType(sourceItem.getActionType())
                     .price(sourceItem.getPrice())
-                    .includedSparePart(sourceItem.getIncludedSparePart()) // Giữ nguyên tham chiếu Phụ tùng
+                    .includedSparePart(sourceItem.getIncludedSparePart())
                     .includedQuantity(sourceItem.getIncludedQuantity())
                     .build();
-            // (Lưu ý: BaseEntity (createdAt, createdBy...) sẽ tự động được gán)
             newItems.add(newItem);
         }
 
-        // 5. Lưu tất cả bản sao vào database
         modelPackageItemRepository.saveAll(newItems);
-
-        log.info("Sao chép thành công {} hạng mục từ model {} ({}) sang model {} ({})",
-                newItems.size(), sourceModel.getName(), sourceModelId, targetModel.getName(), targetModelId);
+        log.info("Cloned {} items successfully.", newItems.size());
     }
 }

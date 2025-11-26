@@ -439,7 +439,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Lấy danh sách giá nâng cấp (REPLACE) một lần
         List<ModelPackageItem> replacePriceDefinitions = modelPackageItemRepository
-                .findAllByVehicleModelIdOrderByCreatedAtDesc(appointment.getVehicle().getModel().getId())
+                .findByVehicleModelIdOrderByCreatedAtDesc(appointment.getVehicle().getModel().getId())
                 .stream()
                 .filter(item -> item.getActionType() == MaintenanceActionType.REPLACE)
                 .toList();
