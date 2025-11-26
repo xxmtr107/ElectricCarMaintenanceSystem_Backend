@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 
 public class ModelPackageItem extends BaseEntity {
 
-    @Column(nullable = false)
     BigDecimal price;
 
     @ManyToOne(fetch = FetchType.EAGER)
