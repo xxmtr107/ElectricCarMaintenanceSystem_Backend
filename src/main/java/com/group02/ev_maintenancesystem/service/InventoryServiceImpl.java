@@ -108,4 +108,18 @@ public class InventoryServiceImpl implements InventoryService {
                 .minStock(inv.getMinStock())
                 .build();
     }
+
+    @Override
+    @Transactional
+    public void deleteInventory(Long inventoryId) {
+        Inventory inventory = inventoryRepository.findById(inventoryId)
+                .orElseThrow(() -> new AppException(ErrorCode.INVENTORY_NOT_FOUND));
+
+        // [QUAN TRỌNG] Validate số lượng phải bằng 0 mới được xóa
+        if (inventory.getQuantity() > 0) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_INVENTORY_WITH_STOCK);
+        }
+
+        inventoryRepository.delete(inventory);
+    }
 }

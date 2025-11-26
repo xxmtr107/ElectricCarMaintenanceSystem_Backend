@@ -14,4 +14,6 @@ public interface InventoryService {
 
     // Helper: Trừ kho (Gọi từ MaintenanceRecordService)
     void deductStock(Long centerId, Long sparePartId, int quantity);
+
+    void deleteInventory(Long inventoryId);
 }
