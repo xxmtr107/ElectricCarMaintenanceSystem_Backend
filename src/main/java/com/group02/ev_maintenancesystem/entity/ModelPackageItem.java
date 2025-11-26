@@ -37,7 +37,7 @@ public class ModelPackageItem extends BaseEntity {
     ServiceItem serviceItem;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "action_type", nullable = false)
+    @Column(name = "action_type")
     MaintenanceActionType actionType;
 
 
