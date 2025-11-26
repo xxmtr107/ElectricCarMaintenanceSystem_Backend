@@ -72,11 +72,24 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
+
         if (!vehicle.getCustomerUser().getId().equals(customerId)) {
             throw new AppException(ErrorCode.VEHICLE_NOT_BELONG_TO_CUSTOMER);
         }
+
+        // [THÊM VALIDATE] Kiểm tra xe có đang hoạt động không
+        if (!Boolean.TRUE.equals(vehicle.getActive())) {
+            throw new AppException(ErrorCode.VEHICLE_INACTIVE);
+        }
+
+        // 2. Validate Service Center
         ServiceCenter serviceCenter = serviceCenterRepository.findById(request.getCenterId())
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
+
+        // [THÊM VALIDATE] Kiểm tra trung tâm có đang mở cửa không
+        if (!Boolean.TRUE.equals(serviceCenter.getActive())) {
+            throw new AppException(ErrorCode.SERVICE_CENTER_INACTIVE);
+        }
 
         // --- LOGIC MỚI (ĐÃ THAY THẾ): Kiểm tra xe có lịch hẹn đang "active" hay không ---
         // Lấy TẤT CẢ các lịch hẹn của xe này, không phân biệt ngày
@@ -157,8 +170,15 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         String username = authentication.getName();
-        return userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // [THÊM VALIDATE]
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new AppException(ErrorCode.USER_INACTIVE);
+        }
+
+        return user;
     }
 
     @Override
@@ -219,6 +239,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (staff.isStaff() && (appointment.getServiceCenter() == null ||
                 !appointment.getServiceCenter().getId().equals(staff.getServiceCenter().getId()))) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        if (staff.isStaff() && staff.getServiceCenter() != null) {
+            if (!Boolean.TRUE.equals(staff.getServiceCenter().getActive())) {
+                throw new AppException(ErrorCode.SERVICE_CENTER_INACTIVE);
+            }
         }
         if (appointment.getServiceCenter() != null && technician.getServiceCenter() != null) {
             if (!appointment.getServiceCenter().getId().equals(technician.getServiceCenter().getId())) {

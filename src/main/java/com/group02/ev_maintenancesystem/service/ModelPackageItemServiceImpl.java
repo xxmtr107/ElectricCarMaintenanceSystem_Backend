@@ -55,9 +55,18 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
     public ModelPackageItemResponse createModelPackageItem(ModelPackageItemRequest request) {
         VehicleModel vehicleModel = vehicleModelRepository.findById(request.getVehicleModelId())
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
+        // [THÊM VALIDATE]
+        if (!Boolean.TRUE.equals(vehicleModel.getActive())) {
+            throw new AppException(ErrorCode.VEHICLE_MODEL_INACTIVE);
+        }
+
         ServiceItem serviceItem = serviceItemRepository.findById(request.getServiceItemId())
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
 
+        // [THÊM VALIDATE]
+        if (!Boolean.TRUE.equals(serviceItem.getActive())) {
+            throw new AppException(ErrorCode.SERVICE_ITEM_INACTIVE);
+        }
         // Kiểm tra trùng lặp dựa trên model, milestone và item
         if (checkDuplicate(request.getVehicleModelId(), request.getMilestoneKm(), request.getServiceItemId())) {
             throw new AppException(ErrorCode.MODEL_PACKAGE_ITEM_EXISTED);
@@ -70,6 +79,9 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         if (request.getIncludedSparePartId() != null) {
             SparePart sparePart = sparePartRepository.findById(request.getIncludedSparePartId())
                     .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
+            if (!Boolean.TRUE.equals(sparePart.getActive())) {
+                throw new AppException(ErrorCode.SPARE_PART_INACTIVE);
+            }
             modelPackageItem.setIncludedSparePart(sparePart);
 
             // Set quantity to 1 by default if it wasn't provided

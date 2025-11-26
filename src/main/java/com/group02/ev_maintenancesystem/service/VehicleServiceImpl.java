@@ -74,8 +74,13 @@ public class VehicleServiceImpl implements VehicleService{
 
         //check xem modelId có tồn tại chưa
         //có mới gán vào
-        VehicleModel model = vehicleModelRepository.findById(vehicleCreationRequest.getModelId()).
-                orElseThrow(() -> new AppException(ErrorCode.MODEL_NOT_FOUND));
+        VehicleModel model = vehicleModelRepository.findById(vehicleCreationRequest.getModelId())
+                .orElseThrow(() -> new AppException(ErrorCode.MODEL_NOT_FOUND));
+
+        // [THÊM VALIDATE]
+        if (!Boolean.TRUE.equals(model.getActive())) {
+            throw new AppException(ErrorCode.VEHICLE_MODEL_INACTIVE);
+        }
         vehicle.setModel(model);
 
 

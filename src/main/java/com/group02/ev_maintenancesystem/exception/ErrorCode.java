@@ -19,6 +19,7 @@ public enum ErrorCode {
     ROLE_NOT_FOUND(110, "Role not found", HttpStatus.NOT_FOUND),
     USER_NOT_CUSTOMER(111, "User is not a customer", HttpStatus.BAD_REQUEST),
     NEW_PASSWORD_SAME_AS_OLD(112, "New password same as old password", HttpStatus.BAD_REQUEST),
+    USER_INACTIVE(113, "User account is inactive", HttpStatus.FORBIDDEN),
     // ========================= VEHICLE ERRORS (200 - 299) =========================
     VIN_ALREADY_EXISTS(200, "VIN already exists", HttpStatus.BAD_REQUEST),
     LICENSE_PLATE_ALREADY_EXISTS(201, "License plate already exists", HttpStatus.BAD_REQUEST),
@@ -33,6 +34,7 @@ public enum ErrorCode {
     CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT(209, "Cannot update vehicle because it has active appointments (not completed or canceled).", HttpStatus.BAD_REQUEST),
     PURCHASE_YEAR_INVALID(210, "Purchase year must be in past or present).", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_VEHICLE_INVOICE_UNPAID(211, "Cannot delete vehicle, an associated invoice is not PAID.", HttpStatus.BAD_REQUEST),
+    VEHICLE_INACTIVE(212, "Vehicle is inactive", HttpStatus.BAD_REQUEST),
     // ========================= VEHICLE MODEL ERRORS (300 - 399) =========================
     MODEL_NAME_INVALID(300, "Name of model must follow format like VFe34 or VF8", HttpStatus.BAD_REQUEST),
     MODEL_YEAR_INVALID(301, "Vehicle model year must be between 2021 and 2025", HttpStatus.BAD_REQUEST),
@@ -42,7 +44,7 @@ public enum ErrorCode {
     COMPREHENSIVE_MAINTENANCE_TIME_INVALID(305, "Comprehensive maintenance time must be between 7 and 12", HttpStatus.BAD_REQUEST),
     VEHICLE_MODEL_NAME_DUPLICATE(306, "Vehicle model name already exists", HttpStatus.BAD_REQUEST),
     VEHICLE_MODEL_NOT_FOUND(307, "Vehicle model not found", HttpStatus.NOT_FOUND),
-
+    VEHICLE_MODEL_INACTIVE(308, "Vehicle model is inactive/discontinued", HttpStatus.BAD_REQUEST),
 
     // ========================= APPOINTMENT ERRORS (400 - 499) =========================
     APPOINTMENT_NOT_FOUND(400, "Appointment not found", HttpStatus.NOT_FOUND),
@@ -79,6 +81,7 @@ public enum ErrorCode {
     SERVICE_DESCRIPTION_INVALID(606, "Description must between 10-150", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NAME_INVALID(607, "Package name must between 10-100 and just contain / or :", HttpStatus.BAD_REQUEST),
     SERVICE_PACKAGE_NAME_DUPLICATE(608, "Service package name already exists",HttpStatus.BAD_REQUEST),
+    SERVICE_ITEM_INACTIVE(609, "Service item is inactive/discontinued", HttpStatus.BAD_REQUEST),
 
     // ========================= PAYMENT ERRORS (700 - 799) =========================
     FIELD_INVALID(701, "Invalid field", HttpStatus.BAD_REQUEST),
@@ -112,6 +115,7 @@ public enum ErrorCode {
     SPARE_PART_NAME_DUPLICATE(1107, "Spare part name already exists", HttpStatus.BAD_REQUEST),
     STOCK_QUANTITY_INVALID(1108, "Stock quantity must be greater than or equal to zero", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_STOCK(1109, "Insufficient stock", HttpStatus.BAD_REQUEST),
+    SPARE_PART_INACTIVE(1110, "Spare part is inactive/discontinued", HttpStatus.BAD_REQUEST),
 
     // ========================= MAINTENANCE RECORD ERRORS (1200 - 1299) =========================
     MAINTENANCE_RECORD_NOT_FOUND(1200, "Maintenance record not found", HttpStatus.NOT_FOUND),
@@ -123,6 +127,7 @@ public enum ErrorCode {
     SERVICE_CENTER_PHONE_DUPLICATE(1302, "Service center phone already exists", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_SERVICE_CENTER(1303, "Cannot delete service center, it is associated with users or other records", HttpStatus.BAD_REQUEST),
     EMPLOYEE_NOT_BELONG_TO_SERVICE_CENTER(1304, "Employee does not belong to the specified service center", HttpStatus.BAD_REQUEST),
+    SERVICE_CENTER_INACTIVE(1305, "Service center is closed/inactive", HttpStatus.BAD_REQUEST),
     // ========================= MAINTENANCE SCHEDULE ERRORS (1400 - 1499) =========================
     NO_MAINTENANCE_DUE(1400, "No maintenance recommendations found for this vehicle.", HttpStatus.BAD_REQUEST),
 

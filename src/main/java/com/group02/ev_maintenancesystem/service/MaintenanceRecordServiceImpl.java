@@ -54,8 +54,15 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         String username = authentication.getName();
-        return userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // [THÊM VALIDATE]
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new AppException(ErrorCode.USER_INACTIVE);
+        }
+
+        return user;
     }
 
     @Override
@@ -208,7 +215,10 @@ public class MaintenanceRecordServiceImpl implements MaintenanceRecordService {
 
         SparePart sparePart = sparePartRepository.findById(request.getSparePartId())
                 .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
-
+        // [THÊM VALIDATE]
+        if (!Boolean.TRUE.equals(sparePart.getActive())) {
+            throw new AppException(ErrorCode.SPARE_PART_INACTIVE);
+        }
         // [MỚI] Gọi InventoryService để trừ kho
         int quantityNeeded = request.getQuantityUsed();
         inventoryService.deductStock(centerId, sparePart.getId(), quantityNeeded);

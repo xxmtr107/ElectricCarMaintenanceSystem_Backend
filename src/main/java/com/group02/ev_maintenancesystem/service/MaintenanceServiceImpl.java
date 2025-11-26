@@ -257,8 +257,21 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     // --- Hàm helper: Map List<Entity> sang List<DTO> ---
     private List<ModelPackageItemDTO> mapEntitiesToDTOs(List<ModelPackageItem> entities) {
         return entities.stream()
+                .filter(entity -> {
+                    // [THÊM LOGIC LỌC]
+                    // Chỉ lấy các cấu hình đang Active
+                    if (!Boolean.TRUE.equals(entity.getActive())) return false;
+
+                    // Kiểm tra ServiceItem con có active không
+                    if (entity.getServiceItem() != null && !Boolean.TRUE.equals(entity.getServiceItem().getActive())) return false;
+
+                    // Kiểm tra SparePart con (nếu có) có active không
+                    if (entity.getIncludedSparePart() != null && !Boolean.TRUE.equals(entity.getIncludedSparePart().getActive())) return false;
+
+                    return true;
+                })
                 .map(this::mapEntityToDTO)
-                .filter(Objects::nonNull) // Lọc bỏ null nếu mapEntityToDTO trả về null
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
