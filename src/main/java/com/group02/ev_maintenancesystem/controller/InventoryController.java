@@ -35,14 +35,4 @@ public class InventoryController {
                 .result(inventoryService.getInventoryByCenter(centerId))
                 .build();
     }
-
-    // API xóa kho (Chỉ xóa khi hết hàng)
-    @DeleteMapping("/{id}")
-    // @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')") // Bật cái này nếu cần phân quyền
-    public ApiResponse<Void> deleteInventory(@PathVariable Long id) {
-        inventoryService.deleteInventory(id);
-        return ApiResponse.<Void>builder()
-                .message("Inventory record deleted successfully")
-                .build();
-    }
 }

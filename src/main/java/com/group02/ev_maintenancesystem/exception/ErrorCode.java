@@ -116,8 +116,7 @@ public enum ErrorCode {
     STOCK_QUANTITY_INVALID(1108, "Stock quantity must be greater than or equal to zero", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_STOCK(1109, "Insufficient stock", HttpStatus.BAD_REQUEST),
     SPARE_PART_INACTIVE(1110, "Spare part is inactive/discontinued", HttpStatus.BAD_REQUEST),
-    INVENTORY_NOT_FOUND(1111, "Inventory record not found", HttpStatus.NOT_FOUND),
-    CANNOT_DELETE_INVENTORY_WITH_STOCK(1112, "Cannot delete inventory while quantity is greater than 0", HttpStatus.BAD_REQUEST),
+
     // ========================= MAINTENANCE RECORD ERRORS (1200 - 1299) =========================
     MAINTENANCE_RECORD_NOT_FOUND(1200, "Maintenance record not found", HttpStatus.NOT_FOUND),
 
