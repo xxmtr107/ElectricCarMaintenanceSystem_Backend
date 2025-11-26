@@ -48,7 +48,7 @@ public class VehicleController {
 
     //Lấy vehicles theo vehicleId
     @GetMapping("/{vehicleId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or @vehicleServiceImpl.isVehicleOwner(authentication, #vehicleId)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF','TECHNICIAN') or @vehicleServiceImpl.isVehicleOwner(authentication, #vehicleId)")
     public ApiResponse<VehicleResponse> getVehicleByVehicleId(@PathVariable Long vehicleId){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Get vehicles succesfully")

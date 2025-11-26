@@ -108,11 +108,17 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         // --- KẾT THÚC LOGIC MỚI ---
 
-        List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId(),null);
+        // --- [SỬA ĐỔI Ở ĐÂY] ---
+        // Cũ: maintenanceService.getRecommendations(vehicle.getId(), null);
+        // Mới: Truyền request.getCurrentOdo() vào để tính toán theo số khách nhập
+        List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(
+                vehicle.getId(),
+                request.getCurrentOdo() // <--- Thay đổi quan trọng
+        );
+
         if (recommendations.isEmpty()) {
-            // Cải tiến: Ném ra lỗi cụ thể thay vì UNCATEGORIZED
             log.warn("No maintenance recommendations found for vehicle {}. Cannot create appointment.", vehicle.getId());
-            throw new AppException(ErrorCode.NO_MAINTENANCE_DUE); //
+            throw new AppException(ErrorCode.NO_MAINTENANCE_DUE);
         }
         MaintenanceRecommendationDTO recommendation = recommendations.get(0);
         Integer recommendedMilestoneKm = recommendation.getMilestoneKm();

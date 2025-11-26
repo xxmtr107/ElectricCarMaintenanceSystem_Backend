@@ -138,23 +138,30 @@ public class VehicleServiceImpl implements VehicleService{
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
 
-        List<Appointment> appointment = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
+        // --- [BẮT ĐẦU SỬA: COMMENT HOẶC XÓA ĐOẠN CHECK NÀY] ---
+        // Lý do: KTV cần cập nhật ODO khi xe đến xưởng (đang có Appointment active)
+        // để tính toán lại gói bảo dưỡng chính xác.
 
-        // 1. Kiểm tra xem có cuộc hẹn nào đang Active không
+        /* List<Appointment> appointment = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
         boolean hasActiveAppointment = appointment.stream()
                 .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
                         && app.getStatus() != AppointmentStatus.CANCELLED);
 
         if (hasActiveAppointment) {
-            // Nếu có cuộc hẹn đang diễn ra -> Báo lỗi
             throw new AppException(ErrorCode.CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
         }
+        */
+        // --- [KẾT THÚC SỬA] ---
 
-        // 2. Nếu không có active appointment (dù list rỗng hay toàn completed) -> Cho phép update
-        vehicle.setCurrentKm(request.getCurrentKm());
+        // Chỉ cập nhật Km (Logic nghiệp vụ chỉ cho phép update Km qua API này)
+        if (request.getCurrentKm() != null) {
+            // Có thể thêm validate: Km mới không được nhỏ hơn Km cũ nếu cần
+            // if (request.getCurrentKm() < vehicle.getCurrentKm()) throw ...
+            vehicle.setCurrentKm(request.getCurrentKm());
+        }
 
-        vehicleRepository.save(vehicle);
-        return modelMapper.map(vehicle, VehicleResponse.class);
+        Vehicle savedVehicle = vehicleRepository.save(vehicle); // Sửa lại biến lưu
+        return modelMapper.map(savedVehicle, VehicleResponse.class);
     }
 
     @Override
