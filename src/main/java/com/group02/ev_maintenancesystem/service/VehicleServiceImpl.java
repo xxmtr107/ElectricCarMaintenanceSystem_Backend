@@ -47,6 +47,8 @@ public class VehicleServiceImpl implements VehicleService{
     @Autowired
     AppointmentRepository appointmentRepository;
 
+    @Autowired
+    AppointmentService appointmentService;
 
     @Override
     public VehicleResponse createVehicle(VehicleCreationRequest vehicleCreationRequest) {
@@ -138,32 +140,31 @@ public class VehicleServiceImpl implements VehicleService{
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
 
-        // --- [BẮT ĐẦU SỬA: COMMENT HOẶC XÓA ĐOẠN CHECK NÀY] ---
-        // Lý do: KTV cần cập nhật ODO khi xe đến xưởng (đang có Appointment active)
-        // để tính toán lại gói bảo dưỡng chính xác.
+        // (Đã bỏ đoạn check active appointment ở bước trước)
 
-        /* List<Appointment> appointment = appointmentRepository.findByVehicleIdOrderByCreatedAtDesc(vehicleId);
-        boolean hasActiveAppointment = appointment.stream()
-                .anyMatch(app -> app.getStatus() != AppointmentStatus.COMPLETED
-                        && app.getStatus() != AppointmentStatus.CANCELLED);
-
-        if (hasActiveAppointment) {
-            throw new AppException(ErrorCode.CANNOT_UPDATE_VEHICLE_WITH_ACTIVE_APPOINTMENT);
-        }
-        */
-        // --- [KẾT THÚC SỬA] ---
-
-        // Chỉ cập nhật Km (Logic nghiệp vụ chỉ cho phép update Km qua API này)
+        // Cập nhật ODO
+        boolean odoChanged = false;
         if (request.getCurrentKm() != null) {
-            // Có thể thêm validate: Km mới không được nhỏ hơn Km cũ nếu cần
-            // if (request.getCurrentKm() < vehicle.getCurrentKm()) throw ...
             vehicle.setCurrentKm(request.getCurrentKm());
+            odoChanged = true;
         }
 
-        Vehicle savedVehicle = vehicleRepository.save(vehicle); // Sửa lại biến lưu
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+        // [THÊM MỚI] Tự động refresh gói bảo dưỡng nếu ODO thay đổi
+        if (odoChanged) {
+            try {
+                log.info("ODO updated for vehicle {}. Triggering auto-refresh for appointments.", vehicleId);
+                appointmentService.refreshAppointmentsForVehicle(savedVehicle.getId());
+            } catch (Exception e) {
+                // Log lỗi nhưng KHÔNG throw exception để tránh rollback việc update ODO
+                // Vì việc update ODO quan trọng hơn
+                log.error("Failed to auto-refresh appointments for vehicle {}: {}", vehicleId, e.getMessage());
+            }
+        }
+
         return modelMapper.map(savedVehicle, VehicleResponse.class);
     }
-
     @Override
     @Transactional
 

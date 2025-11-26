@@ -44,5 +44,5 @@ public interface AppointmentService {
 
     List<AppointmentServiceItemDetailResponse> getAppointmentDetails(Long appointmentId, Authentication authentication);
 
-    AppointmentResponse refreshAppointmentPackage(Long appointmentId, Authentication authentication);
+    void refreshAppointmentsForVehicle(Long vehicleId);
 }
