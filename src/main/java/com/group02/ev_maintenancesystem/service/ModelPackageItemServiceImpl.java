@@ -194,6 +194,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
             throw new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND);
         }
         return modelPackageItemRepository.findByVehicleModelIdAndMilestoneKmGreaterThanOrderByCreatedAtDesc(vehicleModelId, 1000).stream()
+                .filter(item -> item.getServiceItem() != null)
                 .map(modelPackageItemMapper::toModelPackageItemResponse)
                 .collect(Collectors.toList());
     }
@@ -205,6 +206,7 @@ public class ModelPackageItemServiceImpl implements ModelPackageItemService {
         }
         return modelPackageItemRepository
                 .findByVehicleModelIdAndMilestoneKmOrderByCreatedAtDesc(vehicleModelId, milestoneKm).stream()
+                .filter(item -> item.getServiceItem() != null)
                 .map(modelPackageItemMapper::toModelPackageItemResponse)
                 .collect(Collectors.toList());
     }
