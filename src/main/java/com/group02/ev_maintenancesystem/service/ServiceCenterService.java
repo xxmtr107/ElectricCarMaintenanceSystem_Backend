@@ -11,4 +11,5 @@ public interface ServiceCenterService {
     ServiceCenterResponse getServiceCenterById(Long id);
     Page<ServiceCenterResponse> getAllServiceCenters(int page, int size);
     Page<ServiceCenterResponse> searchServiceCenters(String keyword, int page, int size);
+    ServiceCenterResponse updateStatus(Long id, Boolean isActive);
 }

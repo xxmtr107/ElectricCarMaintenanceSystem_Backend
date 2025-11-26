@@ -217,5 +217,16 @@ public class VehicleServiceImpl implements VehicleService{
         // Nếu vehicle.isPresent() == true, nghĩa là tìm thấy xe -> là chủ sở hữu
         return vehicle.isPresent();
     }
+    @Override
+    @Transactional
+    public VehicleResponse updateStatus(Long id, Boolean isActive) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
 
+        // Có thể thêm logic: Nếu đang có lịch hẹn ACTIVE thì không cho Deactivate
+        // if (!isActive && hasActiveAppointments(vehicle.getId())) { ... }
+
+        vehicle.setActive(isActive);
+        return modelMapper.map(vehicleRepository.save(vehicle), VehicleResponse.class);
+    }
 }

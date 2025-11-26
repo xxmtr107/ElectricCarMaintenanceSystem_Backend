@@ -16,4 +16,5 @@ public interface ServiceItemService {
     Page<ServiceItemResponse> searchServiceItemByName(String itemName, int page, int size);
     ServiceItemResponse updateServiceItemById(Long serviceItemId, ServiceItemUpdateRequest request);
     ServiceItemResponse deleteServiceItemById(Long serviceItemId);
+    ServiceItemResponse updateStatus(Long id, Boolean isActive);
 }

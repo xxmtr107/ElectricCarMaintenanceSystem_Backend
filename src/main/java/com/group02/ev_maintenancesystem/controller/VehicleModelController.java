@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.controller;
 
+import com.group02.ev_maintenancesystem.dto.request.StatusUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleModelUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.*;
@@ -78,6 +79,18 @@ public class VehicleModelController {
         return ApiResponse.<String>builder() // Giữ nguyên String response
                 .message("Delete vehicle model successfully")
                 // .result(...) // Không cần result
+                .build();
+    }
+    // File: .../controller/VehicleModelController.java
+    @PatchMapping("/{id}/status")
+// @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<VehicleModelResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody StatusUpdateRequest request) {
+
+        return ApiResponse.<VehicleModelResponse>builder()
+                .message("Vehicle Model status updated")
+                .result(vehicleModelService.updateStatus(id, request.getIsActive()))
                 .build();
     }
 }

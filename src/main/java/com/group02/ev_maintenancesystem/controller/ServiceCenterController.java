@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.controller;
 
 import com.group02.ev_maintenancesystem.dto.request.ServiceCenterRequest;
+import com.group02.ev_maintenancesystem.dto.request.StatusUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.ServiceCenterResponse;
 import com.group02.ev_maintenancesystem.service.ServiceCenterService;
@@ -72,6 +73,17 @@ public class ServiceCenterController {
         serviceCenterService.deleteServiceCenter(id);
         return ApiResponse.<Void>builder()
                 .message("Service center deleted successfully")
+                .build();
+    }
+    // Trong ServiceCenterController.java
+    @PatchMapping("/{id}/status")
+    public ApiResponse<ServiceCenterResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody StatusUpdateRequest request) {
+
+        return ApiResponse.<ServiceCenterResponse>builder()
+                .message("Service Center status updated")
+                .result(serviceCenterService.updateStatus(id, request.getIsActive()))
                 .build();
     }
 }

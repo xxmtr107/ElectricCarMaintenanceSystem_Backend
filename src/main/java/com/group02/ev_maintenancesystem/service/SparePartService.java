@@ -15,4 +15,5 @@ public interface SparePartService {
     SparePartResponse deleteSparePartById(Long id);
     SparePartResponse updateSparePart(Long id, SparePartUpdateRequest request);
     List<SparePartResponse> getSparePartsByModelId(Long modelId);
+    SparePartResponse updateStatus(Long id, Boolean isActive);
 }

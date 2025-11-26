@@ -1,5 +1,6 @@
 package com.group02.ev_maintenancesystem.controller;
 
+import com.group02.ev_maintenancesystem.dto.request.StatusUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.VehicleUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
@@ -84,7 +85,17 @@ public class VehicleController {
                 .result(vehicleService.deleteVehicle(vehicleId))
                 .build();
     }
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or @vehicleServiceImpl.isVehicleOwner(authentication, #id)")
+    public ApiResponse<VehicleResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody StatusUpdateRequest request) {
 
+        return ApiResponse.<VehicleResponse>builder()
+                .message("Vehicle status updated")
+                .result(vehicleService.updateStatus(id, request.getIsActive()))
+                .build();
+    }
 
 
 

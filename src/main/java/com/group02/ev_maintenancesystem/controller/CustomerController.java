@@ -1,6 +1,7 @@
 package com.group02.ev_maintenancesystem.controller;
 
 import com.group02.ev_maintenancesystem.dto.request.PasswordUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.request.StatusUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserRegistrationRequest;
 import com.group02.ev_maintenancesystem.dto.request.UserUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
@@ -92,4 +93,16 @@ public class CustomerController {
                 .build();
     }
 
+    // Trong UserController.java
+    @PatchMapping("/{userId}/status")
+// @PreAuthorize("hasRole('ADMIN')") // Chỉ Admin mới được khóa user
+    public ApiResponse<UserResponse> updateStatus(
+            @PathVariable Long userId,
+            @RequestBody StatusUpdateRequest request) {
+
+        return ApiResponse.<UserResponse>builder()
+                .message(request.getIsActive() ? "User activated successfully" : "User deactivated successfully")
+                .result(customerService.updateUserStatus(userId, request.getIsActive()))
+                .build();
+    }
 }

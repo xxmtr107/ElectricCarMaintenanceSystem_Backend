@@ -16,4 +16,5 @@ public interface VehicleService {
     Page<VehicleResponse> getAllVehicle(int size, int page);
     VehicleResponse updateVehicle(Long vehicleId, VehicleUpdateRequest request);
     VehicleResponse deleteVehicle(Long vehicleId);
+    VehicleResponse updateStatus(Long id, Boolean isActive);
 }

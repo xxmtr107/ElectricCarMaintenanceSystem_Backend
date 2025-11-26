@@ -2,6 +2,7 @@ package com.group02.ev_maintenancesystem.controller;
 
 import com.group02.ev_maintenancesystem.dto.request.SparePartCreateRequest;
 import com.group02.ev_maintenancesystem.dto.request.SparePartUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.request.StatusUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.request.StockUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.SparePartResponse;
@@ -67,6 +68,17 @@ public class SparePartController {
         return ApiResponse.<List<SparePartResponse>>builder()
                 .message("Get spare parts by vehicle model successfully")
                 .result(sparePartService.getSparePartsByModelId(modelId))
+                .build();
+    }
+    // Trong SparePartController.java
+    @PatchMapping("/{id}/status")
+    public ApiResponse<SparePartResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody StatusUpdateRequest request) {
+
+        return ApiResponse.<SparePartResponse>builder()
+                .message("Spare part status updated")
+                .result(sparePartService.updateStatus(id, request.getIsActive()))
                 .build();
     }
 }

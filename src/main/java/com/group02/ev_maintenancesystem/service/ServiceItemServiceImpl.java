@@ -7,6 +7,7 @@ import com.group02.ev_maintenancesystem.entity.ServiceItem;
 import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.repository.ServiceItemRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +115,15 @@ public class ServiceItemServiceImpl implements  ServiceItemService {
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
         serviceItemRepository.delete(serviceItem);
         return modelMapper.map(serviceItem, ServiceItemResponse.class);
+    }
+    @Override
+    @Transactional
+    public ServiceItemResponse updateStatus(Long id, Boolean isActive) {
+        ServiceItem item = serviceItemRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
+
+        item.setActive(isActive); // Sử dụng setter từ BaseEntity
+        return modelMapper.map(serviceItemRepository.save(item), ServiceItemResponse.class);
     }
 
 

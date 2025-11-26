@@ -10,6 +10,7 @@ import com.group02.ev_maintenancesystem.exception.AppException;
 import com.group02.ev_maintenancesystem.exception.ErrorCode;
 import com.group02.ev_maintenancesystem.mapper.UserMapper;
 import com.group02.ev_maintenancesystem.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -132,5 +133,19 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userRepository.delete(customer);
+    }
+
+
+    @Override
+    @Transactional
+    public UserResponse updateUserStatus(Long userId, Boolean isActive) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Logic nghiệp vụ (nếu cần): Không cho phép tự khóa chính mình
+        // if (currentUser.getId().equals(userId)) throw ...
+
+        user.setActive(isActive);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }

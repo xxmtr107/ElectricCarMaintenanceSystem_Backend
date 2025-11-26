@@ -135,4 +135,13 @@ public class VehicleModelServiceImpl implements VehicleModelService {
     VehicleModelResponse updateVehicleModel(Long vehicleModelId, VehicleModelUpdateRequest request); // Đổi tên hàm
     void deleteVehicleModelById(Long vehicleModelId); // Đổi kiểu trả về
     */
+    @Override
+    @Transactional
+    public VehicleModelResponse updateStatus(Long id, Boolean isActive) {
+        VehicleModel model = vehicleModelRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_MODEL_NOT_FOUND));
+
+        model.setActive(isActive);
+        return modelMapper.map(vehicleModelRepository.save(model), VehicleModelResponse.class);
+    }
 }

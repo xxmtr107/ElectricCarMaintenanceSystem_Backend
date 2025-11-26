@@ -16,4 +16,5 @@ public interface CustomerService {
     UserResponse getMyInfo();
     void changeMyPassword(PasswordUpdateRequest request);
     UserResponse updateMyInfo(UserUpdateRequest request);
+    UserResponse updateUserStatus(Long userId, Boolean isActive);
 }

@@ -97,4 +97,15 @@ public class ServiceCenterServiceImpl implements ServiceCenterService {
         Page<ServiceCenter> centerPage = serviceCenterRepository.findByNameContainingIgnoreCase(keyword, pageable);
         return centerPage.map(serviceCenterMapper::toServiceCenterResponse);
     }
+
+    // Trong ServiceCenterServiceImpl.java
+    @Override
+    @Transactional
+    public ServiceCenterResponse updateStatus(Long id, Boolean isActive) {
+        ServiceCenter center = serviceCenterRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.SERVICE_CENTER_NOT_FOUND));
+
+        center.setActive(isActive);
+        return serviceCenterMapper.toServiceCenterResponse(serviceCenterRepository.save(center));
+    }
 }

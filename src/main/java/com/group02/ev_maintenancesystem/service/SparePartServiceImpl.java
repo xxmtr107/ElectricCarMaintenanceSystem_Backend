@@ -103,4 +103,14 @@ public class SparePartServiceImpl implements SparePartService {
                 .map(part -> modelMapper.map(part, SparePartResponse.class))
                 .collect(Collectors.toList());
     }
+    // Trong SparePartServiceImpl.java
+    @Override
+    @Transactional
+    public SparePartResponse updateStatus(Long id, Boolean isActive) {
+        SparePart part = sparePartRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.SPARE_PART_NOT_FOUND));
+
+        part.setActive(isActive);
+        return modelMapper.map(sparePartRepository.save(part), SparePartResponse.class);
+    }
 }

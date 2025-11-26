@@ -2,6 +2,7 @@ package com.group02.ev_maintenancesystem.controller;
 
 import com.group02.ev_maintenancesystem.dto.request.ServiceItemCreationRequest;
 import com.group02.ev_maintenancesystem.dto.request.ServiceItemUpdateRequest;
+import com.group02.ev_maintenancesystem.dto.request.StatusUpdateRequest;
 import com.group02.ev_maintenancesystem.dto.response.ApiResponse;
 import com.group02.ev_maintenancesystem.dto.response.ServiceItemResponse;
 import com.group02.ev_maintenancesystem.entity.ServiceItem;
@@ -78,5 +79,15 @@ public class ServiceItemController {
                 .result(serviceItemService.deleteServiceItemById(serviceItemId))
                 .build();
     }
+    @PatchMapping("/{id}/status")
+// @PreAuthorize("hasRole('ADMIN')") // Nên phân quyền Admin
+    public ApiResponse<ServiceItemResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody StatusUpdateRequest request) {
 
+        return ApiResponse.<ServiceItemResponse>builder()
+                .message("Service Item status updated")
+                .result(serviceItemService.updateStatus(id, request.getIsActive()))
+                .build();
+    }
 }
