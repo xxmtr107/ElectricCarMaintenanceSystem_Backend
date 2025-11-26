@@ -106,7 +106,7 @@ public class EmailServiceImpl implements EmailService {
         List<String> receivers = new ArrayList<>();
 
         for (Vehicle vehicle : vehicles) {
-            List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId());
+            List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId(),null);
 
             if (recommendations != null && !recommendations.isEmpty()) {
                 MaintenanceRecommendationDTO recommendation = recommendations.get(0);

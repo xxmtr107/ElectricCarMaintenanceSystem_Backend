@@ -43,4 +43,6 @@ public interface AppointmentService {
     AppointmentResponse upgradeServiceItem(Long appointmentId, List<ServiceItemUpgradeRequest> requests, Authentication authentication);
 
     List<AppointmentServiceItemDetailResponse> getAppointmentDetails(Long appointmentId, Authentication authentication);
+
+    AppointmentResponse refreshAppointmentPackage(Long appointmentId, Authentication authentication);
 }

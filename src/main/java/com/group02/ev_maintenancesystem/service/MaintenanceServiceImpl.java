@@ -40,7 +40,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MaintenanceRecommendationDTO> getRecommendations(Long vehicleId) {
+    public List<MaintenanceRecommendationDTO> getRecommendations(Long vehicleId, Integer clientProvidedKm) {
         // 1. Lấy thông tin xe
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_FOUND));
@@ -53,7 +53,18 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         }
 
         Long modelId = model.getId();
-        int currentKm = vehicle.getCurrentKm() != null ? vehicle.getCurrentKm() : 0;
+        // 2. [LOGIC QUAN TRỌNG] Xác định số Km dùng để tính toán
+        int calculationKm;
+
+        if (clientProvidedKm != null && clientProvidedKm > 0) {
+            // Nếu khách nhập, dùng số khách nhập để tính cho chính xác
+            calculationKm = clientProvidedKm;
+            log.info("Calculating recommendation for Vehicle {} using Client Provided ODO: {}", vehicleId, calculationKm);
+        } else {
+            // Nếu khách không nhập, dùng số cũ trong DB (Fallback)
+            calculationKm = vehicle.getCurrentKm() != null ? vehicle.getCurrentKm() : 0;
+            log.info("Calculating recommendation for Vehicle {} using Stored ODO: {}", vehicleId, calculationKm);
+        }
 
         // 2. Lấy danh sách cấu hình mốc (Dynamic Config) từ DB
         List<MilestoneConfigDTO> milestoneConfigs = modelPackageItemRepository.findMilestoneConfigsByModelId(modelId);
@@ -75,9 +86,9 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         // 5. Phân nhánh xử lý
         if (history.isEmpty()) {
-            return handleNoHistoryCase(vehicle, modelId, currentKm, monthsSincePurchase, milestoneConfigs);
+            return handleNoHistoryCase(vehicle, modelId, calculationKm, monthsSincePurchase, milestoneConfigs);
         } else {
-            return handleWithHistoryCase(vehicle, modelId, currentKm, history, monthsSincePurchase, milestoneConfigs);
+            return handleWithHistoryCase(vehicle, modelId, calculationKm, history, monthsSincePurchase, milestoneConfigs);
         }
     }
 

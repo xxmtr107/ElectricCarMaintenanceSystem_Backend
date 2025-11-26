@@ -108,7 +108,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
         // --- KẾT THÚC LOGIC MỚI ---
 
-        List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId());
+        List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId(),null);
         if (recommendations.isEmpty()) {
             // Cải tiến: Ném ra lỗi cụ thể thay vì UNCATEGORIZED
             log.warn("No maintenance recommendations found for vehicle {}. Cannot create appointment.", vehicle.getId());
@@ -760,5 +760,75 @@ public class AppointmentServiceImpl implements AppointmentService {
         return details.stream()
                 .map(appointmentServiceItemDetailMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+    @Override
+    @Transactional
+    public AppointmentResponse refreshAppointmentPackage(Long appointmentId, Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
+
+        // 1. Check quyền (Chỉ Staff/Tech/Admin của trạm đó mới được sửa)
+        if (!user.isAdmin()) {
+            if (appointment.getServiceCenter() == null || user.getServiceCenter() == null ||
+                    !appointment.getServiceCenter().getId().equals(user.getServiceCenter().getId())) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+        }
+
+        // 2. Chỉ cho phép sửa khi chưa hoàn thành
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new AppException(ErrorCode.STATUS_INVALID);
+        }
+
+        Vehicle vehicle = appointment.getVehicle();
+        if (vehicle == null) throw new AppException(ErrorCode.VEHICLE_NOT_FOUND);
+
+        // 3. Lấy gợi ý bảo dưỡng mới nhất dựa trên ODO THỰC TẾ (đã được KTV update ở Bước 2 quy trình)
+        // Lưu ý: Hàm này sẽ tự động chạy logic GỘP mốc nếu cần (ví dụ gộp 24k + 36k)
+        List<MaintenanceRecommendationDTO> recommendations = maintenanceService.getRecommendations(vehicle.getId(), vehicle.getCurrentKm());
+
+        if (recommendations.isEmpty()) {
+            throw new AppException(ErrorCode.NO_MAINTENANCE_DUE);
+        }
+
+        MaintenanceRecommendationDTO newPackage = recommendations.get(0); // Lấy gói ưu tiên nhất
+
+        // 4. XÓA CÁC ITEM CŨ
+        // Cần xóa trong DB để tránh rác
+        appointmentServiceItemDetailRepository.deleteAll(appointment.getServiceDetails());
+        appointment.getServiceDetails().clear();
+
+        // 5. THÊM CÁC ITEM MỚI (Từ gói 36k gộp)
+        for (ModelPackageItemDTO itemDto : newPackage.getItems()) {
+            ServiceItem serviceItem = serviceItemRepository.findById(itemDto.getServiceItem().getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SERVICE_ITEM_NOT_FOUND));
+
+            AppointmentServiceItemDetail detail = AppointmentServiceItemDetail.builder()
+                    .appointment(appointment)
+                    .serviceItem(serviceItem)
+                    .actionType(itemDto.getActionType())
+                    .price(itemDto.getPrice())
+                    .customerApproved(true) // Mặc định là đã duyệt vì đây là gói chuẩn
+                    .build();
+
+            appointment.addServiceDetail(detail);
+        }
+
+        // 6. Cập nhật thông tin Header của Appointment
+        appointment.setMilestoneKm(newPackage.getMilestoneKm());
+        appointment.setServicePackageName("Maintenance " + newPackage.getMilestoneKm() + "km (Updated)");
+        appointment.setEstimatedCost(newPackage.getEstimatedTotal());
+
+        // Nếu chưa confirm thì chuyển sang confirm luôn (vì đã vào xưởng xử lý)
+        if (appointment.getStatus() == AppointmentStatus.PENDING) {
+            appointment.setStatus(AppointmentStatus.CONFIRMED);
+        }
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        log.info("Refreshed appointment {} to milestone {}km based on vehicle ODO {}",
+                appointmentId, newPackage.getMilestoneKm(), vehicle.getCurrentKm());
+
+        return mapSingleAppointmentToResponse(savedAppointment);
     }
 }

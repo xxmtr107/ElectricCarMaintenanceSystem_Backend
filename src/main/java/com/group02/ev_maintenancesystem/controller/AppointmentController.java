@@ -175,4 +175,16 @@ public class AppointmentController {
                 .result(appointmentService.getAppointmentDetails(appointmentId, authentication))
                 .build();
     }
+
+    @PutMapping("/{appointmentId}/refresh-package")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'TECHNICIAN')")
+    public ApiResponse<AppointmentResponse> refreshPackage(
+            @PathVariable Long appointmentId,
+            Authentication authentication) {
+
+        return ApiResponse.<AppointmentResponse>builder()
+                .message("Appointment package refreshed successfully based on current vehicle condition")
+                .result(appointmentService.refreshAppointmentPackage(appointmentId, authentication))
+                .build();
+    }
 }

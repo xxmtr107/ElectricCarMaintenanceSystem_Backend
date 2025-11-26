@@ -68,7 +68,9 @@ public class VehicleController {
 
     //Cập nhâp vehicles
     @PutMapping("/{vehicleId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF') or @vehicleServiceImpl.isVehicleOwner(authentication, #vehicleId)")
+    // [THAY ĐỔI] Bỏ @vehicleServiceImpl.isVehicleOwner -> Khách không được tự sửa Km
+    // [THAY ĐỔI] Thêm 'TECHNICIAN' -> Chỉ nhân viên kỹ thuật/quản lý mới được cập nhật Km thực tế
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'TECHNICIAN')")
     public ApiResponse<VehicleResponse> updateVehicle(@PathVariable Long vehicleId, @Valid @RequestBody VehicleUpdateRequest request){
         return ApiResponse.<VehicleResponse>builder()
                 .message("Update vehicles successfully")
