@@ -94,8 +94,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     /**
      * KỊCH BẢN 1: Xe chưa bảo dưỡng lần nào
-     * Logic: Tìm tất cả các mốc đã bị vượt qua (do Km hoặc Thời gian) -> Gộp lại thành 1 gói.
-     * Ví dụ: Xe đi 37.000km -> Lỡ 12k, 24k, 36k -> Gộp hết lại.
+     * CẢI TIẾN: Nếu chưa đến hạn, trả về mốc kế tiếp (Next Milestone).
      */
     private List<MaintenanceRecommendationDTO> handleNoHistoryCase(
             Vehicle vehicle, Long modelId, int currentKm, long monthsSincePurchase, List<MilestoneConfigDTO> milestones) {
@@ -104,31 +103,42 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MilestoneConfigDTO highestMilestone = null;
         String reason = "";
 
-        // Duyệt qua các mốc để tìm những mốc đã đến hạn
+        // 1. Duyệt qua các mốc để tìm những mốc ĐÃ ĐẾN HẠN (Quá khứ/Hiện tại)
         for (MilestoneConfigDTO m : milestones) {
             boolean passKm = currentKm >= m.getMilestoneKm();
             boolean passTime = m.getMilestoneMonth() != null && monthsSincePurchase >= m.getMilestoneMonth();
 
             if (passKm || passTime) {
                 missedMilestones.add(m.getMilestoneKm());
-                highestMilestone = m; // Cập nhật mốc cao nhất
+                highestMilestone = m;
 
                 if (passKm && passTime) reason = "DUE_BY_KM_AND_TIME";
                 else if (passKm) reason = "DUE_BY_KM";
                 else reason = "DUE_BY_TIME";
             } else {
-                // Vì list đã sort ASC, nếu chưa qua mốc này thì chắc chắn chưa qua mốc sau -> Dừng
+                // List đã sort, nếu chưa qua mốc này thì dừng
                 break;
             }
         }
 
-        // Nếu xe mới mua chưa đến hạn mốc nào
+        // 2. [LOGIC MỚI] Xử lý trường hợp xe chưa đến hạn mốc nào
         if (missedMilestones.isEmpty()) {
-            // Có thể trả về gợi ý mốc đầu tiên với reason "UPCOMING" nếu muốn, hoặc trả rỗng
+            // Tìm mốc kế tiếp gần nhất (Next Milestone)
+            for (MilestoneConfigDTO m : milestones) {
+                if (m.getMilestoneKm() > currentKm) {
+                    // Đây là mốc sắp tới
+                    List<ModelPackageItemDTO> items = getItemsForMilestone(modelId, m.getMilestoneKm());
+                    BigDecimal total = calculateTotal(items);
+
+                    // Trả về gói này với lý do là "NEXT_MILESTONE"
+                    return List.of(buildRecommendation(m.getMilestoneKm(), "NEXT_MILESTONE", items, total));
+                }
+            }
+            // Trường hợp xe đã chạy quá mốc cuối cùng trong cấu hình -> Trả về rỗng
             return Collections.emptyList();
         }
 
-        // [GỘP HẠNG MỤC] Lấy item của tất cả các mốc bị lỡ và xử lý ưu tiên
+        // 3. Nếu có mốc bị lỡ -> Chạy logic GỘP HẠNG MỤC như cũ
         List<ModelPackageItemDTO> combinedItems = getCombinedItemsForMilestones(modelId, missedMilestones);
         BigDecimal total = calculateTotal(combinedItems);
 
